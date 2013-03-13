@@ -301,7 +301,7 @@ class waveletCC:
     """
     def __init__(self):
         HOME = os.path.expanduser('~')
-        mFiles = HOME+'/.piwavelet'
+        mFiles = HOME+'/.piwavelet/wtc/'
         self.wtcPath = octave.addpath(mFiles)
         
     def wtc(self, signal1, signal2):

@@ -14,11 +14,12 @@ setup(
     author = "Eduardo dos Santos Pereira",
     author_email = "pereira.somoza@gmail.com",
     description = ("Tools For Wavelet Analises in Python"),
-    license = "BSD",
+    license = "GNU v3",
     keywords = "wavelet signal analises ",
     url = "https://github.com/duducosmos/piwavelet",
     packages= find_packages(), 
     package_data={'': ['*.m','*.txt', '*.html', '*.png']}, 
+    install_requires=['oct2py>=0.4.0'], 
     long_description=read('README'),
     classifiers=[
         "Development Status :: 3 - Alpha",

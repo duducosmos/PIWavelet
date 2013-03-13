@@ -48,7 +48,7 @@ REFERENCES
             J.Clim., 12, 2679
 
 """
-
+from piwavelet import waveletCC,  Morlet, Paul, DOG, Mexican_hat
 
 __all__ = ['waveletCC', 'Morlet', 'Paul', 'DOG',
            'Mexican_hat']

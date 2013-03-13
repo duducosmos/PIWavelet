@@ -1,0 +1,59 @@
+Metadata-Version: 1.1
+Name: piwavelet
+Version: 0.0.1
+Summary: Tools For Wavelet Analises in Python
+Home-page: https://github.com/duducosmos/piwavelet
+Author: Eduardo dos Santos Pereira
+Author-email: pereira.somoza@gmail.com
+License: GNU v3
+Description: PIWavelet
+        =========
+        
+        Python Interface for Wavelet  Analises 
+        
+        DISCLAIMER
+            This module is a Python interface for the the matlab package for wavelet,
+            cross-wavelet and coherence-wavelet analises profided by
+            Aslak Grinsted, John C. Moore and Svetlana Jevrejeva.
+            
+            http://noc.ac.uk/using-science/crosswavelet-wavelet-coherence
+        
+            This software may be used, copied, or redistributed as long as it
+            is not sold and this copyright notice is reproduced on each copy
+            made. This routine is provided as is without any express or implied
+            warranties whatsoever.
+            
+        TO RUN
+            It is necessary to have gnuoctave and oct2py installed in your machine
+            Gnu Octave: http://www.gnu.org/software/octave/ (sudo apt-get install octave)
+            oct2py: https://github.com/blink1073/oct2py (easy_install oct2py)
+        
+        INSTALL:
+            python setup.py install
+            
+        OBSERVATION:
+            Octave supports most but not all of the core syntax and commands of MatLab.
+            The main noticable differences are nested functions are not allowed, and GUIs (including uigetfile, etc.) are not supported.
+        
+        AUTHOR
+            Eduardo S. Pereira
+            email: pereira.somoza@gmail.com
+        
+        
+        REFERENCES
+            [1] Mallat, Stephane G. (1999). A wavelet tour of signal processing
+            [2] Addison, Paul S. The illustrated wavelet transform handbook
+            [3] Torrence, Christopher and Compo, Gilbert P. (1998). A Practical
+                    Guide to Wavelet Analysis
+            [4] Grinsted, A., Moore, J.C., Jevrejeva, S., 2004, 
+                Nonlin. Processes Geophys., 11, 561–566, doi:10.5194/npg-11-561-2004
+            [5] Jevrejeva, S., Moore, J.C.,  Grinsted, A., 2003,
+                 J. Geophys. Res., 108(D21), 4677, doi:10.1029/2003JD003417
+            [6] Torrence, C., Webster, P. ,1999,
+                    J.Clim., 12, 2679–2690
+        
+Keywords: wavelet signal analises
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Topic :: Utilities
+Classifier: License :: GNU V3

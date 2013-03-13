@@ -19,6 +19,10 @@ TO RUN
     It is necessary to have gnuoctave and oct2py installed in your machine
     Gnu Octave: http://www.gnu.org/software/octave/ (sudo apt-get install octave)
     oct2py: https://github.com/blink1073/oct2py (easy_install oct2py)
+    
+OBSERVATION:
+    Octave supports most but not all of the core syntax and commands.
+    The main noticable differences are nested functions are not allowed, and GUIs (including uigetfile, etc.) are not supported.
 
 AUTHOR
     Eduardo S. Pereira

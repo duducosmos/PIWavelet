@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- Coding: UTF-8 -*-
-__name__ = 'PIWavelets'
-__authors__ = 'Eduardo dos Santos Pereira, Regla D. Somoza'
-__data__ = '13/03/2013'
-__email__ = 'pereira.somoza@gmail.com,duthit@gmail.com'
+__name = 'piwavelets'
+__authors = 'Eduardo dos Santos Pereira, Regla D. Somoza'
+__data = '13/03/2013'
+__email = 'pereira.somoza@gmail.com,duthit@gmail.com'
 
 """
 Python Interface for Wavelet  Analises 
@@ -49,7 +49,7 @@ REFERENCES
 
 """
 
-
+import os
 import numpy
 
 from numpy import (arange, ceil, concatenate, conjugate, cos, exp, isnan, log,
@@ -299,8 +299,10 @@ class waveletCC:
     However, the Continuous wavelet transform of the signal, in this class, is a pure python
     function.
     """
-    def __init__(self, pathWTC = './wtc/'):
-        self.wtcPath = octave.addpath(pathWTC)
+    def __init__(self):
+        HOME = os.path.expanduser('~')
+        mFiles = HOME+'/.piwavelet'
+        self.wtcPath = octave.addpath(mFiles)
         
     def wtc(self, signal1, signal2):
         """

@@ -1,4 +1,4 @@
-import os
+import os,glob
 from setuptools import  setup, find_packages
 
 # Utility function to read the README file.
@@ -7,6 +7,10 @@ from setuptools import  setup, find_packages
 # string in below ...
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
+datadir = os.path.join('mfiles','wtc')
+datafiles = [(datadir, [f for f in glob.glob(os.path.join(datadir, '*'))])]
+
 
 setup(
     name = "piwavelet",
@@ -19,6 +23,7 @@ setup(
     url = "https://github.com/duducosmos/piwavelet",
     packages= find_packages(), 
     package_data={'': ['*.m','*.txt', '*.html', '*.png']}, 
+    data_files= datafiles,
     install_requires=['oct2py>=0.4.0'], 
     long_description=read('README'),
     classifiers=[

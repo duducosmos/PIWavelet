@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- Coding: UTF-8 -*-
-__name__ = 'PIWavelets'
-__authors__ = 'Eduardo dos Santos Pereira, Regla D. Somoza'
-__data__ = '13/03/2013'
-__email__ = 'pereira.somoza@gmail.com,duthit@gmail.com'
+__name = 'piwavelet'
+__authors = 'Eduardo dos Santos Pereira, Regla D. Somoza'
+__data = '13/03/2013'
+__email = 'pereira.somoza@gmail.com,duthit@gmail.com'
 
 """
 Python Interface for Wavelet  Analises 
@@ -48,7 +48,19 @@ REFERENCES
             J.Clim., 12, 2679
 
 """
+import sys,os
+import piwavelet
+import shutil
 
+
+HOME = os.path.expanduser('~')
+
+if not os.path.exists(HOME+'/.piwavelet'):
+
+    local = os.path.dirname(piwavelet.__file__)
+    print 'Creating .piwavelet cache diretory in %s' %HOME
+    os.makedirs(HOME+'/.piwavelet')
+    shutil.copytree(local+'/wtc',HOME+'/.piwavelet/wtc')
 
 __all__ = ['waveletCC', 'Morlet', 'Paul', 'DOG',
            'Mexican_hat']

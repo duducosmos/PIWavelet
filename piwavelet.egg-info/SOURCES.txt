@@ -1,9 +1,0 @@
-README
-setup.py
-piwavelet/__init__.py
-piwavelet/piwavelet.py
-piwavelet.egg-info/PKG-INFO
-piwavelet.egg-info/SOURCES.txt
-piwavelet.egg-info/dependency_links.txt
-piwavelet.egg-info/requires.txt
-piwavelet.egg-info/top_level.txt

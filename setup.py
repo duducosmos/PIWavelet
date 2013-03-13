@@ -1,5 +1,5 @@
 import os
-from setuptools import setup
+from setuptools import  setup, find_packages
 
 # Utility function to read the README file.
 # Used for the long_description.  It's nice, because now 1) we have a top level
@@ -17,7 +17,8 @@ setup(
     license = "BSD",
     keywords = "wavelet signal analises ",
     url = "https://github.com/duducosmos/piwavelet",
-    packages=['piwavelet','piwavelet/wtc'],
+    packages= find_packages(), 
+    package_data={'': ['*.m','*.txt', '*.html', '*.png']}, 
     long_description=read('README'),
     classifiers=[
         "Development Status :: 3 - Alpha",

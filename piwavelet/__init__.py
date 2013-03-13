@@ -7,14 +7,19 @@ __email__ = 'pereira.somoza@gmail.com,duthit@gmail.com'
 
 """
 Python Interface for Wavelet  Analises 
+This module references to the numpy, scipy, pylab and oct2py Python
+packages.
 
 DISCLAIMER
-    This module is an Python interface for the the matlab package for wavelet,
+    This module is an Python interface for the some matlab functions of the package for wavelet,
     cross-wavelet and coherence-wavelet analises profided by
     Aslak Grinsted, John C. Moore and Svetlana Jevrejeva.
     
     http://noc.ac.uk/using-science/crosswavelet-wavelet-coherence
-
+    
+    However, the Continuous wavelet transform of the signal, in this class, is a pure python
+    function.
+    
     This software may be used, copied, or redistributed as long as it
     is not sold and this copyright notice is reproduced on each copy
     made. This routine is provided as is without any express or implied
@@ -43,3 +48,7 @@ REFERENCES
             J.Clim., 12, 2679–2690
 
 """
+from piwavelet import waveletCC,  Morlet, Paul, DOG, Mexican_hat
+
+__all__ = ['waveletCC', 'Morlet', 'Paul', 'DOG',
+           'Mexican_hat']

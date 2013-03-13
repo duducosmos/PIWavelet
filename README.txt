@@ -4,7 +4,7 @@ PIWavelet
 Python Interface for Wavelet  Analises 
 
 DISCLAIMER
-    This module is an Python interface for the the matlab package for wavelet,
+    This module is a Python interface for the the matlab package for wavelet,
     cross-wavelet and coherence-wavelet analises profided by
     Aslak Grinsted, John C. Moore and Svetlana Jevrejeva.
     

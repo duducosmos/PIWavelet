@@ -54,7 +54,12 @@ TO RUN
     oct2py: https://github.com/blink1073/oct2py (easy_install oct2py)
 
 INSTALL:
-    python setup.py install
+<pre>
+<code>
+$ python setup.py install
+</code>
+</pre>
+    
     
 OBSERVATION:
     Octave supports most but not all of the core syntax and commands of MatLab.

@@ -54,7 +54,7 @@ import numpy
 
 from numpy import (arange, ceil, concatenate, conjugate, cos, exp, isnan, log,
                    log2, ones, pi, prod, real, sqrt, zeros, polyval, array, fix, dtype, modf, 
-                   around, meshgrid, isreal, round)
+                   around, meshgrid, isreal, round, intersect1d, asarray)
 from numpy.fft import fft, ifft, fftfreq
 from numpy.lib.polynomial import polyval
 from numpy import abs as nAbs
@@ -282,6 +282,203 @@ class Mexican_hat(DOG):
 
     def __init__(self):
         self._set_m(2)
+        
+        
+def ar1(x):
+    r"""Allen and Smith autoregressive lag-1 autocorrelation alpha. In a
+    AR(1) model
+    
+        x(t) - <x> = \gamma(x(t-1) - <x>) + \alpha z(t) ,
+    
+    where <x> is the process mean, \gamma and \alpha are process 
+    parameters and z(t) is a Gaussian unit-variance white noise.
+        
+    PARAMETERS
+        x (array like) :
+            Univariate time series
+    
+    RETURNS
+        g (float) :
+            Estimate of the lag-one autocorrelation.
+        a (float) :
+            Estimate of the noise variance [var(x) ~= a**2/(1-g**2)]
+        mu2 (foat) :
+            Estimated square on the mean of a finite segment of AR(1) 
+            noise, mormalized by the process variance.
+    
+    REFERENCES
+        [1] Allen, M. R. and Smith, L. A. (1996). Monte Carlo SSA: 
+            detecting irregular oscillations in the presence of colored 
+            noise. Journal of Climate, 9(12), 3373-3404.
+
+    """
+    x = asarray(x)
+    N = x.size
+    xm = x.mean()
+    x = x - xm
+    
+    # Estimates the lag zero and one covariance
+    c0 = x.transpose().dot(x) / N
+    c1 = x[0:N-1].transpose().dot(x[1:N]) / (N - 1)
+    
+    # According to A. Grinsteds' substitutions
+    B = -c1 * N - c0 * N**2 - 2 * c0 + 2 * c1 - c1 * N**2 + c0 * N
+    A = c0 * N**2
+    C = N * (c0 + c1 * N - c1)
+    D = B**2 - 4 * A * C
+    
+    if D > 0:
+        g = (-B - D**0.5) / (2 * A)
+    else:
+        raise Warning ('Cannot place an upperbound on the unbiased AR(1). '
+            'Series is too short or trend is to large.')
+    
+    # According to Allen & Smith (1996), footnote 4    
+    mu2 = -1 / N + (2 / N**2) * ((N - g**N) / (1 - g) - 
+        g * (1 - g**(N - 1)) / (1 - g)**2)
+    c0t = c0 / (1 - mu2)
+    a = ((1 - g**2) * c0t) ** 0.5
+
+    return g, a, mu2
+
+
+def ar1_spectrum(freqs, ar1=0.) :
+    """Lag-1 autoregressive theoretical power spectrum
+    
+    PARAMETERS
+        ar1 (float) :
+            Lag-1 autoregressive correlation coefficient.
+        freqs (array like) :
+            Frequencies at which to calculate the theoretical power 
+            spectrum.
+    
+    RETURNS
+        Pk (array like) :
+            Theoretical discrete Fourier power spectrum of noise signal.
+    
+    """
+    # According to a post from the MadSci Network available at 
+    # http://www.madsci.org/posts/archives/may97/864012045.Eg.r.html,
+    # the time-series spectrum for an auto-regressive model can be
+    # represented as
+    # 
+    # P_k = \frac{E}{\left|1- \sum\limits_{k=1}^{K} a_k \, e^{2 i \pi 
+    #   \frac{k f}{f_s} } \right|^2}
+    #
+    # which for an AR1 model reduces to
+    #
+    freqs = asarray(freqs)
+    Pk = (1 - ar1 ** 2) / abs(1 - ar1 * exp(-2 * pi * 1j * freqs)) ** 2
+
+    # Theoretical discrete Fourier power spectrum of the noise signal following
+    # Gilman et al. (1963) and Torrence and Compo (1998), equation 16.
+    #N = len(freqs)
+    #Pk = (1 - ar1 ** 2) / (1 + ar1 ** 2 - 2 * ar1 * cos(2 * pi * freqs / N))
+    
+    return Pk
+    
+def cwt(signal, dt=1., dj=1./12, s0=-1, J=-1, wavelet=Morlet(), result=None):
+    """Continuous wavelet transform of the signal at specified scales.
+
+    PARAMETERS
+        signal (array like) :
+            Input signal array
+        dt (float) :
+            Sample spacing.
+        dj (float, optional) :
+            Spacing between discrete scales. Default value is 0.25.
+            Smaller values will result in better scale resolution, but
+            slower calculation and plot.
+        s0 (float, optional) :
+            Smallest scale of the wavelet. Default value is 2*dt.
+        J (float, optional) :
+            Number of scales less one. Scales range from s0 up to
+            s0 * 2**(J * dj), which gives a total of (J + 1) scales.
+            Default is J = (log2(N*dt/so))/dj.
+        wavelet (class, optional) :
+            Mother wavelet class. Default is Morlet()
+        result (string, optional) :
+            If set to 'dictionary' returns the result arrays as itens
+            of a dictionary.
+
+    RETURNS
+        W (array like) :
+            Wavelet transform according to the selected mother wavelet.
+            Has (J+1) x N dimensions.
+        sj (array like) :
+            Vector of scale indices given by sj = s0 * 2**(j * dj),
+            j={0, 1, ..., J}.
+        freqs (array like) :
+            Vector of Fourier frequencies (in 1 / time units) that
+            corresponds to the wavelet scales.
+        coi (array like) :
+            Returns the cone of influence, which is a vector of N
+            points containing the maximum Fourier period of useful
+            information at that particular time. Periods greater than
+            those are subject to edge effects.
+        fft (array like) :
+            Normalized fast Fourier transform of the input signal.
+        fft_freqs (array like):
+            Fourier frequencies (in 1/time units) for the calculated
+            FFT spectrum.
+
+    EXAMPLE
+        mother = wavelet.Morlet(6.)
+        wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var,
+            0.25, 0.25, 0.5, 28, mother)
+
+    """
+    n0 = len(signal)                              # Original signal length.
+    if s0 == -1: s0 = 2 * dt / wavelet.flambda()  # Smallest resolvable scale
+    if J == -1: J = int(log2(n0 * dt / s0) / dj)  # Number of scales
+    N = 2 ** (int(log2(n0)) + 1)                  # Next higher power of 2.
+    signal_ft = fft(signal, N)                    # Signal Fourier transform
+    ftfreqs = 2 * pi * fftfreq(N, dt)             # Fourier angular frequencies
+
+    sj = s0 * 2. ** (arange(0, J+1) * dj)         # The scales
+    freqs = 1. / (wavelet.flambda() * sj)         # As of Mallat 1999
+
+    # Creates an empty wavlet transform matrix and fills it for every discrete
+    # scale using the convolution theorem.
+    W = zeros((len(sj), N), 'complex')
+    for n, s in enumerate(sj):
+        psi_ft_bar = ((s * ftfreqs[1] * N) ** .5 * 
+            conjugate(wavelet.psi_ft(s * ftfreqs)))
+        W[n, :] = ifft(signal_ft * psi_ft_bar, N)
+
+    # Checks for NaN in transform results and removes them from the scales,
+    # frequencies and wavelet transform.
+    sel = ~isnan(W).all(axis=1)
+    sj = sj[sel]
+    freqs = freqs[sel]
+    W = W[sel, :]
+
+    # Determines the cone-of-influence. Note that it is returned as a function
+    # of time in Fourier periods. Uses triangualr Bartlett window with non-zero
+    # end-points.
+    coi = (n0 / 2. - abs(arange(0, n0) - (n0 - 1) / 2))
+    coi = wavelet.flambda() * wavelet.coi() * dt * coi
+    #
+    if result == 'dictionary':
+        result = dict(
+            W = W[:, :n0],
+            sj = sj,
+            freqs = freqs,
+            #period = 1. / freqs,
+            coi = coi,
+            signal_ft = signal_ft[1:N/2] / N ** 0.5,
+            ftfreqs = ftfreqs[1:N/2] / (2. * pi),
+            dt = dt,
+            dj = dj,
+            s0 = s0,
+            J = J,
+            wavelet = wavelet
+        )
+        return result
+    else:
+        return (W[:, :n0], sj, freqs, coi, signal_ft[1:N/2] / N ** 0.5,
+                ftfreqs[1:N/2] / (2. * pi))
+
 ############################################################################
 ############################################################################
 ############################################################################
@@ -326,6 +523,142 @@ RETURN:
         scale = scale[0]
         coi = coi[0]
         return Rqs, period,scale,coi,wtcsig 
+        
+#    def xwt(self, x1, y1, x2, y2, significance_level=0.95, normalize=True, result=None,
+#    **kwargs):
+#        """Cross wavelet transform.
+#        
+#        PARAMETERS
+#            x[1, 2], y[1, 2] (array like) :
+#                Input data arrays to calculate cross wavelet transform.
+#            significance_level (float, optional) :
+#                Significance level to use. Default is 0.95.
+#            normalize (boolean, optional) :
+#                If set to true, normalizes CWT by the standard deviation of
+#                the signals.
+#            result (string, optional) :
+#                If 'full' also returns intersected time-series. If set to
+#                'dictionary' returns the result arrays as itens of a 
+#                dictionary.
+#            kwargs (list) :
+#                List of parameters like dt, dj, s0, J=-1 and wavelet.
+#                Please refer to the wavelet.cwt function documentation for
+#                further details.
+#        
+#        RETURNS
+#            xwt (array like) :
+#                Cross wavelet transform according to the selected mother 
+#                wavelet.
+#            x (array like) :
+#                Intersected independent variable.
+#            coi (array like) :
+#                Cone of influence, which is a vector of N points containing
+#                the maximum Fourier period of useful information at that
+#                particular time. Periods greater than those are subject to
+#                edge effects.
+#            freqs (array like) :
+#                Vector of Fourier equivalent frequencies (in 1 / time units)
+#                that correspond to the wavelet scales.
+#            signif (array like) :
+#                Significance levels as a function of scale.
+#        
+#        SEE ALSO
+#            wavelet.cwt, wavelet.wct
+#        
+#        """
+#        # Precision error
+#        e = 1e-5
+#        # Defines some parameters like length of both time-series, time step
+#        # and calculates the standard deviation for normalization and statistical
+#        # significance tests.
+#        n1 = x1.size
+#        n2 = x2.size
+#        n = min(n1, n2)
+#        if 'dt' not in kwargs.keys():
+#            dx1 = x1[1] - x1[0]
+#            dx2 = x2[1] - x2[0]
+#            if abs(dx1 - dx2) < e:
+#                kwargs['dt'] = dx1
+#            else:
+#                raise Warning, 'Time step of both series do not match.'
+#        if normalize:
+#            std1 = y1.std()
+#            std2 = y2.std()
+#        else:
+#            std1 = std2 = 1.
+#        
+#        # Calculates the CWT of the time-series making sure the same parameters
+#        # are used in both calculations.
+#        kwargs['result'] = 'dictionary'
+#        W1 = cwt(y1 / std1, **kwargs)
+#        kwargs['dt'] = W1['dt']
+#        kwargs['dj'] = W1['dj']
+#        kwargs['s0'] = W1['s0']
+#        kwargs['J'] = W1['J']
+#        kwargs['wavelet'] = W1['wavelet']
+#        W2 = cwt(y2 / std2, **kwargs)
+#        
+#        # If both time series are different, determines the intersection of both
+#        # to ensure same data length.
+#        x = intersect1d(x1, x2)
+#        idx = dict((k, i) for i, k in enumerate(x1))
+#        sel1 = [idx[i] for i in x]
+#        idx = dict((k, i) for i, k in enumerate(x2))
+#        sel2 = [idx[i] for i in x]
+#        #
+#        y1 = y1[sel1[0]:sel1[-1]+1]
+#        W1['W'] = W1['W'][:, sel1[0]:sel1[-1]+1]
+#        W1['coi'] = W1['coi'][sel1[0]:sel1[-1]+1]
+#        y2 = y2[sel2[0]:sel2[-1]+1]
+#        W2['W'] = W2['W'][:, sel2[0]:sel2[-1]+1]
+#        W2['coi'] = W2['coi'][sel2[0]:sel2[-1]+1]
+#        
+#        # Now the cross correlation of y1 and y2
+#        W12 = W1['W'] * W2['W'].conj()
+#        if n1 < n2:
+#            coi = W1['coi']
+#            freqs = W1['freqs']
+#        else:
+#            coi = W2['coi']
+#            freqs = W2['freqs']
+#        
+#        # And the significance tests. Note that the confidence level is calculated
+#        # using the percent point function (PPF) of the chi-squared cumulative
+#        # distribution function (CDF) instead of using Z1(95%) = 2.182 and 
+#        # Z2(95%)=3.999 as suggested by Torrence & Compo (1998) and Grinsted et 
+#        # al. (2004). If the CWT has been normalized, then std1 and std2 should
+#        # be reset to unity, otherwise the standard deviation of both series have 
+#        # to be calculated.
+#        if not normalize:
+#            std1 = y1.std()
+#            std2 = y2.std()
+#        else:
+#            std1 = std2 = 1.
+#        a1, _, _ = ar1(y1)
+#        a2, _, _ = ar1(y2)
+#        Pk1 = ar1_spectrum(W1['freqs'] * dx1, a1)
+#        Pk2 = ar1_spectrum(W2['freqs'] * dx2, a2)
+#        dof = kwargs['wavelet'].dofmin
+#        PPF = chi2.ppf(significance_level, dof)
+#        signif = (std1 * std2 * (Pk1 * Pk2) ** 0.5 * PPF / dof)
+#        
+#        # The resuts:
+#        if result == 'dictionary':
+#            result = dict(
+#                XWT = W12,
+#                coi = coi,
+#                freqs = freqs,
+#                signif = signif,
+#                t = x,
+#                y1 = y1,
+#                y2 = y2
+#            )
+#            return result
+#        elif result == 'full' :
+#            return W12, x, coi, freqs, signif, y1, y2
+#        else:
+#            return W12, x, coi, freqs, signif
+
         
     def xtc(self, signal1, signal2):
         """Cross wavelet transform
@@ -725,7 +1058,7 @@ PARAMETER:
             pylab.show()
         
         
-    def plotWC(self,  wc, t, coi, freqs, signif, title,  nameSave = None , scale = 'log2'):
+    def plotWC(self,  wc, t, coi, freqs, signif, title, units='days',  pArrow=None, pSigma=True,  nameSave = None , scale = 'log2'):
         """Plots the wavelet coherence
         
         PARAMETERS
@@ -787,7 +1120,7 @@ PARAMETER:
 #        sig95 = numpy.ones([1, N]) * signif[:, None]
 #        print signif.shape
 #        raw_input('oi')
-        sig95 = power / signif # power is significant where ratio > 1
+        sig95 = signif # power is significant where ratio > 1
         
         
         # Calculates the phase between both time series. The phase arrows in the 
@@ -807,8 +1140,8 @@ PARAMETER:
 
         ax = fig.add_subplot(1, 1, 1)
         ax.set_title('%s' %title)
-        ax.set_xlabel('Time (days)')
-        ax.set_ylabel('Period (Days)')
+        ax.set_xlabel('Time (%s)' %units)
+        ax.set_ylabel('Period (%s)' %units)
 
         
         # Plots the cross wavelet power spectrum and significance level 
@@ -835,12 +1168,17 @@ PARAMETER:
             Power = power
             Levels = levels
         cf = ax.contourf(t, numpy.log2(period), Power, Levels, extend=extend)
-        ax.contour(t, numpy.log2(period), sig95, [-99, 1], colors='k', 
-            linewidths=2.)
-#        q = ax.quiver(t[::da[1]], numpy.log2(period)[::da[0]], u[::da[0], ::da[1]],
-#            v[::da[0], ::da[1]], units='width', angles='uv', pivot='mid',
-#            linewidth=1.5, edgecolor='k', headwidth=10, headlength=10,
-#            headaxislength=5, minshaft=2, minlength=5)
+        
+        if(pSigma):
+            ax.contour(t, numpy.log2(period), sig95, [-99, 1], colors='k', 
+                linewidths=2.)
+                
+        if( pArrow):
+            q = ax.quiver(t[::da[1]], numpy.log2(period)[::da[0]], u[::da[0], ::da[1]],
+                v[::da[0], ::da[1]], units='width', angles='uv', pivot='mid',
+                linewidth=1.5, edgecolor='k', headwidth=10, headlength=10,
+                headaxislength=5, minshaft=2, minlength=5)
+                
         ax.fill(numpy.concatenate([t[:1]-dt, t, t[-1:]+dt, t[-1:]+dt, t[:1]-dt, 
             t[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi, [1e-9], 
             period[-1:], period[-1:], [1e-9]])), 'k', alpha='0.3', hatch='x')
@@ -866,7 +1204,7 @@ PARAMETER:
         
         return result
         
-    def plotXWC(self,  xwt, t, coi, freqs, signif, title,  nameSave = None, scale = 'log2'):
+    def plotXWC(self,  xwt, t, coi, freqs, signif, title, units='days',  pArrow=None, pSigma=True, nameSave = None, scale = 'log2'):
         """Plots the cross-wavelet power spectrun
         
         PARAMETERS
@@ -928,13 +1266,13 @@ PARAMETER:
 #        sig95 = numpy.ones([1, N]) * signif[:, None]
 #        print signif.shape
 #        raw_input('oi')
-        sig95 = power / signif # power is significant where ratio > 1
+        sig95 = signif # power is significant where ratio > 1
         
         
         # Calculates the phase between both time series. The phase arrows in the 
         # cross wavelet power spectrum rotate clockwise with 'north' origin.
    
-        angle = 0.5 * numpy.pi - numpy.angle(xwt)
+        angle = numpy.angle(xwt) #+ 0.5 * numpy.pi 
         u, v = numpy.cos(angle), numpy.sin(angle)
         
         result = []
@@ -948,8 +1286,8 @@ PARAMETER:
 
         ax = fig.add_subplot(1, 1, 1)
         ax.set_title('%s' %title)
-        ax.set_xlabel('Time (days)')
-        ax.set_ylabel('Period (Days)')
+        ax.set_xlabel('Time (%s)' %units)
+        ax.set_ylabel('Period (%s)' %units)
 
         
         # Plots the cross wavelet power spectrum and significance level 
@@ -975,13 +1313,22 @@ PARAMETER:
         else:
             Power = power
             Levels = levels
+        
         cf = ax.contourf(t, numpy.log2(period), Power, Levels, extend=extend)
-        ax.contour(t, numpy.log2(period), sig95, [-99, 1], colors='k', 
-            linewidths=2.)
-#        q = ax.quiver(t[::da[1]], numpy.log2(period)[::da[0]], u[::da[0], ::da[1]],
-#            v[::da[0], ::da[1]], units='width', angles='uv', pivot='mid',
-#            linewidth=1.5, edgecolor='k', headwidth=10, headlength=10,
-#            headaxislength=5, minshaft=2, minlength=5)
+        
+        if(pSigma):
+            ax.contour(t, numpy.log2(period), sig95, [-99, 1], colors='k', 
+                linewidths=2.)
+            
+            
+        if(pArrow):
+            q = ax.quiver(t[::da[1]], numpy.log2(period)[::da[0]], u[::da[0], ::da[1]],
+                v[::da[0], ::da[1]], 
+                units='width', angles='uv', pivot='mid',
+                linewidth=1.5, edgecolor='k', headwidth=10, headlength=10,
+                headaxislength=5, minshaft=2, minlength=5)
+            
+        
         ax.fill(numpy.concatenate([t[:1]-dt, t, t[-1:]+dt, t[-1:]+dt, t[:1]-dt, 
             t[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi, [1e-9], 
             period[-1:], period[-1:], [1e-9]])), 'k', alpha='0.3', hatch='x')

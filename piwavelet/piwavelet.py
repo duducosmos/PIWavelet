@@ -65,7 +65,10 @@ from scipy.special.orthogonal import hermitenorm
 from scipy.signal import convolve2d
 from scipy.ndimage import convolve
 from oct2py import octave
+
 import pylab
+import matplotlib.pyplot as plt
+from matplotlib import  colors
 
 ############################################################################
 ############################################################################
@@ -1058,7 +1061,8 @@ PARAMETER:
             pylab.show()
         
         
-    def plotWC(self,  wc, t, coi, freqs, signif, title, units='days',  pArrow=None, pSigma=True,  nameSave = None , scale = 'log2'):
+    def plotWC(self,  wc, t, coi, freqs, signif, title, units='days',  levels=None, labels=None,\
+                pArrow=None, pSigma=True, gray = None,   nameSave = None , scale = 'log2'):
         """Plots the wavelet coherence
         
         PARAMETERS
@@ -1146,9 +1150,15 @@ PARAMETER:
         
         # Plots the cross wavelet power spectrum and significance level 
         # contour lines and cone of influece hatched area.
-
-        levels = [0.125, 0.25, 0.5, 1]
-        labels = ['1/8', '1/4', '1/2', '1']
+        
+        if(levels):
+            if(labels):
+                pass
+            else:
+                labels = [str(li) for li in levels]
+        else:
+            levels = [0.1, 0.5, 0.6, 0.7, 0.8, 0.85,  0.9, 0.95, 1]
+            labels = ['0.1', '0.5', '0.6', '0.7', '0.8', '0.85', '0.9',  '0.95', '1']
         cmin, cmax = power.min(), power.max()
         rmin, rmax = min(levels), max(levels)
 
@@ -1167,7 +1177,13 @@ PARAMETER:
         else:
             Power = power
             Levels = levels
-        cf = ax.contourf(t, numpy.log2(period), Power, Levels, extend=extend)
+         
+        norml =colors.BoundaryNorm(Levels, 256)
+        
+        if(gray == True):
+            cf = ax.contourf(t, numpy.log2(period), Power, Levels, cmap = plt.cm.gray, norm=norml, extend=extend)
+        else:
+            cf = ax.contourf(t, numpy.log2(period), Power, Levels, cmap = plt.cm.jet, norm=norml, extend=extend)
         
         if(pSigma):
             ax.contour(t, numpy.log2(period), sig95, [-99, 1], colors='k', 
@@ -1204,7 +1220,8 @@ PARAMETER:
         
         return result
         
-    def plotXWC(self,  xwt, t, coi, freqs, signif, title, units='days',  pArrow=None, pSigma=True, nameSave = None, scale = 'log2'):
+    def plotXWC(self,  xwt, t, coi, freqs, signif, title, units='days',
+                                pArrow=None, pSigma=True, gray = None,  nameSave = None, scale = 'log2'):
         """Plots the cross-wavelet power spectrun
         
         PARAMETERS
@@ -1314,7 +1331,11 @@ PARAMETER:
             Power = power
             Levels = levels
         
-        cf = ax.contourf(t, numpy.log2(period), Power, Levels, extend=extend)
+        norml = colors.BoundaryNorm(Levels, 256)
+        if(gray == True):
+            cf = ax.contourf(t, numpy.log2(period), Power, Levels, cmap = plt.cm.gray, norm=norml, extend=extend)
+        else:
+            cf = ax.contourf(t, numpy.log2(period), Power, Levels, cmap = plt.cm.jet, norm=norml, extend=extend)
         
         if(pSigma):
             ax.contour(t, numpy.log2(period), sig95, [-99, 1], colors='k', 

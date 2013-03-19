@@ -24,7 +24,7 @@ setup(
     packages= find_packages(), 
     package_data={'': ['*.m','*.txt', '*.html', '*.png']}, 
     data_files= datafiles,
-    install_requires=['oct2py>=0.4.0'], 
+    install_requires=['oct2py>=0.4.0', 'numpy>=1.6.2', 'scipy>=0.10.1', 'matplotlib>=1.1.1'], 
     long_description=read('README'),
     classifiers=[
         "Development Status :: 3 - Alpha",

@@ -795,6 +795,7 @@ class wcoherence:
         self.signal1 = signal1
         self.signal2 = signal2
         self.Rqs, self.period, self.scale, self.coi, self.wtcsig = self.__wtc(self.signal1, self.signal2)
+        self.freqs = 1.0/self.period
         
     def __call__(self):
         return self.Rqs, self.period, self.scale, self.coi, self.wtcsig
@@ -1019,6 +1020,7 @@ class wcross:
         self.signal1 = signal1
         self.signal2 = signal2
         self.xwt, self.period, self.scale, self.coi, self.signif = self.__xtc(self.signal1, self.signal2)
+        self.freqs = 1.0/self.period
         
     def __call__(self):
         return self.xwt, self.period, self.scale, self.coi, self.signif
@@ -1056,7 +1058,7 @@ RETURN
                 t : array with time
                 gray: Optional - (boolean) True for gray map .
         """
-        self.__plotXWC(self.xwt, t, self.coi, 1.0/self.period, self.signif, title, units,
+        self.__plotXWC(self.xwt, t, self.coi, self.freqs, self.signif, title, units,
                                 pArrow, pSigma, gray,  nameSave, scale)
         
     def __plotXWC(self,  xwt, t, coi, freqs, signif, title, units='days',

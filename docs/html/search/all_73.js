@@ -1,0 +1,10 @@
+var searchData=
+[
+  ['scale',['scale',['../classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1smooth.html#a367a5c417ed5d4e2da1026b43f47cd07',1,'projects::piwavelet::piwavelet::piwavelet::smooth']]],
+  ['signal1',['signal1',['../classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1wcoherence.html#a0f1a26d08a24a960d5aadda2a7132435',1,'projects.piwavelet.piwavelet.piwavelet.wcoherence.signal1()'],['../classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1wcross.html#ae685fd264b719b76e0a5095cb4b65a98',1,'projects.piwavelet.piwavelet.piwavelet.wcross.signal1()']]],
+  ['signal2',['signal2',['../classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1wcoherence.html#af647f5f8dff85e72debd8f0be20708a8',1,'projects.piwavelet.piwavelet.piwavelet.wcoherence.signal2()'],['../classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1wcross.html#ab50c021343313dd3495d5eb98d0bb6ad',1,'projects.piwavelet.piwavelet.piwavelet.wcross.signal2()']]],
+  ['signif',['signif',['../classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1wcross.html#a953bc3895a845140197683cd3127fbad',1,'projects::piwavelet::piwavelet::piwavelet::wcross']]],
+  ['significance',['significance',['../classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1waveletCC.html#a7affb5a5af29583d05685578e5092309',1,'projects.piwavelet.piwavelet.piwavelet.waveletCC.significance()'],['../namespaceprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet.html#a2f562484c18165343361bc1340ed3e92',1,'projects.piwavelet.piwavelet.piwavelet.significance()']]],
+  ['smooth',['smooth',['../classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1smooth.html',1,'projects::piwavelet::piwavelet::piwavelet']]],
+  ['sup',['sup',['../classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet.html#a969cc0885f3ff4158ad387e7243f4493',1,'projects.piwavelet.piwavelet.piwavelet.Morlet.sup()'],['../classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Paul.html#a9543cbaff6e22b8d2df7765797f5b595',1,'projects.piwavelet.piwavelet.piwavelet.Paul.sup()'],['../classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG.html#a5e6fd317b32529423060f86e99e068ee',1,'projects.piwavelet.piwavelet.piwavelet.DOG.sup()']]]
+];

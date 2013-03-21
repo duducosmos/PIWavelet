@@ -1,0 +1,143 @@
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet}{\section{projects.\-piwavelet.\-piwavelet.\-piwavelet.\-Morlet Class Reference}
+\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet}\index{projects.\-piwavelet.\-piwavelet.\-piwavelet.\-Morlet@{projects.\-piwavelet.\-piwavelet.\-piwavelet.\-Morlet}}
+}
+
+
+Implements the \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet}{Morlet} wavelet class.  
+
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_ab760a09804e137e9a32e2ad48d18534d}{\-\_\-\-\_\-init\-\_\-\-\_\-}
+\item 
+def \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a37cfc735b02505abd70c04a1c7351089}{psi\-\_\-ft}
+\begin{DoxyCompactList}\small\item\em Fourier transform of the approximate \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet}{Morlet} wavelet. \end{DoxyCompactList}\item 
+def \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a6c0b58fcfcb975415aac3f0700d45648}{psi}
+\begin{DoxyCompactList}\small\item\em \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet}{Morlet} wavelet as described in Torrence and Compo (1998) \end{DoxyCompactList}\item 
+def \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_ab813d6681d15b31660077e7530936b25}{flambda}
+\begin{DoxyCompactList}\small\item\em Fourier wavelength as of Torrence and Compo (1998) \end{DoxyCompactList}\item 
+def \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a839779e708cefd79d0944edd0417db79}{coi}
+\begin{DoxyCompactList}\small\item\em e-\/\-Folding Time as of Torrence and Compo (1998) \end{DoxyCompactList}\item 
+def \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a969cc0885f3ff4158ad387e7243f4493}{sup}
+\begin{DoxyCompactList}\small\item\em Wavelet support defined by the e-\/\-Folding time. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_ab682fa210faa6f3b3d6d3f371eed36e9}{f0}
+\item 
+\hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a4264196db188abdf30268ac2b83a8328}{dofmin}
+\item 
+\hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a95ad01ac82fa9ed948e91c30c0078c70}{cdelta}
+\item 
+\hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_ad72b0cd3389a481379383d4a31c9534f}{gamma}
+\item 
+\hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a6f088682a6fbc9fce8be389dcf86ea21}{deltaj0}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+string \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a54fb1b558bd3f992e78452f41c5582b3}{name} = '\hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet}{Morlet}'
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Implements the \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet}{Morlet} wavelet class. 
+
+Note that the input parameters f and f0 are angular frequencies. f0 should be more than 0.\-8 for this function to be correct, its default value is f0=6. 
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_ab760a09804e137e9a32e2ad48d18534d}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}!\-\_\-\-\_\-init\-\_\-\-\_\-@{\-\_\-\-\_\-init\-\_\-\-\_\-}}
+\index{\-\_\-\-\_\-init\-\_\-\-\_\-@{\-\_\-\-\_\-init\-\_\-\-\_\-}!projects::piwavelet::piwavelet::piwavelet::Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}}
+\subsubsection[{\-\_\-\-\_\-init\-\_\-\-\_\-}]{\setlength{\rightskip}{0pt plus 5cm}def projects.\-piwavelet.\-piwavelet.\-piwavelet.\-Morlet.\-\_\-\-\_\-init\-\_\-\-\_\- (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{f0 = {\ttfamily 6.0}}
+\end{DoxyParamCaption}
+)}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_ab760a09804e137e9a32e2ad48d18534d}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a839779e708cefd79d0944edd0417db79}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}!coi@{coi}}
+\index{coi@{coi}!projects::piwavelet::piwavelet::piwavelet::Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}}
+\subsubsection[{coi}]{\setlength{\rightskip}{0pt plus 5cm}def projects.\-piwavelet.\-piwavelet.\-piwavelet.\-Morlet.\-coi (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a839779e708cefd79d0944edd0417db79}
+
+
+e-\/\-Folding Time as of Torrence and Compo (1998) 
+
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_ab813d6681d15b31660077e7530936b25}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}!flambda@{flambda}}
+\index{flambda@{flambda}!projects::piwavelet::piwavelet::piwavelet::Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}}
+\subsubsection[{flambda}]{\setlength{\rightskip}{0pt plus 5cm}def projects.\-piwavelet.\-piwavelet.\-piwavelet.\-Morlet.\-flambda (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_ab813d6681d15b31660077e7530936b25}
+
+
+Fourier wavelength as of Torrence and Compo (1998) 
+
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a6c0b58fcfcb975415aac3f0700d45648}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}!psi@{psi}}
+\index{psi@{psi}!projects::piwavelet::piwavelet::piwavelet::Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}}
+\subsubsection[{psi}]{\setlength{\rightskip}{0pt plus 5cm}def projects.\-piwavelet.\-piwavelet.\-piwavelet.\-Morlet.\-psi (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{t}
+\end{DoxyParamCaption}
+)}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a6c0b58fcfcb975415aac3f0700d45648}
+
+
+\hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet}{Morlet} wavelet as described in Torrence and Compo (1998) 
+
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a37cfc735b02505abd70c04a1c7351089}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}!psi\-\_\-ft@{psi\-\_\-ft}}
+\index{psi\-\_\-ft@{psi\-\_\-ft}!projects::piwavelet::piwavelet::piwavelet::Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}}
+\subsubsection[{psi\-\_\-ft}]{\setlength{\rightskip}{0pt plus 5cm}def projects.\-piwavelet.\-piwavelet.\-piwavelet.\-Morlet.\-psi\-\_\-ft (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{f}
+\end{DoxyParamCaption}
+)}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a37cfc735b02505abd70c04a1c7351089}
+
+
+Fourier transform of the approximate \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet}{Morlet} wavelet. 
+
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a969cc0885f3ff4158ad387e7243f4493}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}!sup@{sup}}
+\index{sup@{sup}!projects::piwavelet::piwavelet::piwavelet::Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}}
+\subsubsection[{sup}]{\setlength{\rightskip}{0pt plus 5cm}def projects.\-piwavelet.\-piwavelet.\-piwavelet.\-Morlet.\-sup (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a969cc0885f3ff4158ad387e7243f4493}
+
+
+Wavelet support defined by the e-\/\-Folding time. 
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a95ad01ac82fa9ed948e91c30c0078c70}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}!cdelta@{cdelta}}
+\index{cdelta@{cdelta}!projects::piwavelet::piwavelet::piwavelet::Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}}
+\subsubsection[{cdelta}]{\setlength{\rightskip}{0pt plus 5cm}projects.\-piwavelet.\-piwavelet.\-piwavelet.\-Morlet.\-cdelta}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a95ad01ac82fa9ed948e91c30c0078c70}
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a6f088682a6fbc9fce8be389dcf86ea21}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}!deltaj0@{deltaj0}}
+\index{deltaj0@{deltaj0}!projects::piwavelet::piwavelet::piwavelet::Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}}
+\subsubsection[{deltaj0}]{\setlength{\rightskip}{0pt plus 5cm}projects.\-piwavelet.\-piwavelet.\-piwavelet.\-Morlet.\-deltaj0}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a6f088682a6fbc9fce8be389dcf86ea21}
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a4264196db188abdf30268ac2b83a8328}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}!dofmin@{dofmin}}
+\index{dofmin@{dofmin}!projects::piwavelet::piwavelet::piwavelet::Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}}
+\subsubsection[{dofmin}]{\setlength{\rightskip}{0pt plus 5cm}projects.\-piwavelet.\-piwavelet.\-piwavelet.\-Morlet.\-dofmin}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a4264196db188abdf30268ac2b83a8328}
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_ab682fa210faa6f3b3d6d3f371eed36e9}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}!f0@{f0}}
+\index{f0@{f0}!projects::piwavelet::piwavelet::piwavelet::Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}}
+\subsubsection[{f0}]{\setlength{\rightskip}{0pt plus 5cm}projects.\-piwavelet.\-piwavelet.\-piwavelet.\-Morlet.\-f0}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_ab682fa210faa6f3b3d6d3f371eed36e9}
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_ad72b0cd3389a481379383d4a31c9534f}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}!gamma@{gamma}}
+\index{gamma@{gamma}!projects::piwavelet::piwavelet::piwavelet::Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}}
+\subsubsection[{gamma}]{\setlength{\rightskip}{0pt plus 5cm}projects.\-piwavelet.\-piwavelet.\-piwavelet.\-Morlet.\-gamma}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_ad72b0cd3389a481379383d4a31c9534f}
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a54fb1b558bd3f992e78452f41c5582b3}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}!name@{name}}
+\index{name@{name}!projects::piwavelet::piwavelet::piwavelet::Morlet@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-Morlet}}
+\subsubsection[{name}]{\setlength{\rightskip}{0pt plus 5cm}string projects.\-piwavelet.\-piwavelet.\-piwavelet.\-Morlet.\-name = '{\bf Morlet}'\hspace{0.3cm}{\ttfamily [static]}}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1Morlet_a54fb1b558bd3f992e78452f41c5582b3}
+
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+piwavelet/\hyperlink{piwavelet_8py}{piwavelet.\-py}\end{DoxyCompactItemize}

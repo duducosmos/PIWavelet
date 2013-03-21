@@ -1,0 +1,151 @@
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG}{\section{projects.\-piwavelet.\-piwavelet.\-piwavelet.\-D\-O\-G Class Reference}
+\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG}\index{projects.\-piwavelet.\-piwavelet.\-piwavelet.\-D\-O\-G@{projects.\-piwavelet.\-piwavelet.\-piwavelet.\-D\-O\-G}}
+}
+
+
+Implements the derivative of a Guassian wavelet class.  
+
+
+Inheritance diagram for projects.\-piwavelet.\-piwavelet.\-piwavelet.\-D\-O\-G\-:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_a3558a19631d7d1fe59a9cfa7840276af}{\-\_\-\-\_\-init\-\_\-\-\_\-}
+\item 
+def \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_aae699e5b447aeac76f4e47142a5aaa9e}{psi\-\_\-ft}
+\begin{DoxyCompactList}\small\item\em Fourier transform of the \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG}{D\-O\-G} wavelet. \end{DoxyCompactList}\item 
+def \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_a56d2b11424e3eb7db03f6a500bb7bc55}{psi}
+\begin{DoxyCompactList}\small\item\em \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG}{D\-O\-G} wavelet as described in Torrence and Compo (1998) \end{DoxyCompactList}\item 
+def \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_a58fb0edba273c4a5b016f99f3e45e918}{flambda}
+\begin{DoxyCompactList}\small\item\em Fourier wavelength as of Torrence and Compo (1998) \end{DoxyCompactList}\item 
+def \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_ae5d0da5a8faf4d4d648f6402b4c516a8}{coi}
+\begin{DoxyCompactList}\small\item\em e-\/\-Folding Time as of Torrence and Compo (1998) \end{DoxyCompactList}\item 
+def \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_a5e6fd317b32529423060f86e99e068ee}{sup}
+\begin{DoxyCompactList}\small\item\em Wavelet support defined by the e-\/\-Folding time. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_ab3b0e7f992bc07e670e7fcd28e2be7ce}{m}
+\item 
+\hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_ac7d4416da41dd2c65cc37780b350b6aa}{dofmin}
+\item 
+\hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_aa0750e81cda65734c763621f702e3188}{cdelta}
+\item 
+\hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_a9ccf6eccd2c0c03b61cb06869472fb35}{gamma}
+\item 
+\hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_ab3537187ce5b6f2f0fa7fe6a12fe084a}{deltaj0}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+string \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_a54681196aab116d55dc5a4eb1a521d39}{name} = '\hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG}{D\-O\-G}'
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Implements the derivative of a Guassian wavelet class. 
+
+Note that the input parameter f is the angular frequency and that for m=2 the \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG}{D\-O\-G} becomes the Mexican hat wavelet, which is then default. 
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_a3558a19631d7d1fe59a9cfa7840276af}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}!\-\_\-\-\_\-init\-\_\-\-\_\-@{\-\_\-\-\_\-init\-\_\-\-\_\-}}
+\index{\-\_\-\-\_\-init\-\_\-\-\_\-@{\-\_\-\-\_\-init\-\_\-\-\_\-}!projects::piwavelet::piwavelet::piwavelet::DOG@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}}
+\subsubsection[{\-\_\-\-\_\-init\-\_\-\-\_\-}]{\setlength{\rightskip}{0pt plus 5cm}def projects.\-piwavelet.\-piwavelet.\-piwavelet.\-D\-O\-G.\-\_\-\-\_\-init\-\_\-\-\_\- (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{m = {\ttfamily 2}}
+\end{DoxyParamCaption}
+)}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_a3558a19631d7d1fe59a9cfa7840276af}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_ae5d0da5a8faf4d4d648f6402b4c516a8}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}!coi@{coi}}
+\index{coi@{coi}!projects::piwavelet::piwavelet::piwavelet::DOG@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}}
+\subsubsection[{coi}]{\setlength{\rightskip}{0pt plus 5cm}def projects.\-piwavelet.\-piwavelet.\-piwavelet.\-D\-O\-G.\-coi (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_ae5d0da5a8faf4d4d648f6402b4c516a8}
+
+
+e-\/\-Folding Time as of Torrence and Compo (1998) 
+
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_a58fb0edba273c4a5b016f99f3e45e918}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}!flambda@{flambda}}
+\index{flambda@{flambda}!projects::piwavelet::piwavelet::piwavelet::DOG@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}}
+\subsubsection[{flambda}]{\setlength{\rightskip}{0pt plus 5cm}def projects.\-piwavelet.\-piwavelet.\-piwavelet.\-D\-O\-G.\-flambda (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_a58fb0edba273c4a5b016f99f3e45e918}
+
+
+Fourier wavelength as of Torrence and Compo (1998) 
+
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_a56d2b11424e3eb7db03f6a500bb7bc55}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}!psi@{psi}}
+\index{psi@{psi}!projects::piwavelet::piwavelet::piwavelet::DOG@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}}
+\subsubsection[{psi}]{\setlength{\rightskip}{0pt plus 5cm}def projects.\-piwavelet.\-piwavelet.\-piwavelet.\-D\-O\-G.\-psi (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{t}
+\end{DoxyParamCaption}
+)}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_a56d2b11424e3eb7db03f6a500bb7bc55}
+
+
+\hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG}{D\-O\-G} wavelet as described in Torrence and Compo (1998) 
+
+The derivative of a Gaussian of order n can be determined using the probabilistic Hermite polynomials. They are explicitly written as\-: Hn(x) = 2 $\ast$$\ast$ (-\/n / s) $\ast$ n! $\ast$ sum ((-\/1) $\ast$$\ast$ m) $\ast$ (2 $\ast$$\ast$ 0.\-5 $\ast$ x) $\ast$$\ast$ (n -\/ 2 $\ast$ m) / (m! $\ast$ (n -\/ 2$\ast$m)!) or in the recursive form\-: Hn(x) = x $\ast$ Hn(x) -\/ n\-Hn-\/1(x)
+
+Source\-: \href{http://www.ask.com/wiki/Hermite_polynomials}{\tt http\-://www.\-ask.\-com/wiki/\-Hermite\-\_\-polynomials} \hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_aae699e5b447aeac76f4e47142a5aaa9e}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}!psi\-\_\-ft@{psi\-\_\-ft}}
+\index{psi\-\_\-ft@{psi\-\_\-ft}!projects::piwavelet::piwavelet::piwavelet::DOG@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}}
+\subsubsection[{psi\-\_\-ft}]{\setlength{\rightskip}{0pt plus 5cm}def projects.\-piwavelet.\-piwavelet.\-piwavelet.\-D\-O\-G.\-psi\-\_\-ft (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{f}
+\end{DoxyParamCaption}
+)}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_aae699e5b447aeac76f4e47142a5aaa9e}
+
+
+Fourier transform of the \hyperlink{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG}{D\-O\-G} wavelet. 
+
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_a5e6fd317b32529423060f86e99e068ee}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}!sup@{sup}}
+\index{sup@{sup}!projects::piwavelet::piwavelet::piwavelet::DOG@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}}
+\subsubsection[{sup}]{\setlength{\rightskip}{0pt plus 5cm}def projects.\-piwavelet.\-piwavelet.\-piwavelet.\-D\-O\-G.\-sup (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_a5e6fd317b32529423060f86e99e068ee}
+
+
+Wavelet support defined by the e-\/\-Folding time. 
+
+
+
+\subsection{Member Data Documentation}
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_aa0750e81cda65734c763621f702e3188}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}!cdelta@{cdelta}}
+\index{cdelta@{cdelta}!projects::piwavelet::piwavelet::piwavelet::DOG@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}}
+\subsubsection[{cdelta}]{\setlength{\rightskip}{0pt plus 5cm}projects.\-piwavelet.\-piwavelet.\-piwavelet.\-D\-O\-G.\-cdelta}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_aa0750e81cda65734c763621f702e3188}
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_ab3537187ce5b6f2f0fa7fe6a12fe084a}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}!deltaj0@{deltaj0}}
+\index{deltaj0@{deltaj0}!projects::piwavelet::piwavelet::piwavelet::DOG@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}}
+\subsubsection[{deltaj0}]{\setlength{\rightskip}{0pt plus 5cm}projects.\-piwavelet.\-piwavelet.\-piwavelet.\-D\-O\-G.\-deltaj0}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_ab3537187ce5b6f2f0fa7fe6a12fe084a}
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_ac7d4416da41dd2c65cc37780b350b6aa}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}!dofmin@{dofmin}}
+\index{dofmin@{dofmin}!projects::piwavelet::piwavelet::piwavelet::DOG@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}}
+\subsubsection[{dofmin}]{\setlength{\rightskip}{0pt plus 5cm}projects.\-piwavelet.\-piwavelet.\-piwavelet.\-D\-O\-G.\-dofmin}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_ac7d4416da41dd2c65cc37780b350b6aa}
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_a9ccf6eccd2c0c03b61cb06869472fb35}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}!gamma@{gamma}}
+\index{gamma@{gamma}!projects::piwavelet::piwavelet::piwavelet::DOG@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}}
+\subsubsection[{gamma}]{\setlength{\rightskip}{0pt plus 5cm}projects.\-piwavelet.\-piwavelet.\-piwavelet.\-D\-O\-G.\-gamma}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_a9ccf6eccd2c0c03b61cb06869472fb35}
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_ab3b0e7f992bc07e670e7fcd28e2be7ce}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}!m@{m}}
+\index{m@{m}!projects::piwavelet::piwavelet::piwavelet::DOG@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}}
+\subsubsection[{m}]{\setlength{\rightskip}{0pt plus 5cm}projects.\-piwavelet.\-piwavelet.\-piwavelet.\-D\-O\-G.\-m}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_ab3b0e7f992bc07e670e7fcd28e2be7ce}
+\hypertarget{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_a54681196aab116d55dc5a4eb1a521d39}{\index{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}!name@{name}}
+\index{name@{name}!projects::piwavelet::piwavelet::piwavelet::DOG@{projects\-::piwavelet\-::piwavelet\-::piwavelet\-::\-D\-O\-G}}
+\subsubsection[{name}]{\setlength{\rightskip}{0pt plus 5cm}string projects.\-piwavelet.\-piwavelet.\-piwavelet.\-D\-O\-G.\-name = '{\bf D\-O\-G}'\hspace{0.3cm}{\ttfamily [static]}}}\label{classprojects_1_1piwavelet_1_1piwavelet_1_1piwavelet_1_1DOG_a54681196aab116d55dc5a4eb1a521d39}
+
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+piwavelet/\hyperlink{piwavelet_8py}{piwavelet.\-py}\end{DoxyCompactItemize}

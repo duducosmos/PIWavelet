@@ -44,7 +44,7 @@
 
       <div>
       <h1 id="introd">PIWavelet<img src="images/piwavelet.gif" width="40%" height="40%" /></h1>
-      <p>Python Interface for Wavelet  Analysis </p>
+      <p>Python programming Interface for Wavelet  Analysis </p>
       <p>
       DISCLAIMER
       <br>
@@ -59,6 +59,8 @@
     is not sold and this copyright notice is reproduced on each copy
     made. This routine is provided as is without any express or implied
     warranties whatsoever.
+    </p>
+    <p> Part of the code are originally from the project of <a href="https://github.com/regeirk/kPyWavelet">https://github.com/regeirk/kPyWavelet</a>
     </p>
     </div>
     <div>
@@ -190,10 +192,17 @@ The method plot generate the coherence map of the signal. The Figure <a href="#f
 </p>
 
 <p>
-<a href="pyscripts/example1.py" >Source code of the example</a>.
+<ul>
+ <li class="download">
+<a  href="pyscripts/example1.py">Download Source code of the example</a>
+</li>
+</ul>
 </p>
 
 <img src="images/teste1.png" width="100%" height="100%" alt="" id="fig2" />
+
+
+<h3>Wavelet Cross Power Spectrum Analysis:</h3>
 </div>
 <div>      
 <h3 id="bbgraf">Bibliography</h3>

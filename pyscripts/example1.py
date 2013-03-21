@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import numpy as np
 import matplotlib.pyplot as plt
 from piwavelet import piwavelet
@@ -15,7 +16,6 @@ plt.plot(x,y1,label='y1')
 plt.plot(x,y2,label='y2')
 plt.legend(loc=4)
 plt.show()
-plt.clf()
 myCoherence = piwavelet.wcoherence(y1,y2) #Wavelet Coherence Analysis
 myCoherence.plot(t = x, title='Test',units='sec') # Plot of the Coherence Map
 Rsq,period,scale,coi,sig95=myCoherence() # If you want to know the individual properties.'

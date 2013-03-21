@@ -47,6 +47,7 @@ npad=2.^ceil(log2(n));
 k = 1:fix(npad/2);
 k = k.*((2.*pi)/npad);
 k = [0., k, -k(fix((npad-1)/2):-1:1)];
+save -text myfile.txt k
 k2=k.^2;
 snorm=scale./dt;
 for ii=1:size(wave,1)

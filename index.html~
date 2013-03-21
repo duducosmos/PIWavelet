@@ -60,7 +60,7 @@
     made. This routine is provided as is without any express or implied
     warranties whatsoever.
     </p>
-    <p> Part of the code are originally from the project of <a href="https://github.com/regeirk/kPyWavelet">https://github.com/regeirk/kPyWavelet</a>
+    <p> Part of the code are originally from the project of <a href="https://github.com/regeirk/kPyWavelet">kPyWavelet</a>
     </p>
     </div>
     <div>
@@ -168,7 +168,7 @@ where $y_{i}$ is the $i$-th data values, $\bar{y}$ is the mean value and $\sigma
 
 
 <p>
-The code bellow shows the analysis coherence analysis for these signal
+The code bellow shows the coherence analysis for these signal
 </p>
 
 <pre>
@@ -188,7 +188,7 @@ The code bellow shows the analysis coherence analysis for these signal
 </pre>
 
 <p>
-The method plot generate the coherence map of the signal. The Figure <a href="#fig2" >2</a> shows the result obtained from plotWC.
+The method plot generate the coherence map of the signal. The Figure <a href="#fig2" >2</a> shows the result obtained from myCoherence.plot().
 </p>
 
 <p>
@@ -203,6 +203,46 @@ The method plot generate the coherence map of the signal. The Figure <a href="#f
 
 
 <h3>Wavelet Cross Power Spectrum Analysis:</h3>
+
+<p>
+Given tow signal, with zero mean, to start the cross wavelet analysis, 
+it is necessary to call the  wcross (Wavelet Cross Spectrum) class:
+<pre>
+<code>
+>> mycoherence = piwavelet.wcoherence(x,y)
+>> Rsq,period,scale,coi,sig95=mycoherence()
+</code>
+</pre>
+</p>
+
+<h4>Example</h4>
+
+<p>Consider the tow stochastic, standardized with zero means, signals:</p>
+
+<img src="images/sig1_2_t1b.png" width="100%" height="100%" alt="" />
+
+<p> The code bellow computing and plot the Cross Wavelet Power Spectrum of these signals:</p>
+
+<pre>
+<code>
+>>> import numpy as np
+>>> import matplotlib.pyplot as plt
+>>> from piwavelet import piwavelet
+>>> y1 = np.random.rand(50) #Generation of the Random Signal 1
+>>> y2 = np.random.rand(50) #Generation of the Random Signal 2
+>>> x = np.arange(0,50,1) # Time step
+>>> y1 = (y1-y1.mean())/y1.std() #Normalization of the Signal 1
+>>> y2 = (y2-y2.mean())/y2.std() #Normalization of the Signal 2
+>>> myXSpec = piwavelet.wcross(y1,y2) #Cross Wavelet Analisys
+>>> myXSpec.plot(t = x, title='Test',units='sec') # Plot of the Cross Power Spectrum Map
+>>> xwt,period, scale, coi, sig95=myXSpec() # If you want to know the individual properties.'
+</code>
+</pre>
+
+<p>The Figure <a href="#fig5" >5</a> shows the Cross Wavelet Power Spectrum map.</p> 
+
+<img src="images/teste2.png" width="100%" height="100%" alt="" id="fig5" />
+
 </div>
 <div>      
 <h3 id="bbgraf">Bibliography</h3>

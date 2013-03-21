@@ -209,8 +209,8 @@ Given tow signal, with zero mean, to start the cross wavelet analysis,
 it is necessary to call the  wcross (Wavelet Cross Spectrum) class:
 <pre>
 <code>
->> mycoherence = piwavelet.wcoherence(x,y)
->> Rsq,period,scale,coi,sig95=mycoherence()
+>> myXSpec = piwavelet.wcross(x,y)
+>> xwt,period, scale, coi, sig95=myXSpec()
 </code>
 </pre>
 </p>

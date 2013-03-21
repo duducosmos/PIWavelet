@@ -210,10 +210,33 @@ it is necessary to call the  wcross (Wavelet Cross Spectrum) class:
 <pre>
 <code>
 >> myXSpec = piwavelet.wcross(x,y)
->> Rsq,period,scale,coi,sig95=myXSpec()
+>> xwt,period, scale, coi, sig95=myXSpec()
 </code>
 </pre>
 </p>
+
+<table>
+<tr>
+	<td>xwt</td>
+	<td>cross Wavelet</td>
+</tr>
+<tr>
+	<td>period</td>
+	<td>a vector of "Fourier" periods associated with Wxy</td>
+</tr>
+<tr>
+	<td>scale</td>
+	<td>a vector of wavelet scales associated with Wxy</td>
+</tr>
+<tr>
+	<td>coi</td>
+	<td>the cone of influence</td>
+</tr>
+<tr>
+  <td>sig95</td>
+  <td>Significance</td>
+</tr>
+</table>
 
 <h4>Example</h4>
 

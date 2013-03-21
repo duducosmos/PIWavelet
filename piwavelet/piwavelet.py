@@ -481,16 +481,305 @@ def cwt(signal, dt=1., dj=1./12, s0=-1, J=-1, wavelet=Morlet(), result=None):
     else:
         return (W[:, :n0], sj, freqs, coi, signal_ft[1:N/2] / N ** 0.5,
                 ftfreqs[1:N/2] / (2. * pi))
-
-############################################################################
-############################################################################
-############################################################################
-############################################################################
+                
 
 
-class waveletCC:
+def significance(signal, dt, scales, sigma_test=0, alpha=0.,
+                 significance_level=0.95, dof=-1, wavelet=Morlet()):
     """
-    This class is an Python interface for the some matlab functions of the package for wavelet,
+    Significance testing for the onde dimensional wavelet transform.
+
+    PARAMETERS
+        signal (array like or float) :
+            Input signal array. If a float number is given, then the
+            variance is assumed to have this value. If an array is
+            given, then its variance is automatically computed.
+        dt (float, optional) :
+            Sample spacing. Default is 1.0.
+        scales (array like) :
+            Vector of scale indices given returned by cwt function.
+        sigma_test (int, optional) :
+            Sets the type of significance test to be performed.
+            Accepted values are 0, 1 or 2. If omitted assume 0.
+
+            If set to 0, performs a regular chi-square test, according
+            to Torrence and Compo (1998) equation 18.
+
+            If set to 1, performs a time-average test (equation 23). In
+            this case, dof should be set to the number of local wavelet
+            spectra that where averaged together. For the global
+            wavelet spectra it would be dof=N, the number of points in
+            the time-series.
+
+            If set to 2, performs a scale-average test (equations 25 to
+            28). In this case dof should be set to a two element vector
+            [s1, s2], which gives the scale range that were averaged
+            together. If, for example, the average between scales 2 and
+            8 was taken, then dof=[2, 8].
+        alpha (float, optional) :
+            Lag-1 autocorrelation, used for the significance levels.
+            Default is 0.0.
+        significance_level (float, optional) :
+            Significance level to use. Default is 0.95.
+        dof (variant, optional) :
+            Degrees of freedom for significance test to be set
+            according to the type set in sigma_test.
+        wavelet (class, optional) :
+            Mother wavelet class. Default is Morlet().
+
+    RETURNS
+        signif (array like) :
+            Significance levels as a function of scale.
+        fft_theor (array like):
+            Theoretical red-noise spectrum as a function of period.
+
+    """
+    try:
+      n0 = len(signal)
+    except:
+      n0 = 1
+    J = len(scales) - 1
+    s0 = min(scales)
+    dj = log2(scales[1] / scales[0])
+
+    if n0 == 1:
+      variance = signal
+    else:
+      variance = signal.std() ** 2
+
+    period = scales * wavelet.flambda()  # Fourier equivalent periods
+    freq = dt / period                   # Normalized frequency
+    dofmin = wavelet.dofmin              # Degrees of freedom with no smoothing
+    Cdelta = wavelet.cdelta              # Reconstruction factor
+    gamma_fac = wavelet.gamma            # Time-decorrelation factor
+    dj0 = wavelet.deltaj0                # Scale-decorrelation factor
+
+    # Theoretical discrete Fourier power spectrum of the noise signal following
+    # Gilman et al. (1963) and Torrence and Compo (1998), equation 16.
+    pk = lambda k, a, N: (1 - a ** 2) / (1 + a ** 2 - 2 * a *
+        cos(2 * pi * k / N))
+    fft_theor = pk(freq, alpha, n0)
+    fft_theor = variance * fft_theor     # Including time-series variance
+    signif = fft_theor
+
+    try:
+        if dof == -1:
+            dof = dofmin
+    except:
+        pass
+
+    if sigma_test == 0:  # No smoothing, dof=dofmin, TC98 sec. 4
+        dof = dofmin
+        # As in Torrence and Compo (1998), equation 18
+        chisquare = chi2.ppf(significance_level, dof) / dof
+        signif = fft_theor * chisquare
+    elif sigma_test == 1:  # Time-averaged significance
+        if len(dof) == 1:
+            dof = zeros(1, J+1) + dof
+        sel = find(dof < 1)
+        dof[sel] = 1
+        # As in Torrence and Compo (1998), equation 23:
+        dof = dofmin * (1 + (dof * dt / gamma_fac / scales) ** 2 ) ** 0.5
+        sel = find(dof < dofmin)
+        dof[sel] = dofmin  # Minimum dof is dofmin
+        for n, d in enumerate(dof):
+            chisquare = chi2.ppf(significance_level, d) / d;
+            signif[n] = fft_theor[n] * chisquare
+    elif sigma_test == 2:  # Time-averaged significance
+        if len(dof) != 2:
+            raise Exception, ('DOF must be set to [s1, s2], '
+                              'the range of scale-averages')
+        if Cdelta == -1:
+            raise Exception, ('Cdelta and dj0 not defined for %s with f0=%f' %
+                             (wavelet.name, wavelet.f0))
+
+        s1, s2 = dof
+        sel = find((scales >= s1) & (scales <= s2));
+        navg = sel.size
+        if navg == 0:
+            raise Exception, 'No valid scales between %d and %d.' % (s1, s2)
+
+        # As in Torrence and Compo (1998), equation 25
+        Savg = 1 / sum(1. / scales[sel])
+        # Power-of-two mid point:
+        Smid = exp((log(s1) + log(s2)) / 2.)
+        # As in Torrence and Compo (1998), equation 28
+        dof = (dofmin * navg * Savg / Smid) * ((1 + (navg * dj / dj0) ** 2) **
+                                              0.5)
+        # As in Torrence and Compo (1998), equation 27
+        fft_theor = Savg * sum(fft_theor[sel] / scales[sel])
+        chisquare = chi2.ppf(significance_level, dof) / dof;
+        # As in Torrence and Compo (1998), equation 26
+        signif = (dj * dt / Cdelta / Savg) * fft_theor * chisquare
+    else:
+        raise Exception, 'sigma_test must be either 0, 1, or 2.'
+
+    return (signif, fft_theor)
+
+     
+def plotWavelet(signal, title, label, units, \
+                             mother = Morlet(6.), t0=1.0,\
+                             dt=1.0, dj=0.25, s0=-1, \
+                             J=-1, alpha=0.0, slevel = 0.95,\
+                             avg1 =15, avg2=20, nameSave=None):
+     """
+     Plot Wavelet Transfor for one signal
+
+PARAMETER:
+ signal : The signal that will be transformed
+ title : Title of the plot
+ label : Label 
+ units : unit of the data
+ mother : The Mother  Wavelet. Default Morlet mother wavelet with wavenumber=6
+ t0 : Initial time step
+ dt : time step
+ dj : Four sub-octaves per octaves
+ s0 : Starting scale, here 6 months
+ J : Seven powers of two with dj sub-octaves
+ alpha: Lag-1 autocorrelation for white noise
+ slevel : Significance level
+ avg1,avg2 :  Range of periods to average
+ nameSave : Path plus name to save the plot
+     """
+
+     var = signal
+
+     
+     std = var.std()                      # Standard deviation
+     std2 = std ** 2                      # Variance
+     var = (var - var.mean()) / std       # Calculating anomaly and normalizing
+     
+     N = var.size                         # Number of measurements
+     time = numpy.arange(0, N) * dt + t0  # Time array in years
+     
+     dj = 0.25                            # Four sub-octaves per octaves
+     s0 = -1 #2 * dt                      # Starting scale, here 6 months
+     J = -1 # 7 / dj                      # Seven powers of two with dj sub-octaves
+     alpha = 0.0                          # Lag-1 autocorrelation for white noise
+   
+     wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var, dt, dj, s0, J,
+                                                           mother)
+     iwave = wavelet.icwt(wave, scales, dt, dj, mother)
+     power = (abs(wave)) ** 2             # Normalized wavelet power spectrum
+     fft_power = std2 * abs(fft) ** 2     # FFT power spectrum
+     period = 1. / freqs
+     
+     signif, fft_theor = wavelet.significance(1.0, dt, scales, 0, alpha,
+                             significance_level=slevel, wavelet=mother)
+     sig95 = (signif * numpy.ones((N, 1))).transpose()
+     sig95 = power / sig95                # Where ratio > 1, power is significant
+     
+     # Calculates the global wavelet spectrum and determines its significance level.
+     glbl_power = std2 * power.mean(axis=1)
+     dof = N - scales                     # Correction for padding at edges
+     glbl_signif, tmp = wavelet.significance(std2, dt, scales, 1, alpha,
+                            significance_level=slevel, dof=dof, wavelet=mother)
+     
+     # Scale average between avg1 and avg2 periods and significance level
+     sel = pylab.find((period >= avg1) & (period < avg2))
+     Cdelta = mother.cdelta
+     scale_avg = (scales * numpy.ones((N, 1))).transpose()
+     # As in Torrence and Compo (1998) equation 24
+     scale_avg = power / scale_avg
+     scale_avg = std2 * dj * dt / Cdelta * scale_avg[sel, :].sum(axis=0)
+     scale_avg_signif, tmp = wavelet.significance(std2, dt, scales, 2, alpha,
+                                 significance_level=slevel, dof=[scales[sel[0]],
+                                 scales[sel[-1]]], wavelet=mother)
+     
+     # The following routines plot the results in four different subplots containing
+     # the original series anomaly, the wavelet power spectrum, the global wavelet
+     # and Fourier spectra and finally the range averaged wavelet spectrum. In all
+     # sub-plots the significance levels are either included as dotted lines or as
+     # filled contour lines.
+     pylab.close('all')
+     fontsize = 'medium'
+     params = {'text.fontsize': fontsize,
+               'xtick.labelsize': fontsize,
+               'ytick.labelsize': fontsize,
+               'axes.titlesize': fontsize,
+               'text.usetex': True
+              }
+     pylab.rcParams.update(params)          # Plot parameters
+     figprops = dict(figsize=(11, 8), dpi=72)
+     fig = pylab.figure(**figprops)
+     
+     # First sub-plot, the original time series anomaly.
+     ax = pylab.axes([0.1, 0.75, 0.65, 0.2])
+     #ax.plot(time, iwave, '-', linewidth=1, color=[0.5, 0.5, 0.5])
+     ax.plot(time, var, 'k', linewidth=1.5)
+     ax.set_title('a) %s' % (title, ))
+     if units != '':
+       ax.set_ylabel(r'%s [$%s$/$%s$]' % (label, units,units, ))
+     else:
+       ax.set_ylabel(r'%s' % (label, ))
+     
+     # Second sub-plot, the normalized wavelet power spectrum and significance level
+     # contour lines and cone of influece hatched area.
+     bx = pylab.axes([0.1, 0.37, 0.65, 0.28], sharex=ax)
+     levels = [0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8, 16]
+     bx.contourf(time, numpy.log2(period), numpy.log2(power), numpy.log2(levels),
+                 extend='both')
+     bx.contour(time, numpy.log2(period), sig95, [-99, 1], colors='k',
+                linewidths=2.)
+     bx.fill(numpy.concatenate([time[:1]-dt, time, time[-1:]+dt, time[-1:]+dt,
+             time[:1]-dt, time[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi,
+             [1e-9], period[-1:], period[-1:], [1e-9]])), 'k', alpha='0.3',
+             hatch='x')
+     bx.set_title('b) %s Wavelet Power Spectrum (%s)' % (label, mother.name))
+     bx.set_ylabel('Period (Days)')
+     Yticks = 2 ** numpy.arange(numpy.ceil(numpy.log2(period.min())),
+                                numpy.ceil(numpy.log2(period.max())))
+     bx.set_yticks(numpy.log2(Yticks))
+     bx.set_yticklabels(Yticks)
+     bx.invert_yaxis()
+     
+     # Third sub-plot, the global wavelet and Fourier power spectra and theoretical
+     # noise spectra.
+     cx = pylab.axes([0.77, 0.37, 0.2, 0.28], sharey=bx)
+     cx.plot(glbl_signif, numpy.log2(period), 'k--')
+     cx.plot(fft_power, numpy.log2(1./fftfreqs), '-', color=[0.7, 0.7, 0.7],
+             linewidth=1.)
+     cx.plot(glbl_power, numpy.log2(period), 'k-', linewidth=1.5)
+     cx.set_title('c) Global Wavelet Spectrum')
+     if units != '':
+       cx.set_xlabel(r'Power [$%s^2$]' % (units, ))
+     else:
+       cx.set_xlabel(r'Power')
+     #cx.set_xlim([0, glbl_power.max() + std2])
+     cx.set_ylim(numpy.log2([period.min(), period.max()]))
+     cx.set_yticks(numpy.log2(Yticks))
+     cx.set_yticklabels(Yticks)
+     pylab.setp(cx.get_yticklabels(), visible=False)
+     cx.invert_yaxis()
+     
+     # Fourth sub-plot, the scale averaged wavelet spectrum as determined by the
+     # avg1 and avg2 parameters
+     dx = pylab.axes([0.1, 0.07, 0.65, 0.2], sharex=ax)
+     dx.axhline(scale_avg_signif, color='k', linestyle='--', linewidth=1.)
+     dx.plot(time, scale_avg, 'k-', linewidth=1.5)
+     dx.set_title('d) $%d$-$%d$ year scale-averaged power' % (avg1, avg2))
+     dx.set_xlabel('Time (days)')
+     if units != '':
+       dx.set_ylabel(r'Average variance [$%s$]' % (units, ))
+     else:
+       dx.set_ylabel(r'Average variance')
+     #
+     ax.set_xlim([time.min(), time.max()])
+     #
+     pylab.draw()
+     if(nameSave):
+         pylab.savefig(nameSave)
+     else:
+         pylab.show()
+
+############################################################################
+############################################################################
+############################################################################
+############################################################################
+
+class wcoherence:
+    """
+    This class is an Python interface for the Wavelet Coherence matlab functions of the package for wavelet,
     cross-wavelet and coherence-wavelet analises profided by
     Aslak Grinsted, John C. Moore and Svetlana Jevrejeva.
     
@@ -499,12 +788,19 @@ class waveletCC:
     However, the Continuous wavelet transform of the signal, in this class, is a pure python
     function.
     """
-    def __init__(self):
+    def __init__(self, signal1, signal2):
         HOME = os.path.expanduser('~')
         mFiles = HOME+'/.piwavelet/wtc/'
         self.wtcPath = octave.addpath(mFiles)
+        self.signal1 = signal1
+        self.signal2 = signal2
+        self.Rqs, self.period, self.scale, self.coi, self.wtcsig = self.__wtc(self.signal1, self.signal2)
         
-    def wtc(self, signal1, signal2):
+    def __call__(self):
+        return self.Rqs, self.period, self.scale, self.coi, self.wtcsig
+        
+    
+    def __wtc(self, signal1, signal2):
         """
         Wavelet Coherence
 
@@ -527,143 +823,208 @@ RETURN:
         coi = coi[0]
         return Rqs, period,scale,coi,wtcsig 
         
-#    def xwt(self, x1, y1, x2, y2, significance_level=0.95, normalize=True, result=None,
-#    **kwargs):
-#        """Cross wavelet transform.
-#        
-#        PARAMETERS
-#            x[1, 2], y[1, 2] (array like) :
-#                Input data arrays to calculate cross wavelet transform.
-#            significance_level (float, optional) :
-#                Significance level to use. Default is 0.95.
-#            normalize (boolean, optional) :
-#                If set to true, normalizes CWT by the standard deviation of
-#                the signals.
-#            result (string, optional) :
-#                If 'full' also returns intersected time-series. If set to
-#                'dictionary' returns the result arrays as itens of a 
-#                dictionary.
-#            kwargs (list) :
-#                List of parameters like dt, dj, s0, J=-1 and wavelet.
-#                Please refer to the wavelet.cwt function documentation for
-#                further details.
-#        
-#        RETURNS
-#            xwt (array like) :
-#                Cross wavelet transform according to the selected mother 
-#                wavelet.
-#            x (array like) :
-#                Intersected independent variable.
-#            coi (array like) :
-#                Cone of influence, which is a vector of N points containing
-#                the maximum Fourier period of useful information at that
-#                particular time. Periods greater than those are subject to
-#                edge effects.
-#            freqs (array like) :
-#                Vector of Fourier equivalent frequencies (in 1 / time units)
-#                that correspond to the wavelet scales.
-#            signif (array like) :
-#                Significance levels as a function of scale.
-#        
-#        SEE ALSO
-#            wavelet.cwt, wavelet.wct
-#        
-#        """
-#        # Precision error
-#        e = 1e-5
-#        # Defines some parameters like length of both time-series, time step
-#        # and calculates the standard deviation for normalization and statistical
-#        # significance tests.
-#        n1 = x1.size
-#        n2 = x2.size
-#        n = min(n1, n2)
-#        if 'dt' not in kwargs.keys():
-#            dx1 = x1[1] - x1[0]
-#            dx2 = x2[1] - x2[0]
-#            if abs(dx1 - dx2) < e:
-#                kwargs['dt'] = dx1
-#            else:
-#                raise Warning, 'Time step of both series do not match.'
-#        if normalize:
-#            std1 = y1.std()
-#            std2 = y2.std()
-#        else:
-#            std1 = std2 = 1.
-#        
-#        # Calculates the CWT of the time-series making sure the same parameters
-#        # are used in both calculations.
-#        kwargs['result'] = 'dictionary'
-#        W1 = cwt(y1 / std1, **kwargs)
-#        kwargs['dt'] = W1['dt']
-#        kwargs['dj'] = W1['dj']
-#        kwargs['s0'] = W1['s0']
-#        kwargs['J'] = W1['J']
-#        kwargs['wavelet'] = W1['wavelet']
-#        W2 = cwt(y2 / std2, **kwargs)
-#        
-#        # If both time series are different, determines the intersection of both
-#        # to ensure same data length.
-#        x = intersect1d(x1, x2)
-#        idx = dict((k, i) for i, k in enumerate(x1))
-#        sel1 = [idx[i] for i in x]
-#        idx = dict((k, i) for i, k in enumerate(x2))
-#        sel2 = [idx[i] for i in x]
-#        #
-#        y1 = y1[sel1[0]:sel1[-1]+1]
-#        W1['W'] = W1['W'][:, sel1[0]:sel1[-1]+1]
-#        W1['coi'] = W1['coi'][sel1[0]:sel1[-1]+1]
-#        y2 = y2[sel2[0]:sel2[-1]+1]
-#        W2['W'] = W2['W'][:, sel2[0]:sel2[-1]+1]
-#        W2['coi'] = W2['coi'][sel2[0]:sel2[-1]+1]
-#        
-#        # Now the cross correlation of y1 and y2
-#        W12 = W1['W'] * W2['W'].conj()
-#        if n1 < n2:
-#            coi = W1['coi']
-#            freqs = W1['freqs']
-#        else:
-#            coi = W2['coi']
-#            freqs = W2['freqs']
-#        
-#        # And the significance tests. Note that the confidence level is calculated
-#        # using the percent point function (PPF) of the chi-squared cumulative
-#        # distribution function (CDF) instead of using Z1(95%) = 2.182 and 
-#        # Z2(95%)=3.999 as suggested by Torrence & Compo (1998) and Grinsted et 
-#        # al. (2004). If the CWT has been normalized, then std1 and std2 should
-#        # be reset to unity, otherwise the standard deviation of both series have 
-#        # to be calculated.
-#        if not normalize:
-#            std1 = y1.std()
-#            std2 = y2.std()
-#        else:
-#            std1 = std2 = 1.
-#        a1, _, _ = ar1(y1)
-#        a2, _, _ = ar1(y2)
-#        Pk1 = ar1_spectrum(W1['freqs'] * dx1, a1)
-#        Pk2 = ar1_spectrum(W2['freqs'] * dx2, a2)
-#        dof = kwargs['wavelet'].dofmin
-#        PPF = chi2.ppf(significance_level, dof)
-#        signif = (std1 * std2 * (Pk1 * Pk2) ** 0.5 * PPF / dof)
-#        
-#        # The resuts:
-#        if result == 'dictionary':
-#            result = dict(
-#                XWT = W12,
-#                coi = coi,
-#                freqs = freqs,
-#                signif = signif,
-#                t = x,
-#                y1 = y1,
-#                y2 = y2
-#            )
-#            return result
-#        elif result == 'full' :
-#            return W12, x, coi, freqs, signif, y1, y2
-#        else:
-#            return W12, x, coi, freqs, signif
+    def plot(self, t, title, units,  levels=None, labels=None,\
+                    pArrow=None, pSigma=True, gray = None,\
+                    nameSave = None , scale = 'log2' ):
+        """
+        Plots the wavelet coherence
+            
+            PARAMETERS
+                title: Title of the Plot
+                units: (string) Units of the period and time  (e.g. 'days')
+                t : array with time
+                gray: Optional - (boolean) True for gray map .
+        """
+        self.__plotWC(self.Rqs, t, self.coi, self.freqs, self.wtcsig, title,\
+                               units, levels, labels,\
+                                pArrow, pSigma, gray,\
+                                nameSave , scale)
 
         
-    def xtc(self, signal1, signal2):
+    def __plotWC(self,  wc, t, coi, freqs, signif, title, units='days',  levels=None, labels=None,\
+                pArrow=None, pSigma=True, gray = None,   nameSave = None , scale = 'log2'):
+        """Plots the wavelet coherence
+        
+        PARAMETERS
+            xwt (array like) : 
+                Cross wavelet transform.
+            coi (array like) :
+                Cone of influence, which is a vector of N points containing
+                the maximum Fourier period of useful information at that
+                particular time. Periods greater than those are subject to
+                edge effects.
+            freqs (array like) :
+                Vector of Fourier equivalent frequencies (in 1 / time units)
+                that correspond to the wavelet scales.
+            signif (array like) :
+                Significance levels as a function of Fourier equivalent 
+                frequencies.
+          
+        
+        RETURNS
+            A list with the figure and axis objects for the plot.
+        
+
+        
+        """
+        # Sets some parameters and renames some of the input variables.
+        from matplotlib import pyplot
+
+        
+        fontsize = 'medium'
+        params = {'font.family': 'serif',
+                          'font.sans-serif': ['Helvetica'],
+                          'font.size': 18,
+                          'font.stretch': 'ultra-condensed',
+                          'text.fontsize': fontsize,
+                          'xtick.labelsize': fontsize,
+                          'ytick.labelsize': fontsize,
+                          'axes.titlesize': fontsize,
+                          'text.usetex': True,
+                          'text.latex.unicode': True,
+                          'timezone': 'UTC'
+                         }
+        pyplot.rcParams.update(params)
+        pyplot.ion()
+        fp=dict()
+        ap=dict(left=0.15, bottom=0.12, right=0.95, top=0.95,\
+                     wspace=0.10, hspace=0.10)
+        orientation='landscape'
+        fig = pyplot.figure(**fp)
+        fig.subplots_adjust(**ap)
+ 
+        
+        N = len(t)
+        dt = t[1] - t[0]
+        period = 1. / freqs
+        power = wc
+#        sig95 = numpy.ones([1, N]) * signif[:, None]
+#        print signif.shape
+#        raw_input('oi')
+        sig95 = signif # power is significant where ratio > 1
+        
+        
+        # Calculates the phase between both time series. The phase arrows in the 
+        # cross wavelet power spectrum rotate clockwise with 'north' origin.
+   
+        angle = 0.5 * numpy.pi - numpy.angle(wc)
+        u, v = numpy.cos(angle), numpy.sin(angle)
+        
+        result = []
+        
+
+        da = [3, 3]
+   
+        fig = fig
+        result.append(fig)
+    
+
+        ax = fig.add_subplot(1, 1, 1)
+        ax.set_title('%s' %title)
+        ax.set_xlabel('Time (%s)' %units)
+        ax.set_ylabel('Period (%s)' %units)
+
+        
+        # Plots the cross wavelet power spectrum and significance level 
+        # contour lines and cone of influece hatched area.
+        
+        if(levels):
+            if(labels):
+                pass
+            else:
+                labels = [str(li) for li in levels]
+        else:
+            levels = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6,  0.7, 0.8, 0.9, 1]
+            labels = ['0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7',  '0.8', '0.9','1']
+        cmin, cmax = power.min(), power.max()
+        rmin, rmax = min(levels), max(levels)
+
+        if (cmin < rmin) & (cmax > rmax):
+            extend = 'both'
+        elif (cmin < rmin) & (cmax <= rmax):
+            extend = 'min'
+        elif (cmin >= rmin) & (cmax > rmax):
+            extend = 'max'
+        elif (cmin >= rmin) & (cmax <= rmax):
+            extend = 'neither'
+        
+        if scale == 'log2':
+            Power = numpy.log2(power)
+            Levels = numpy.log2(levels)
+        else:
+            Power = power
+            Levels = levels
+         
+        norml =colors.BoundaryNorm(Levels, 256)
+        
+        if(gray == True):
+            cf = ax.contourf(t, numpy.log2(period), Power, Levels, cmap = plt.cm.gray, norm=norml, extend=extend)
+        else:
+            cf = ax.contourf(t, numpy.log2(period), Power, Levels, cmap = plt.cm.jet, norm=norml, extend=extend)
+        
+        if(pSigma):
+            ax.contour(t, numpy.log2(period), sig95, [-99, 1], colors='k', 
+                linewidths=2.)
+                
+        if( pArrow):
+            q = ax.quiver(t[::da[1]], numpy.log2(period)[::da[0]], u[::da[0], ::da[1]],
+                v[::da[0], ::da[1]], units='width', angles='uv', pivot='mid',
+                linewidth=1.5, edgecolor='k', headwidth=10, headlength=10,
+                headaxislength=5, minshaft=2, minlength=5)
+                
+        ax.fill(numpy.concatenate([t[:1]-dt, t, t[-1:]+dt, t[-1:]+dt, t[:1]-dt, 
+            t[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi, [1e-9], 
+            period[-1:], period[-1:], [1e-9]])), 'k', alpha='0.3', hatch='x')
+        Yticks = 2 ** numpy.arange(numpy.ceil(numpy.log2(period.min())), 
+            numpy.ceil(numpy.log2(period.max())))
+        ax.set_yticks(numpy.log2(Yticks))
+        ax.set_yticklabels(Yticks)
+        ax.set_xlim([t.min(), t.max()])
+        ax.set_ylim(numpy.log2([period.min(), min([coi.max(), period.max()])]))
+        ax.invert_yaxis()
+        cbar = fig.colorbar(cf, ticks=Levels, extend=extend)
+        cbar.ax.set_yticklabels(labels)
+        
+        pylab.draw()
+        
+        if(nameSave):
+            pylab.savefig(nameSave)
+        else:
+            pylab.show()
+        
+        
+        result.append(ax)
+        
+        return result
+        
+#*********************************************************************************************************    
+# Cross wavelet  Spectrun
+#*********************************************************************************************************    
+
+class wcross:
+    """
+    This class is an Python interface for the Cross wavelet Spectrun matlab functions of the package for wavelet,
+    cross-wavelet and coherence-wavelet analises profided by
+    Aslak Grinsted, John C. Moore and Svetlana Jevrejeva.
+    
+    http://noc.ac.uk/using-science/crosswavelet-wavelet-coherence
+    
+    However, the Continuous wavelet transform of the signal, in this class, is a pure python
+    function.
+    """
+    def __init__(self, signal1, signal2):
+        HOME = os.path.expanduser('~')
+        mFiles = HOME+'/.piwavelet/wtc/'
+        self.wtcPath = octave.addpath(mFiles)
+        self.signal1 = signal1
+        self.signal2 = signal2
+        self.xwt, self.period, self.scale, self.coi, self.signif = self.__xtc(self.signal1, self.signal2)
+        
+    def __call__(self):
+        return self.xwt, self.period, self.scale, self.coi, self.signif
+        
+        
+    def __xtc(self, signal1, signal2):
         """Cross wavelet transform
 
 USAGE: 
@@ -683,7 +1044,199 @@ RETURN
         
         return xwt, period,scale,coi,signif 
         
-    def smoothwavelet(self, wave,dt,period,dj,scale):
+    def plot(self, t, title, units,  levels=None, labels=None,\
+                    pArrow=None, pSigma=True, gray = None,\
+                    nameSave = None , scale = 'log2' ):
+        """
+        Plots the wavelet coherence
+            
+            PARAMETERS
+                title: Title of the Plot
+                units: (string) Units of the period and time  (e.g. 'days')
+                t : array with time
+                gray: Optional - (boolean) True for gray map .
+        """
+        self.__plotXWC(self.xwt, t, self.coi, 1.0/self.period, self.signif, title, units,
+                                pArrow, pSigma, gray,  nameSave, scale)
+        
+    def __plotXWC(self,  xwt, t, coi, freqs, signif, title, units='days',
+                                pArrow=None, pSigma=True, gray = None,  nameSave = None, scale = 'log2'):
+        """Plots the cross-wavelet power spectrun
+        
+        PARAMETERS
+            xwt (array like) : 
+                Cross wavelet transform.
+            coi (array like) :
+                Cone of influence, which is a vector of N points containing
+                the maximum Fourier period of useful information at that
+                particular time. Periods greater than those are subject to
+                edge effects.
+            freqs (array like) :
+                Vector of Fourier equivalent frequencies (in 1 / time units)
+                that correspond to the wavelet scales.
+            signif (array like) :
+                Significance levels as a function of Fourier equivalent 
+                frequencies.
+          
+        
+        RETURNS
+            A list with the figure and axis objects for the plot.
+        
+
+        
+        """
+        # Sets some parameters and renames some of the input variables.
+        from matplotlib import pyplot
+
+        
+        fontsize = 'medium'
+        params = {'font.family': 'serif',
+                          'font.sans-serif': ['Helvetica'],
+                          'font.size': 18,
+                          'font.stretch': 'ultra-condensed',
+                          'text.fontsize': fontsize,
+                          'xtick.labelsize': fontsize,
+                          'ytick.labelsize': fontsize,
+                          'axes.titlesize': fontsize,
+                          'text.usetex': True,
+                          'text.latex.unicode': True,
+                          'timezone': 'UTC'
+                         }
+        pyplot.rcParams.update(params)
+        pyplot.ion()
+        fp=dict()
+        ap=dict(left=0.15, bottom=0.12, right=0.95, top=0.95,\
+                     wspace=0.10, hspace=0.10)
+        orientation='landscape'
+        fig = pyplot.figure(**fp)
+        fig.subplots_adjust(**ap)
+        
+       
+
+            
+        
+        N = len(t)
+        dt = t[1] - t[0]
+        period = 1. / freqs
+        power = abs(xwt)
+#        sig95 = numpy.ones([1, N]) * signif[:, None]
+#        print signif.shape
+#        raw_input('oi')
+        sig95 = signif # power is significant where ratio > 1
+        
+        
+        # Calculates the phase between both time series. The phase arrows in the 
+        # cross wavelet power spectrum rotate clockwise with 'north' origin.
+   
+        angle = numpy.angle(xwt) #+ 0.5 * numpy.pi 
+        u, v = numpy.cos(angle), numpy.sin(angle)
+        
+        result = []
+        
+
+        da = [3, 3]
+   
+        fig = fig
+        result.append(fig)
+    
+
+        ax = fig.add_subplot(1, 1, 1)
+        ax.set_title('%s' %title)
+        ax.set_xlabel('Time (%s)' %units)
+        ax.set_ylabel('Period (%s)' %units)
+
+        
+        # Plots the cross wavelet power spectrum and significance level 
+        # contour lines and cone of influece hatched area.
+
+        levels = [0.125, 0.25, 0.5, 1, 2, 4, 8]
+        labels = ['1/8', '1/4', '1/2', '1', '2', '4', '8']
+        cmin, cmax = power.min(), power.max()
+        rmin, rmax = min(levels), max(levels)
+
+        if (cmin < rmin) & (cmax > rmax):
+            extend = 'both'
+        elif (cmin < rmin) & (cmax <= rmax):
+            extend = 'min'
+        elif (cmin >= rmin) & (cmax > rmax):
+            extend = 'max'
+        elif (cmin >= rmin) & (cmax <= rmax):
+            extend = 'neither'
+        
+        if scale == 'log2':
+            Power = numpy.log2(power)
+            Levels = numpy.log2(levels)
+        else:
+            Power = power
+            Levels = levels
+        
+        norml = colors.BoundaryNorm(Levels, 256)
+        if(gray == True):
+            cf = ax.contourf(t, numpy.log2(period), Power, Levels, cmap = plt.cm.gray, norm=norml, extend=extend)
+        else:
+            cf = ax.contourf(t, numpy.log2(period), Power, Levels, cmap = plt.cm.jet, norm=norml, extend=extend)
+        
+        if(pSigma):
+            ax.contour(t, numpy.log2(period), sig95, [-99, 1], colors='k', 
+                linewidths=2.)
+            
+            
+        if(pArrow):
+            q = ax.quiver(t[::da[1]], numpy.log2(period)[::da[0]], u[::da[0], ::da[1]],
+                v[::da[0], ::da[1]], 
+                units='width', angles='uv', pivot='mid',
+                linewidth=1.5, edgecolor='k', headwidth=10, headlength=10,
+                headaxislength=5, minshaft=2, minlength=5)
+            
+        
+        ax.fill(numpy.concatenate([t[:1]-dt, t, t[-1:]+dt, t[-1:]+dt, t[:1]-dt, 
+            t[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi, [1e-9], 
+            period[-1:], period[-1:], [1e-9]])), 'k', alpha='0.3', hatch='x')
+        Yticks = 2 ** numpy.arange(numpy.ceil(numpy.log2(period.min())), 
+            numpy.ceil(numpy.log2(period.max())))
+        ax.set_yticks(numpy.log2(Yticks))
+        ax.set_yticklabels(Yticks)
+        ax.set_xlim([t.min(), t.max()])
+        ax.set_ylim(numpy.log2([period.min(), min([coi.max(), period.max()])]))
+        ax.invert_yaxis()
+        cbar = fig.colorbar(cf, ticks=Levels, extend=extend)
+        cbar.ax.set_yticklabels(labels)
+        
+        pylab.draw()
+        
+        if(nameSave):
+            pylab.savefig(nameSave)
+        else:
+            pylab.show()
+        result.append(ax)
+        
+        return result
+        
+class smooth:
+    """
+    This class is an Python interface for the Smoothing matlab functions of the package for wavelet,
+    cross-wavelet and coherence-wavelet analises profided by
+    Aslak Grinsted, John C. Moore and Svetlana Jevrejeva.
+    
+    http://noc.ac.uk/using-science/crosswavelet-wavelet-coherence
+    
+    However, the Continuous wavelet transform of the signal, in this class, is a pure python
+    function.
+    
+    Smoothing as in the appendix of Torrence and Webster "Inter decadal changes in the ENSO-Monsoon System" 1998 
+    used in wavelet coherence calculations. Only applicable for the Morlet wavelet. 
+    """
+    def __init__(self, wave,dt,period,dj,scale):
+        HOME = os.path.expanduser('~')
+        mFiles = HOME+'/.piwavelet/wtc/'
+        self.wtcPath = octave.addpath(mFiles)
+        self.wave,self.dt,self.period,self.dj,self.scale = wave,dt,period,dj,scale
+        
+        
+    def __call__(self):
+        return self.__smoothwavelet(self.wave,self.dt,self.period,self.dj,self.scale)
+
+    def __smoothwavelet(self, wave,dt,period,dj,scale):
         """
         Smoothing as in the appendix of Torrence and Webster "Inter decadal changes in the ENSO-Monsoon System" 1998 
         used in wavelet coherence calculations. Only applicable for the Morlet wavelet. 
@@ -691,6 +1244,19 @@ RETURN
         
         swave = octave.call('smoothwavelet', wave,dt,period,dj,scale)
         return swave
+
+#*********************************************************************************************************
+#  Continuous wavelet transform 
+#*********************************************************************************************************
+
+class waveletCC:
+    """
+    Continuous wavelet transform of the signal at specified scales.
+   
+    """
+    
+    def __init__(self):
+        pass
         
     def cwt(self, signal, dt, dj=0.25, s0=-1, J=-1, wavelet=Morlet()):
         """Continuous wavelet transform of the signal at specified scales.
@@ -1060,318 +1626,6 @@ PARAMETER:
         else:
             pylab.show()
         
-        
-    def plotWC(self,  wc, t, coi, freqs, signif, title, units='days',  levels=None, labels=None,\
-                pArrow=None, pSigma=True, gray = None,   nameSave = None , scale = 'log2'):
-        """Plots the wavelet coherence
-        
-        PARAMETERS
-            xwt (array like) : 
-                Cross wavelet transform.
-            coi (array like) :
-                Cone of influence, which is a vector of N points containing
-                the maximum Fourier period of useful information at that
-                particular time. Periods greater than those are subject to
-                edge effects.
-            freqs (array like) :
-                Vector of Fourier equivalent frequencies (in 1 / time units)
-                that correspond to the wavelet scales.
-            signif (array like) :
-                Significance levels as a function of Fourier equivalent 
-                frequencies.
-          
-        
-        RETURNS
-            A list with the figure and axis objects for the plot.
-        
-
-        
-        """
-        # Sets some parameters and renames some of the input variables.
-        from matplotlib import pyplot
-
-        
-        fontsize = 'medium'
-        params = {'font.family': 'serif',
-                          'font.sans-serif': ['Helvetica'],
-                          'font.size': 18,
-                          'font.stretch': 'ultra-condensed',
-                          'text.fontsize': fontsize,
-                          'xtick.labelsize': fontsize,
-                          'ytick.labelsize': fontsize,
-                          'axes.titlesize': fontsize,
-                          'text.usetex': True,
-                          'text.latex.unicode': True,
-                          'timezone': 'UTC'
-                         }
-        pyplot.rcParams.update(params)
-        pyplot.ion()
-        fp=dict()
-        ap=dict(left=0.15, bottom=0.12, right=0.95, top=0.95,\
-                     wspace=0.10, hspace=0.10)
-        orientation='landscape'
-        fig = pyplot.figure(**fp)
-        fig.subplots_adjust(**ap)
-        
-       
-
-            
-        
-        N = len(t)
-        dt = t[1] - t[0]
-        period = 1. / freqs
-        power = wc
-#        sig95 = numpy.ones([1, N]) * signif[:, None]
-#        print signif.shape
-#        raw_input('oi')
-        sig95 = signif # power is significant where ratio > 1
-        
-        
-        # Calculates the phase between both time series. The phase arrows in the 
-        # cross wavelet power spectrum rotate clockwise with 'north' origin.
-   
-        angle = 0.5 * numpy.pi - numpy.angle(wc)
-        u, v = numpy.cos(angle), numpy.sin(angle)
-        
-        result = []
-        
-
-        da = [3, 3]
-   
-        fig = fig
-        result.append(fig)
-    
-
-        ax = fig.add_subplot(1, 1, 1)
-        ax.set_title('%s' %title)
-        ax.set_xlabel('Time (%s)' %units)
-        ax.set_ylabel('Period (%s)' %units)
-
-        
-        # Plots the cross wavelet power spectrum and significance level 
-        # contour lines and cone of influece hatched area.
-        
-        if(levels):
-            if(labels):
-                pass
-            else:
-                labels = [str(li) for li in levels]
-        else:
-            levels = [0.1, 0.5, 0.6, 0.7, 0.8, 0.85,  0.9, 0.95, 1]
-            labels = ['0.1', '0.5', '0.6', '0.7', '0.8', '0.85', '0.9',  '0.95', '1']
-        cmin, cmax = power.min(), power.max()
-        rmin, rmax = min(levels), max(levels)
-
-        if (cmin < rmin) & (cmax > rmax):
-            extend = 'both'
-        elif (cmin < rmin) & (cmax <= rmax):
-            extend = 'min'
-        elif (cmin >= rmin) & (cmax > rmax):
-            extend = 'max'
-        elif (cmin >= rmin) & (cmax <= rmax):
-            extend = 'neither'
-        
-        if scale == 'log2':
-            Power = numpy.log2(power)
-            Levels = numpy.log2(levels)
-        else:
-            Power = power
-            Levels = levels
-         
-        norml =colors.BoundaryNorm(Levels, 256)
-        
-        if(gray == True):
-            cf = ax.contourf(t, numpy.log2(period), Power, Levels, cmap = plt.cm.gray, norm=norml, extend=extend)
-        else:
-            cf = ax.contourf(t, numpy.log2(period), Power, Levels, cmap = plt.cm.jet, norm=norml, extend=extend)
-        
-        if(pSigma):
-            ax.contour(t, numpy.log2(period), sig95, [-99, 1], colors='k', 
-                linewidths=2.)
-                
-        if( pArrow):
-            q = ax.quiver(t[::da[1]], numpy.log2(period)[::da[0]], u[::da[0], ::da[1]],
-                v[::da[0], ::da[1]], units='width', angles='uv', pivot='mid',
-                linewidth=1.5, edgecolor='k', headwidth=10, headlength=10,
-                headaxislength=5, minshaft=2, minlength=5)
-                
-        ax.fill(numpy.concatenate([t[:1]-dt, t, t[-1:]+dt, t[-1:]+dt, t[:1]-dt, 
-            t[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi, [1e-9], 
-            period[-1:], period[-1:], [1e-9]])), 'k', alpha='0.3', hatch='x')
-        Yticks = 2 ** numpy.arange(numpy.ceil(numpy.log2(period.min())), 
-            numpy.ceil(numpy.log2(period.max())))
-        ax.set_yticks(numpy.log2(Yticks))
-        ax.set_yticklabels(Yticks)
-        ax.set_xlim([t.min(), t.max()])
-        ax.set_ylim(numpy.log2([period.min(), min([coi.max(), period.max()])]))
-        ax.invert_yaxis()
-        cbar = fig.colorbar(cf, ticks=Levels, extend=extend)
-        cbar.ax.set_yticklabels(labels)
-        
-        pylab.draw()
-        
-        if(nameSave):
-            pylab.savefig(nameSave)
-        else:
-            pylab.show()
-        
-        
-        result.append(ax)
-        
-        return result
-        
-    def plotXWC(self,  xwt, t, coi, freqs, signif, title, units='days',
-                                pArrow=None, pSigma=True, gray = None,  nameSave = None, scale = 'log2'):
-        """Plots the cross-wavelet power spectrun
-        
-        PARAMETERS
-            xwt (array like) : 
-                Cross wavelet transform.
-            coi (array like) :
-                Cone of influence, which is a vector of N points containing
-                the maximum Fourier period of useful information at that
-                particular time. Periods greater than those are subject to
-                edge effects.
-            freqs (array like) :
-                Vector of Fourier equivalent frequencies (in 1 / time units)
-                that correspond to the wavelet scales.
-            signif (array like) :
-                Significance levels as a function of Fourier equivalent 
-                frequencies.
-          
-        
-        RETURNS
-            A list with the figure and axis objects for the plot.
-        
-
-        
-        """
-        # Sets some parameters and renames some of the input variables.
-        from matplotlib import pyplot
-
-        
-        fontsize = 'medium'
-        params = {'font.family': 'serif',
-                          'font.sans-serif': ['Helvetica'],
-                          'font.size': 18,
-                          'font.stretch': 'ultra-condensed',
-                          'text.fontsize': fontsize,
-                          'xtick.labelsize': fontsize,
-                          'ytick.labelsize': fontsize,
-                          'axes.titlesize': fontsize,
-                          'text.usetex': True,
-                          'text.latex.unicode': True,
-                          'timezone': 'UTC'
-                         }
-        pyplot.rcParams.update(params)
-        pyplot.ion()
-        fp=dict()
-        ap=dict(left=0.15, bottom=0.12, right=0.95, top=0.95,\
-                     wspace=0.10, hspace=0.10)
-        orientation='landscape'
-        fig = pyplot.figure(**fp)
-        fig.subplots_adjust(**ap)
-        
-       
-
-            
-        
-        N = len(t)
-        dt = t[1] - t[0]
-        period = 1. / freqs
-        power = abs(xwt)
-#        sig95 = numpy.ones([1, N]) * signif[:, None]
-#        print signif.shape
-#        raw_input('oi')
-        sig95 = signif # power is significant where ratio > 1
-        
-        
-        # Calculates the phase between both time series. The phase arrows in the 
-        # cross wavelet power spectrum rotate clockwise with 'north' origin.
-   
-        angle = numpy.angle(xwt) #+ 0.5 * numpy.pi 
-        u, v = numpy.cos(angle), numpy.sin(angle)
-        
-        result = []
-        
-
-        da = [3, 3]
-   
-        fig = fig
-        result.append(fig)
-    
-
-        ax = fig.add_subplot(1, 1, 1)
-        ax.set_title('%s' %title)
-        ax.set_xlabel('Time (%s)' %units)
-        ax.set_ylabel('Period (%s)' %units)
-
-        
-        # Plots the cross wavelet power spectrum and significance level 
-        # contour lines and cone of influece hatched area.
-
-        levels = [0.125, 0.25, 0.5, 1, 2, 4, 8]
-        labels = ['1/8', '1/4', '1/2', '1', '2', '4', '8']
-        cmin, cmax = power.min(), power.max()
-        rmin, rmax = min(levels), max(levels)
-
-        if (cmin < rmin) & (cmax > rmax):
-            extend = 'both'
-        elif (cmin < rmin) & (cmax <= rmax):
-            extend = 'min'
-        elif (cmin >= rmin) & (cmax > rmax):
-            extend = 'max'
-        elif (cmin >= rmin) & (cmax <= rmax):
-            extend = 'neither'
-        
-        if scale == 'log2':
-            Power = numpy.log2(power)
-            Levels = numpy.log2(levels)
-        else:
-            Power = power
-            Levels = levels
-        
-        norml = colors.BoundaryNorm(Levels, 256)
-        if(gray == True):
-            cf = ax.contourf(t, numpy.log2(period), Power, Levels, cmap = plt.cm.gray, norm=norml, extend=extend)
-        else:
-            cf = ax.contourf(t, numpy.log2(period), Power, Levels, cmap = plt.cm.jet, norm=norml, extend=extend)
-        
-        if(pSigma):
-            ax.contour(t, numpy.log2(period), sig95, [-99, 1], colors='k', 
-                linewidths=2.)
-            
-            
-        if(pArrow):
-            q = ax.quiver(t[::da[1]], numpy.log2(period)[::da[0]], u[::da[0], ::da[1]],
-                v[::da[0], ::da[1]], 
-                units='width', angles='uv', pivot='mid',
-                linewidth=1.5, edgecolor='k', headwidth=10, headlength=10,
-                headaxislength=5, minshaft=2, minlength=5)
-            
-        
-        ax.fill(numpy.concatenate([t[:1]-dt, t, t[-1:]+dt, t[-1:]+dt, t[:1]-dt, 
-            t[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi, [1e-9], 
-            period[-1:], period[-1:], [1e-9]])), 'k', alpha='0.3', hatch='x')
-        Yticks = 2 ** numpy.arange(numpy.ceil(numpy.log2(period.min())), 
-            numpy.ceil(numpy.log2(period.max())))
-        ax.set_yticks(numpy.log2(Yticks))
-        ax.set_yticklabels(Yticks)
-        ax.set_xlim([t.min(), t.max()])
-        ax.set_ylim(numpy.log2([period.min(), min([coi.max(), period.max()])]))
-        ax.invert_yaxis()
-        cbar = fig.colorbar(cf, ticks=Levels, extend=extend)
-        cbar.ax.set_yticklabels(labels)
-        
-        pylab.draw()
-        
-        if(nameSave):
-            pylab.savefig(nameSave)
-        else:
-            pylab.show()
-        result.append(ax)
-        
-        return result
 
 
 

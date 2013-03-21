@@ -12,110 +12,215 @@
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script type="text/javascript" src="http://mathcache.s3.amazonaws.com/replacemath.js"> </script>
+
   </head>
-  <body>
+  <body onload="replaceMath(document.body)">
+        
+
     <div class="wrapper">
       <header>
-        <h1 class="header">Piwavelet</h1>
-        <p class="header">Python Interface for Wavelet  Analises </p>
+
+        <h1 class="header"><img src="images/piwavelet.jpeg" width="20%" height="20%" />PIWavelet</h1>
+        <p class="header">Python Interface for Wavelet  Analysis </p>
 
         <ul>
           <li class="download"><a class="buttons" href="https://github.com/duducosmos/PIWavelet/zipball/master">Download ZIP</a></li>
           <li class="download"><a class="buttons" href="https://github.com/duducosmos/PIWavelet/tarball/master">Download TAR</a></li>
           <li><a class="buttons github" href="https://github.com/duducosmos/PIWavelet">View On GitHub</a></li>
+
+           <li><a href="#introd" >Introduction</a></li>
+           <li><a href="#install" >Install</a></li>
+           <li><a href="#usage" >Usage</a></li>
+           <li><a  href='#bbgraf' >Bibliography</a></li>
         </ul>
 
         <p class="header">This project is maintained by <a class="header name" href="https://github.com/duducosmos">duducosmos</a></p>
 
 
       </header>
+
       <section>
-      
-      PIWavelet
-=========
 
-Python Interface for Wavelet  Analises 
-
-DISCLAIMER
+      <div>
+      <h1 id="introd">PIWavelet<img src="images/piwavelet.gif" width="40%" height="40%" /></h1>
+      <p>Python Interface for Wavelet  Analysis </p>
+      <p>
+      DISCLAIMER
+      <br>
     This module is a Python interface for the the matlab package for wavelet,
-    cross-wavelet and coherence-wavelet analises profided by
+    cross-wavelet and coherence-wavelet analysis provided by
     Aslak Grinsted, John C. Moore and Svetlana Jevrejeva.
-    
+    <br>
     http://noc.ac.uk/using-science/crosswavelet-wavelet-coherence
+    <br>
 
     This software may be used, copied, or redistributed as long as it
     is not sold and this copyright notice is reproduced on each copy
     made. This routine is provided as is without any express or implied
     warranties whatsoever.
-    
-TO RUN
-    It is necessary to have gnuoctave and oct2py installed in your machine
+    </p>
+    </div>
+    <div>
+    <br>
+    TO RUN:
+    <p>
+    It is necessary to have gnuoctave installed in your machine
     Gnu Octave: http://www.gnu.org/software/octave/ (sudo apt-get install octave)
-    oct2py: https://github.com/blink1073/oct2py (easy_install oct2py)
 
-INSTALL:
+      </p>
+    </div>
+    <div>
+      <h3 id="install">INSTALL:</h3>
+			      
+							<pre>
+							<code>
+$ python setup.py install
+							</code>
+							</pre>
+				</div>
+				<div>
+					<p>
+<h3>OBSERVATION:</h3>
+					
+					<br>
+					    Octave supports most but not all of the core syntax and commands of MatLab.
+					    The main noticable differences are nested functions are not allowed, and GUIs (including uigetfile, etc.) are not supported.
+					    <br>
+					    AUTHOR
+					    <br>
+					    Eduardo S. Pereira
+					    <br>
+					    email: pereira.somoza@gmail.com
+					      </p>
+      
+</div>
+
+<div>
+
+<h1 id="usage"> Usage</h1>
+<h3>Initialization</h3>
+<p>
+Initialization of the piwavelet class
 <pre>
 <code>
-$ python setup.py install
+>> import numpy as np
+>> from piwavelet import piwavelet
 </code>
 </pre>
-    
-    
-OBSERVATION:
-    Octave supports most but not all of the core syntax and commands of MatLab.
-    The main noticable differences are nested functions are not allowed, and GUIs (including uigetfile, etc.) are not supported.
+</p>
+<h3>Wavelet Coherence Analysis:</h3>
+<p>
+Given tow signal, with zero mean, to start the wavelet coherence analysis, 
+it is necessary to call the  wcoherence (Wavelet Coherence) class:
+<pre>
+<code>
+>> mycoherence = piwavelet.wcoherence(x,y)
+>> Rsq,period,scale,coi,sig95=mycoherence()
+</code>
+</pre>
+</p>
+<p>
+The returned values are:
+ 
+<table>
+<tr>
+	<td>Rsq</td>
+	<td>Coherence Wavelet</td>
+</tr>
+<tr>
+	<td>period</td>
+	<td>a vector of "Fourier" periods associated with Wxy</td>
+</tr>
+<tr>
+	<td>scale</td>
+	<td>a vector of wavelet scales associated with Wxy</td>
+</tr>
+<tr>
+	<td>coi</td>
+	<td>the cone of influence</td>
+</tr>
+<tr>
+  <td>sig95</td>
+  <td>Significance</td>
+</tr>
+</table>
+</p>
+<h3>Example</h3>
+<p> Consider tow stochastic signals, as presented in the following image: </p>
 
-AUTHOR
-    Eduardo S. Pereira
-    email: pereira.somoza@gmail.com
+<img src="images/sig1_2.png" width="100%" height="100%" alt="" />
+
+<p>The signal must be standardized with zero means. e.g. :</p>
+
+<p>
+$y_{i,std} = (y_{i}-\bar{y})/\sigma$
+</p>
+
+<p>
+where $y_{i}$ is the $i$-th data values, $\bar{y}$ is the mean value and $\sigma$ is the standard deviation of the $y$ series. 
+</p>
+
+<img src="images/sig1_2_t1.png" width="100%" height="100%" alt="" />
 
 
-REFERENCES
+
+<p>
+The code bellow shows the analysis coherence analysis for these signal
+</p>
+
+<pre>
+<code>
+>>> import numpy as np
+>>> from piwavelet import piwavelet
+>>> y1 = np.random.rand(100) #Generation of the Random Signal 1
+>>> y2 = np.random.rand(100) #Generation of the Random Signal 2
+>>> x = np.arange(0,100,1) # Time step
+>>> y1 = (y1-y1.mean())/y1.std() #Normalization of the Signal 1
+>>> y2 = (y2-y2.mean())/y2.std() #Normalization of the Signal 2
+>>> myCoherence = piwavelet.wcoherence(y1,y2) #Wavelet Coherence Analysis
+>>> myCoherence.plot(t = x, title='Test',units='sec') # Plot of the Coherence Map
+>>> Rsq,period,scale,coi,sig95=myCoherence() # If you want to know the individual properties.
+
+</code>
+</pre>
+
+<p>
+The method plot generate the coherence map of the signal. The Figure <a href="#fig2" >2</a> shows the result obtained from plotWC.
+</p>
+
+<p>
+<a href="pyscripts/example1.py" >Source code of the example</a>.
+</p>
+
+<img src="images/teste1.png" width="100%" height="100%" alt="" id="fig2" />
+</div>
+<div>      
+<h3 id="bbgraf">Bibliography</h3>
+<p>
+<br>
     [1] Mallat, Stephane G. (1999). A wavelet tour of signal processing
+    <br>
     [2] Addison, Paul S. The illustrated wavelet transform handbook
-    [3] Torrence, Christopher and Compo, Gilbert P. (1998). A Practical
+    <br>
+    [3] Torrence, Christopher and Compo, Gilbert P. (1998). A Practical    <br>
             Guide to Wavelet Analysis
-    [4] Grinsted, A., Moore, J.C., Jevrejeva, S., 2004, 
+    <br>
+    [4] Grinsted, A., Moore, J.C., Jevrejeva, S., 2004,    <br> 
         Nonlin. Processes Geophys., 11, 561–566, doi:10.5194/npg-11-561-2004
-    [5] Jevrejeva, S., Moore, J.C.,  Grinsted, A., 2003,
+    <br>
+    [5] Jevrejeva, S., Moore, J.C.,  Grinsted, A., 2003,    <br>
          J. Geophys. Res., 108(D21), 4677, doi:10.1029/2003JD003417
-    [6] Torrence, C., Webster, P. ,1999,
+    <br>
+    [6] Torrence, C., Webster, P. ,1999,    <br>
             J.Clim., 12, 2679–2690
+</p>
+</div>
             
-<!--            
-        <h3>Welcome to GitHub Pages.</h3>
-
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
-
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
-
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
-
-<h3>Designer Templates</h3>
-
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
-
-<h3>Rather Drive Stick?</h3>
-
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
-
-<h3>Authors and Contributors</h3>
-
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
-
-<h3>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-!-->
-      </section>
-      <footer>
-        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
-      </footer>
-    </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+            
+<div>
+Author : Eduardo S. Pereira.
+</div>
 		
   </body>
 </html>

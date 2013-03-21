@@ -1,0 +1,11 @@
+import numpy as np
+from piwavelet import piwavelet
+y1 = np.random.rand(100) #Generation of the Random Signal 1
+y2 = np.random.rand(100) #Generation of the Random Signal 2
+x = np.arange(0,100,1) # Time step
+y1 = (y1-y1.mean())/y1.std() #Normalization of the Signal 1
+y2 = (y2-y2.mean())/y2.std() #Normalization of the Signal 2
+myCoherence = piwavelet.wcoherence(y1,y2) #Wavelet Coherence Analysis
+myCoherence.plot(t = x, title='Test',units='sec') # Plot of the Coherence Map
+Rsq,period,scale,coi,sig95=myCoherence() # If you want to know the individual properties.
+

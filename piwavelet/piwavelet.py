@@ -990,7 +990,7 @@ RETURN:
         
         """
         
-        listParameters = ['levels',  'labels',  'pArrow',  'pSigma',  'gray',  'nameSave',  'scale']
+        listParameters = ['levels',  'labels',  'pArrow',  'pSigma',  'gray',  'nameSave',  'scale', 'zoom']
     
     
         testeKeysArgs = [Ki for Ki in kwargs.keys() if Ki not in  listParameters]
@@ -1043,6 +1043,8 @@ RETURN:
                 zoom = None
             else:
                 zoom = kwargs['zoom']
+        else:
+            zoom = None
 
         
         fontsize = 'medium'
@@ -1296,7 +1298,7 @@ RETURN
         """
         # Sets some parameters and renames some of the input variables.
         
-        listParameters = ['levels',  'labels',  'pArrow',  'pSigma',  'gray',  'nameSave',  'scale']
+        listParameters = ['levels',  'labels',  'pArrow',  'pSigma',  'gray',  'nameSave',  'scale', 'zoom']
     
     
         testeKeysArgs = [Ki for Ki in kwargs.keys() if Ki not in  listParameters]

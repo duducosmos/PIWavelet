@@ -49,7 +49,7 @@ REFERENCES
 
 """
 
-import os
+import os, sys
 import numpy
 
 from numpy import (arange, ceil, concatenate, conjugate, cos, exp, isnan, log,
@@ -481,7 +481,46 @@ def cwt(signal, dt=1., dj=1./12, s0=-1, J=-1, wavelet=Morlet(), result=None):
     else:
         return (W[:, :n0], sj, freqs, coi, signal_ft[1:N/2] / N ** 0.5,
                 ftfreqs[1:N/2] / (2. * pi))
-                
+
+def icwt(W, sj, dt, dj=0.25, w=Morlet()):
+    """Inverse continuous wavelet transform.
+
+    PARAMETERS
+        W (array like):
+            Wavelet transform, the result of the cwt function.
+        sj (array like):
+            Vector of scale indices as returned by the cwt function.
+        dt (float) :
+            Sample spacing.
+        dj (float, optional) :
+            Spacing between discrete scales as used in the cwt
+            function. Default value is 0.25.
+        w (class, optional) :
+            Mother wavelet class. Default is Morlet()
+
+    RETURNS
+        iW (array like) :
+            Inverse wavelet transform.
+
+    EXAMPLE
+        mother = wavelet.Morlet(6.)
+        wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var,
+            0.25, 0.25, 0.5, 28, mother)
+        iwave = wavelet.icwt(wave, scales, 0.25, 0.25, mother)
+
+    """
+    a, b = W.shape
+    c = sj.size
+    if a == c:
+        sj = (ones([b, 1]) * sj).transpose()
+    elif b == c:
+        sj = ones([a, 1]) * sj
+    else:
+        raise Warning, 'Input array dimensions do not match.'
+
+    # As of Torrence and Compo (1998), eq. (11)
+    iW = dj * sqrt(dt) / w.cdelta * w.psi(0) * (real(W) / sj).sum(axis=0)
+    return iW
 
 
 def significance(signal, dt, scales, sigma_test=0, alpha=0.,
@@ -617,11 +656,7 @@ def significance(signal, dt, scales, sigma_test=0, alpha=0.,
     return (signif, fft_theor)
 
      
-def plotWavelet(signal, title, label, units, \
-                             mother = Morlet(6.), t0=1.0,\
-                             dt=1.0, dj=0.25, s0=-1, \
-                             J=-1, alpha=0.0, slevel = 0.95,\
-                             avg1 =15, avg2=20, nameSave=None):
+def plotWavelet(signal, title, label, units, **kwargs):
     """
      Plot Wavelet Transfor for one signal
 
@@ -641,6 +676,74 @@ PARAMETER:
  avg1,avg2 :  Range of periods to average
  nameSave : Path plus name to save the plot
     """
+    
+    listParameters = ['mother',  't0',  'dt',  'dj',  's0',  'J',  'alpha',  'slevel',  'avg1', 'avg2',  'nameSave']
+    
+    
+    testeKeysArgs = [Ki for Ki in kwargs.keys() if Ki not in  listParameters]
+    
+    if(len(testeKeysArgs) >=1):
+        print 'The following keys args are not defined: ',  testeKeysArgs
+        return
+    
+    
+    if'mother' in kwargs.keys():
+        mother = kwargs['kwarags']
+    
+    else: 
+        mother = Morlet(6.)
+        
+    if't0' in kwargs.keys():
+        t0 = kwargs['t0']
+    
+    else: 
+        t0=1.0
+        
+    if'dt' in kwargs.keys():
+        dt = kwargs['dt']
+    
+    else: 
+        dt=1.0
+        
+    if'dj' in kwargs.keys():
+        dj = kwargs['dj']    
+    else: 
+        dj=0.25
+        
+    if 's0'in kwargs.keys():
+        s0 = kwargs['s0']
+    else:
+        s0=-1
+    
+    if 'J' in kwargs.keys():
+        J = kwargs['J']
+    else:
+        J = -1
+        
+    if 'alpha' in kwargs.keys():
+        alpha = kwargs['alpha']
+    else: 
+        alpha=0.0
+        
+    if 'slevel' in kwargs.keys():
+        slevel = kwargs['slevel']
+    else:
+        slevel = 0.95
+        
+    if 'avg1' in kwargs.keys():
+        avg1 = kwargs['avg1']
+    else:
+        avg1 =15
+        
+    if 'avg2' in kwargs.keys():
+        avg1 = kwargs['avg2']
+    else:
+        avg2 =20
+        
+    if 'nameSave' in kwargs.keys():
+        nameSave = kwargs['nameSave']
+    else:
+        nameSave=None
      
     var = signal
 
@@ -656,14 +759,13 @@ PARAMETER:
     s0 = -1 #2 * dt                      # Starting scale, here 6 months
     J = -1 # 7 / dj                      # Seven powers of two with dj sub-octaves
     alpha = 0.0                          # Lag-1 autocorrelation for white noise
-    wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var, dt, dj, s0, J,
-                                                          mother)
-    iwave = wavelet.icwt(wave, scales, dt, dj, mother)
+    wave, scales, freqs, coi, fft, fftfreqs = cwt(var, dt, dj, s0, J,mother)
+    iwave = icwt(wave, scales, dt, dj, mother)
     power = (abs(wave)) ** 2             # Normalized wavelet power spectrum
     fft_power = std2 * abs(fft) ** 2     # FFT power spectrum
     period = 1. / freqs
     
-    signif, fft_theor = wavelet.significance(1.0, dt, scales, 0, alpha,
+    signif, fft_theor = significance(1.0, dt, scales, 0, alpha,
                             significance_level=slevel, wavelet=mother)
     sig95 = (signif * numpy.ones((N, 1))).transpose()
     sig95 = power / sig95                # Where ratio > 1, power is significant
@@ -671,7 +773,7 @@ PARAMETER:
     # Calculates the global wavelet spectrum and determines its significance level.
     glbl_power = std2 * power.mean(axis=1)
     dof = N - scales                     # Correction for padding at edges
-    glbl_signif, tmp = wavelet.significance(std2, dt, scales, 1, alpha,
+    glbl_signif, tmp = significance(std2, dt, scales, 1, alpha,
                            significance_level=slevel, dof=dof, wavelet=mother)
     
     # Scale average between avg1 and avg2 periods and significance level
@@ -681,7 +783,7 @@ PARAMETER:
     # As in Torrence and Compo (1998) equation 24
     scale_avg = power / scale_avg
     scale_avg = std2 * dj * dt / Cdelta * scale_avg[sel, :].sum(axis=0)
-    scale_avg_signif, tmp = wavelet.significance(std2, dt, scales, 2, alpha,
+    scale_avg_signif, tmp = significance(std2, dt, scales, 2, alpha,
                                 significance_level=slevel, dof=[scales[sel[0]],
                                 scales[sel[-1]]], wavelet=mother)
     
@@ -786,6 +888,13 @@ class wcoherence:
     
     However, the Continuous wavelet transform of the signal, in this class, is a pure python
     function.
+    Callable Class: 
+    RETURN
+        Rsq : Coherence Wavelet
+        period: a vector of "Fourier" periods associated with Wxy
+        scale: a vector of wavelet scales associated with Wxy
+        coi: the cone of influence
+        sig95: Significance
     """
     def __init__(self, signal1, signal2):
         HOME = os.path.expanduser('~')
@@ -833,12 +942,12 @@ RETURN:
                 t : array with time
                 OPTIONALS:
                     gray : (boolean) True for gray map .
-                    levels :
-                    labels :
-                    pArrow :
-                    pSigma :
-                    nameSave :
-                    scale :
+                    levels : List with significance level that will be showed in the plot
+                    labels : List with the Label of significance level that will be apper into the color bar. If not defined, the levels list is used instead
+                    pArrow : (boolean)  True for draw vector of phase angle (it has problem not recomended for large sample of data)
+                    pSigma : (boolean) True for draw the significance countor lines
+                    nameSave : (string) path plus name to save the figure, if it is define, the plot is saved but not showed
+                    scale : (boolean) True  for not log2 scale of the Plot
         """
        
         
@@ -864,6 +973,14 @@ RETURN:
             signif (array like) :
                 Significance levels as a function of Fourier equivalent 
                 frequencies.
+            OPTIONALS:
+                    gray : (boolean) True for gray map .
+                    levels : List with significance level that will be showed in the plot
+                    labels : List with the Label of significance level that will be apper into the color bar. If not defined, the levels list is used instead
+                    pArrow : (boolean)  True for draw vector of phase angle (it has problem not recomended for large sample of data)
+                    pSigma : (boolean) True for draw the significance countor lines
+                    nameSave : (string) path plus name to save the figure, if it is define, the plot is saved but not showed
+                    scale : (boolean) True  for not log2 scale of the Plot
           
         
         RETURNS
@@ -872,6 +989,16 @@ RETURN:
 
         
         """
+        
+        listParameters = ['levels',  'labels',  'pArrow',  'pSigma',  'gray',  'nameSave',  'scale']
+    
+    
+        testeKeysArgs = [Ki for Ki in kwargs.keys() if Ki not in  listParameters]
+    
+        if(len(testeKeysArgs) >=1):
+            print 'The following key args are not defined: ',  testeKeysArgs
+            return
+        
         # Sets some parameters and renames some of the input variables.
         from matplotlib import pyplot
         
@@ -1123,7 +1250,14 @@ RETURN
                 title: Title of the Plot
                 units: (string) Units of the period and time  (e.g. 'days')
                 t : array with time
-                gray: Optional - (boolean) True for gray map .
+                OPTIONALS:
+                    gray : (boolean) True for gray map .
+                    levels : List with significance level that will be showed in the plot
+                    labels : List with the Label of significance level that will be apper into the color bar. If not defined, the levels list is used instead
+                    pArrow : (boolean)  True for draw vector of phase angle (it has problem not recomended for large sample of data)
+                    pSigma : (boolean) True for draw the significance countor lines
+                    nameSave : (string) path plus name to save the figure, if it is define, the plot is saved but not showed
+                    scale : (boolean) True  for not log2 scale of the Plot
         """
         self.__plotXWC(self.xwt, t, self.coi, self.freqs, self.signif, title, units,**kwargs)
         
@@ -1144,6 +1278,14 @@ RETURN
             signif (array like) :
                 Significance levels as a function of Fourier equivalent 
                 frequencies.
+            OPTIONALS:
+                    gray : (boolean) True for gray map .
+                    levels : List with significance level that will be showed in the plot
+                    labels : List with the Label of significance level that will be apper into the color bar. If not defined, the levels list is used instead
+                    pArrow : (boolean)  True for draw vector of phase angle (it has problem not recomended for large sample of data)
+                    pSigma : (boolean) True for draw the significance countor lines
+                    nameSave : (string) path plus name to save the figure, if it is define, the plot is saved but not showed
+                    scale : (boolean) True  for not log2 scale of the Plot
           
         
         RETURNS
@@ -1153,6 +1295,16 @@ RETURN
         
         """
         # Sets some parameters and renames some of the input variables.
+        
+        listParameters = ['levels',  'labels',  'pArrow',  'pSigma',  'gray',  'nameSave',  'scale']
+    
+    
+        testeKeysArgs = [Ki for Ki in kwargs.keys() if Ki not in  listParameters]
+    
+        if(len(testeKeysArgs) >=1):
+            print 'The following key args are not defined: ',  testeKeysArgs
+            return
+            
         from matplotlib import pyplot
         
         if 'levels' in kwargs.keys():
@@ -1347,389 +1499,389 @@ class smooth:
         swave = octave.call('smoothwavelet', wave,dt,period,dj,scale)
         return swave
 
-#*********************************************************************************************************
-#  Continuous wavelet transform 
-#*********************************************************************************************************
-
-class waveletCC:
-    """
-    Continuous wavelet transform of the signal at specified scales.
-   
-    """
-    
-    def __init__(self):
-        pass
-        
-    def cwt(self, signal, dt, dj=0.25, s0=-1, J=-1, wavelet=Morlet()):
-        """Continuous wavelet transform of the signal at specified scales.
-    
-        PARAMETERS
-            signal (array like) :
-                Input signal array
-            dt (float) :
-                Sample spacing.
-            dj (float, optional) :
-                Spacing between discrete scales. Default value is 0.25.
-                Smaller values will result in better scale resolution, but
-                slower calculation and plot.
-            s0 (float, optional) :
-                Smallest scale of the wavelet. Default value is 2*dt.
-            J (float, optional) :
-                Number of scales less one. Scales range from s0 up to
-                s0 * 2**(J * dj), which gives a total of (J + 1) scales.
-                Default is J = (log2(N*dt/so))/dj.
-            wavelet (class, optional) :
-                Mother wavelet class. Default is Morlet()
-    
-        RETURNS
-            W (array like) :
-                Wavelet transform according to the selected mother wavelet.
-                Has (J+1) x N dimensions.
-            sj (array like) :
-                Vector of scale indices given by sj = s0 * 2**(j * dj),
-                j={0, 1, ..., J}.
-            freqs (array like) :
-                Vector of Fourier frequencies (in 1 / time units) that
-                corresponds to the wavelet scales.
-            coi (array like) :
-                Returns the cone of influence, which is a vector of N
-                points containing the maximum Fourier period of useful
-                information at that particular time. Periods greater than
-                those are subject to edge effects.
-            fft (array like) :
-                Normalized fast Fourier transform of the input signal.
-            fft_freqs (array like):
-                Fourier frequencies (in 1/time units) for the calculated
-                FFT spectrum.
-    
-        EXAMPLE
-            mother = wavelet.Morlet(6.)
-            wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var,
-                0.25, 0.25, 0.5, 28, mother)
-    
-        """
-        n0 = len(signal)                              # Original signal length.
-        if s0 == -1: s0 = 2 * dt / wavelet.flambda()  # Smallest resolvable scale
-        if J == -1: J = int(log2(n0 * dt / s0) / dj)  # Number of scales
-        N = 2 ** (int(log2(n0)) + 1)                  # Next higher power of 2.
-        signal_ft = fft(signal, N)                    # Signal Fourier transform
-        ftfreqs = 2 * pi * fftfreq(N, dt)             # Fourier angular frequencies
-    
-        sj = s0 * 2. ** (arange(0, J+1) * dj)         # The scales
-        freqs = 1. / (wavelet.flambda() * sj)         # As of Mallat 1999
-    
-        # Creates an empty wavlet transform matrix and fills it for every discrete
-        # scale using the convolution theorem.
-        W = zeros((len(sj), N), 'complex')
-        for n, s in enumerate(sj):
-            psi_ft_bar = (s * ftfreqs[1] * N) ** .5 * conjugate(wavelet.psi_ft(s * ftfreqs))
-            W[n, :] = ifft(signal_ft * psi_ft_bar, N)
-    
-        # Checks for NaN in transform results and removes them from the scales,
-        # frequencies and wavelet transform.
-        sel = ~isnan(W).all(axis=1)
-        sj = sj[sel]
-        freqs = freqs[sel]
-        W = W[sel, :]
-    
-        # Determines the cone-of-influence. Note that it is returned as a function
-        # of time in Fourier periods. Uses triangualr Bartlett window with non-zero
-        # end-points.
-        coi = (n0 / 2. - abs(arange(0, n0) - (n0 - 1) / 2))
-        coi = wavelet.flambda() * wavelet.coi() * dt * coi
-        #
-        return (W[:, :n0], sj, freqs, coi, signal_ft[1:N/2] / N ** 0.5,
-                ftfreqs[1:N/2] / (2. * pi))
-                
-    def significance(self, signal, dt, scales, sigma_test=0, alpha=0.,
-                 significance_level=0.95, dof=-1, wavelet=Morlet()):
-        """
-        Significance testing for the onde dimensional wavelet transform.
-    
-        PARAMETERS
-            signal (array like or float) :
-                Input signal array. If a float number is given, then the
-                variance is assumed to have this value. If an array is
-                given, then its variance is automatically computed.
-            dt (float, optional) :
-                Sample spacing. Default is 1.0.
-            scales (array like) :
-                Vector of scale indices given returned by cwt function.
-            sigma_test (int, optional) :
-                Sets the type of significance test to be performed.
-                Accepted values are 0, 1 or 2. If omitted assume 0.
-    
-                If set to 0, performs a regular chi-square test, according
-                to Torrence and Compo (1998) equation 18.
-    
-                If set to 1, performs a time-average test (equation 23). In
-                this case, dof should be set to the number of local wavelet
-                spectra that where averaged together. For the global
-                wavelet spectra it would be dof=N, the number of points in
-                the time-series.
-    
-                If set to 2, performs a scale-average test (equations 25 to
-                28). In this case dof should be set to a two element vector
-                [s1, s2], which gives the scale range that were averaged
-                together. If, for example, the average between scales 2 and
-                8 was taken, then dof=[2, 8].
-            alpha (float, optional) :
-                Lag-1 autocorrelation, used for the significance levels.
-                Default is 0.0.
-            significance_level (float, optional) :
-                Significance level to use. Default is 0.95.
-            dof (variant, optional) :
-                Degrees of freedom for significance test to be set
-                according to the type set in sigma_test.
-            wavelet (class, optional) :
-                Mother wavelet class. Default is Morlet().
-    
-        RETURNS
-            signif (array like) :
-                Significance levels as a function of scale.
-            fft_theor (array like):
-                Theoretical red-noise spectrum as a function of period.
-    
-        """
-        try:
-          n0 = len(signal)
-        except:
-          n0 = 1
-        J = len(scales) - 1
-        s0 = min(scales)
-        dj = log2(scales[1] / scales[0])
-    
-        if n0 == 1:
-          variance = signal
-        else:
-          variance = signal.std() ** 2
-    
-        period = scales * wavelet.flambda()  # Fourier equivalent periods
-        freq = dt / period                   # Normalized frequency
-        dofmin = wavelet.dofmin              # Degrees of freedom with no smoothing
-        Cdelta = wavelet.cdelta              # Reconstruction factor
-        gamma_fac = wavelet.gamma            # Time-decorrelation factor
-        dj0 = wavelet.deltaj0                # Scale-decorrelation factor
-    
-        # Theoretical discrete Fourier power spectrum of the noise signal following
-        # Gilman et al. (1963) and Torrence and Compo (1998), equation 16.
-        pk = lambda k, a, N: (1 - a ** 2) / (1 + a ** 2 - 2 * a *
-            cos(2 * pi * k / N))
-        fft_theor = pk(freq, alpha, n0)
-        fft_theor = variance * fft_theor     # Including time-series variance
-        signif = fft_theor
-    
-        try:
-            if dof == -1:
-                dof = dofmin
-        except:
-            pass
-    
-        if sigma_test == 0:  # No smoothing, dof=dofmin, TC98 sec. 4
-            dof = dofmin
-            # As in Torrence and Compo (1998), equation 18
-            chisquare = chi2.ppf(significance_level, dof) / dof
-            signif = fft_theor * chisquare
-        elif sigma_test == 1:  # Time-averaged significance
-            if len(dof) == 1:
-                dof = zeros(1, J+1) + dof
-            sel = find(dof < 1)
-            dof[sel] = 1
-            # As in Torrence and Compo (1998), equation 23:
-            dof = dofmin * (1 + (dof * dt / gamma_fac / scales) ** 2 ) ** 0.5
-            sel = find(dof < dofmin)
-            dof[sel] = dofmin  # Minimum dof is dofmin
-            for n, d in enumerate(dof):
-                chisquare = chi2.ppf(significance_level, d) / d;
-                signif[n] = fft_theor[n] * chisquare
-        elif sigma_test == 2:  # Time-averaged significance
-            if len(dof) != 2:
-                raise Exception, ('DOF must be set to [s1, s2], '
-                                  'the range of scale-averages')
-            if Cdelta == -1:
-                raise Exception, ('Cdelta and dj0 not defined for %s with f0=%f' %
-                                 (wavelet.name, wavelet.f0))
-    
-            s1, s2 = dof
-            sel = find((scales >= s1) & (scales <= s2));
-            navg = sel.size
-            if navg == 0:
-                raise Exception, 'No valid scales between %d and %d.' % (s1, s2)
-    
-            # As in Torrence and Compo (1998), equation 25
-            Savg = 1 / sum(1. / scales[sel])
-            # Power-of-two mid point:
-            Smid = exp((log(s1) + log(s2)) / 2.)
-            # As in Torrence and Compo (1998), equation 28
-            dof = (dofmin * navg * Savg / Smid) * ((1 + (navg * dj / dj0) ** 2) **
-                                                  0.5)
-            # As in Torrence and Compo (1998), equation 27
-            fft_theor = Savg * sum(fft_theor[sel] / scales[sel])
-            chisquare = chi2.ppf(significance_level, dof) / dof;
-            # As in Torrence and Compo (1998), equation 26
-            signif = (dj * dt / Cdelta / Savg) * fft_theor * chisquare
-        else:
-            raise Exception, 'sigma_test must be either 0, 1, or 2.'
-    
-        return (signif, fft_theor)
-
-    def plotWavelet(self,signal, title, label, units, \
-                                mother = Morlet(6.), t0=1.0,\
-                                dt=1.0, dj=0.25, s0=-1, \
-                                J=-1, alpha=0.0, slevel = 0.95,\
-                                avg1 =15, avg2=20, nameSave=None):
-        """
-        Plot Wavelet Transfor for one signal
-
-PARAMETER:
-    signal : The signal that will be transformed
-    title : Title of the plot
-    label : Label 
-    units : unit of the data
-    mother : The Mother  Wavelet. Default Morlet mother wavelet with wavenumber=6
-    t0 : Initial time step
-    dt : time step
-    dj : Four sub-octaves per octaves
-    s0 : Starting scale, here 6 months
-    J : Seven powers of two with dj sub-octaves
-    alpha: Lag-1 autocorrelation for white noise
-    slevel : Significance level
-    avg1,avg2 :  Range of periods to average
-    nameSave : Path plus name to save the plot
-        """
-
-        var = signal
-
-        
-        std = var.std()                      # Standard deviation
-        std2 = std ** 2                      # Variance
-        var = (var - var.mean()) / std       # Calculating anomaly and normalizing
-        
-        N = var.size                         # Number of measurements
-        time = numpy.arange(0, N) * dt + t0  # Time array in years
-        
-        dj = 0.25                            # Four sub-octaves per octaves
-        s0 = -1 #2 * dt                      # Starting scale, here 6 months
-        J = -1 # 7 / dj                      # Seven powers of two with dj sub-octaves
-        alpha = 0.0                          # Lag-1 autocorrelation for white noise
-      
-        wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var, dt, dj, s0, J,
-                                                              mother)
-        iwave = wavelet.icwt(wave, scales, dt, dj, mother)
-        power = (abs(wave)) ** 2             # Normalized wavelet power spectrum
-        fft_power = std2 * abs(fft) ** 2     # FFT power spectrum
-        period = 1. / freqs
-        
-        signif, fft_theor = wavelet.significance(1.0, dt, scales, 0, alpha,
-                                significance_level=slevel, wavelet=mother)
-        sig95 = (signif * numpy.ones((N, 1))).transpose()
-        sig95 = power / sig95                # Where ratio > 1, power is significant
-        
-        # Calculates the global wavelet spectrum and determines its significance level.
-        glbl_power = std2 * power.mean(axis=1)
-        dof = N - scales                     # Correction for padding at edges
-        glbl_signif, tmp = wavelet.significance(std2, dt, scales, 1, alpha,
-                               significance_level=slevel, dof=dof, wavelet=mother)
-        
-        # Scale average between avg1 and avg2 periods and significance level
-        sel = pylab.find((period >= avg1) & (period < avg2))
-        Cdelta = mother.cdelta
-        scale_avg = (scales * numpy.ones((N, 1))).transpose()
-        # As in Torrence and Compo (1998) equation 24
-        scale_avg = power / scale_avg
-        scale_avg = std2 * dj * dt / Cdelta * scale_avg[sel, :].sum(axis=0)
-        scale_avg_signif, tmp = wavelet.significance(std2, dt, scales, 2, alpha,
-                                    significance_level=slevel, dof=[scales[sel[0]],
-                                    scales[sel[-1]]], wavelet=mother)
-        
-        # The following routines plot the results in four different subplots containing
-        # the original series anomaly, the wavelet power spectrum, the global wavelet
-        # and Fourier spectra and finally the range averaged wavelet spectrum. In all
-        # sub-plots the significance levels are either included as dotted lines or as
-        # filled contour lines.
-        pylab.close('all')
-        fontsize = 'medium'
-        params = {'text.fontsize': fontsize,
-                  'xtick.labelsize': fontsize,
-                  'ytick.labelsize': fontsize,
-                  'axes.titlesize': fontsize,
-                  'text.usetex': True
-                 }
-        pylab.rcParams.update(params)          # Plot parameters
-        figprops = dict(figsize=(11, 8), dpi=72)
-        fig = pylab.figure(**figprops)
-        
-        # First sub-plot, the original time series anomaly.
-        ax = pylab.axes([0.1, 0.75, 0.65, 0.2])
-        #ax.plot(time, iwave, '-', linewidth=1, color=[0.5, 0.5, 0.5])
-        ax.plot(time, var, 'k', linewidth=1.5)
-        ax.set_title('a) %s' % (title, ))
-        if units != '':
-          ax.set_ylabel(r'%s [$%s$/$%s$]' % (label, units,units, ))
-        else:
-          ax.set_ylabel(r'%s' % (label, ))
-        
-        # Second sub-plot, the normalized wavelet power spectrum and significance level
-        # contour lines and cone of influece hatched area.
-        bx = pylab.axes([0.1, 0.37, 0.65, 0.28], sharex=ax)
-        levels = [0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8, 16]
-        bx.contourf(time, numpy.log2(period), numpy.log2(power), numpy.log2(levels),
-                    extend='both')
-        bx.contour(time, numpy.log2(period), sig95, [-99, 1], colors='k',
-                   linewidths=2.)
-        bx.fill(numpy.concatenate([time[:1]-dt, time, time[-1:]+dt, time[-1:]+dt,
-                time[:1]-dt, time[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi,
-                [1e-9], period[-1:], period[-1:], [1e-9]])), 'k', alpha='0.3',
-                hatch='x')
-        bx.set_title('b) %s Wavelet Power Spectrum (%s)' % (label, mother.name))
-        bx.set_ylabel('Period (Days)')
-        Yticks = 2 ** numpy.arange(numpy.ceil(numpy.log2(period.min())),
-                                   numpy.ceil(numpy.log2(period.max())))
-        bx.set_yticks(numpy.log2(Yticks))
-        bx.set_yticklabels(Yticks)
-        bx.invert_yaxis()
-        
-        # Third sub-plot, the global wavelet and Fourier power spectra and theoretical
-        # noise spectra.
-        cx = pylab.axes([0.77, 0.37, 0.2, 0.28], sharey=bx)
-        cx.plot(glbl_signif, numpy.log2(period), 'k--')
-        cx.plot(fft_power, numpy.log2(1./fftfreqs), '-', color=[0.7, 0.7, 0.7],
-                linewidth=1.)
-        cx.plot(glbl_power, numpy.log2(period), 'k-', linewidth=1.5)
-        cx.set_title('c) Global Wavelet Spectrum')
-        if units != '':
-          cx.set_xlabel(r'Power [$%s^2$]' % (units, ))
-        else:
-          cx.set_xlabel(r'Power')
-        #cx.set_xlim([0, glbl_power.max() + std2])
-        cx.set_ylim(numpy.log2([period.min(), period.max()]))
-        cx.set_yticks(numpy.log2(Yticks))
-        cx.set_yticklabels(Yticks)
-        pylab.setp(cx.get_yticklabels(), visible=False)
-        cx.invert_yaxis()
-        
-        # Fourth sub-plot, the scale averaged wavelet spectrum as determined by the
-        # avg1 and avg2 parameters
-        dx = pylab.axes([0.1, 0.07, 0.65, 0.2], sharex=ax)
-        dx.axhline(scale_avg_signif, color='k', linestyle='--', linewidth=1.)
-        dx.plot(time, scale_avg, 'k-', linewidth=1.5)
-        dx.set_title('d) $%d$-$%d$ year scale-averaged power' % (avg1, avg2))
-        dx.set_xlabel('Time (days)')
-        if units != '':
-          dx.set_ylabel(r'Average variance [$%s$]' % (units, ))
-        else:
-          dx.set_ylabel(r'Average variance')
-        #
-        ax.set_xlim([time.min(), time.max()])
-        #
-        pylab.draw()
-        if(nameSave):
-            pylab.savefig(nameSave)
-        else:
-            pylab.show()
-        
-
-
-
-
-
+##*********************************************************************************************************
+##  Continuous wavelet transform 
+##*********************************************************************************************************
+#
+#class waveletCC:
+#    """
+#    Continuous wavelet transform of the signal at specified scales.
+#   
+#    """
+#    
+#    def __init__(self):
+#        pass
+#        
+#    def cwt(self, signal, dt, dj=0.25, s0=-1, J=-1, wavelet=Morlet()):
+#        """Continuous wavelet transform of the signal at specified scales.
+#    
+#        PARAMETERS
+#            signal (array like) :
+#                Input signal array
+#            dt (float) :
+#                Sample spacing.
+#            dj (float, optional) :
+#                Spacing between discrete scales. Default value is 0.25.
+#                Smaller values will result in better scale resolution, but
+#                slower calculation and plot.
+#            s0 (float, optional) :
+#                Smallest scale of the wavelet. Default value is 2*dt.
+#            J (float, optional) :
+#                Number of scales less one. Scales range from s0 up to
+#                s0 * 2**(J * dj), which gives a total of (J + 1) scales.
+#                Default is J = (log2(N*dt/so))/dj.
+#            wavelet (class, optional) :
+#                Mother wavelet class. Default is Morlet()
+#    
+#        RETURNS
+#            W (array like) :
+#                Wavelet transform according to the selected mother wavelet.
+#                Has (J+1) x N dimensions.
+#            sj (array like) :
+#                Vector of scale indices given by sj = s0 * 2**(j * dj),
+#                j={0, 1, ..., J}.
+#            freqs (array like) :
+#                Vector of Fourier frequencies (in 1 / time units) that
+#                corresponds to the wavelet scales.
+#            coi (array like) :
+#                Returns the cone of influence, which is a vector of N
+#                points containing the maximum Fourier period of useful
+#                information at that particular time. Periods greater than
+#                those are subject to edge effects.
+#            fft (array like) :
+#                Normalized fast Fourier transform of the input signal.
+#            fft_freqs (array like):
+#                Fourier frequencies (in 1/time units) for the calculated
+#                FFT spectrum.
+#    
+#        EXAMPLE
+#            mother = wavelet.Morlet(6.)
+#            wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var,
+#                0.25, 0.25, 0.5, 28, mother)
+#    
+#        """
+#        n0 = len(signal)                              # Original signal length.
+#        if s0 == -1: s0 = 2 * dt / wavelet.flambda()  # Smallest resolvable scale
+#        if J == -1: J = int(log2(n0 * dt / s0) / dj)  # Number of scales
+#        N = 2 ** (int(log2(n0)) + 1)                  # Next higher power of 2.
+#        signal_ft = fft(signal, N)                    # Signal Fourier transform
+#        ftfreqs = 2 * pi * fftfreq(N, dt)             # Fourier angular frequencies
+#    
+#        sj = s0 * 2. ** (arange(0, J+1) * dj)         # The scales
+#        freqs = 1. / (wavelet.flambda() * sj)         # As of Mallat 1999
+#    
+#        # Creates an empty wavlet transform matrix and fills it for every discrete
+#        # scale using the convolution theorem.
+#        W = zeros((len(sj), N), 'complex')
+#        for n, s in enumerate(sj):
+#            psi_ft_bar = (s * ftfreqs[1] * N) ** .5 * conjugate(wavelet.psi_ft(s * ftfreqs))
+#            W[n, :] = ifft(signal_ft * psi_ft_bar, N)
+#    
+#        # Checks for NaN in transform results and removes them from the scales,
+#        # frequencies and wavelet transform.
+#        sel = ~isnan(W).all(axis=1)
+#        sj = sj[sel]
+#        freqs = freqs[sel]
+#        W = W[sel, :]
+#    
+#        # Determines the cone-of-influence. Note that it is returned as a function
+#        # of time in Fourier periods. Uses triangualr Bartlett window with non-zero
+#        # end-points.
+#        coi = (n0 / 2. - abs(arange(0, n0) - (n0 - 1) / 2))
+#        coi = wavelet.flambda() * wavelet.coi() * dt * coi
+#        #
+#        return (W[:, :n0], sj, freqs, coi, signal_ft[1:N/2] / N ** 0.5,
+#                ftfreqs[1:N/2] / (2. * pi))
+#                
+#    def significance(self, signal, dt, scales, sigma_test=0, alpha=0.,
+#                 significance_level=0.95, dof=-1, wavelet=Morlet()):
+#        """
+#        Significance testing for the onde dimensional wavelet transform.
+#    
+#        PARAMETERS
+#            signal (array like or float) :
+#                Input signal array. If a float number is given, then the
+#                variance is assumed to have this value. If an array is
+#                given, then its variance is automatically computed.
+#            dt (float, optional) :
+#                Sample spacing. Default is 1.0.
+#            scales (array like) :
+#                Vector of scale indices given returned by cwt function.
+#            sigma_test (int, optional) :
+#                Sets the type of significance test to be performed.
+#                Accepted values are 0, 1 or 2. If omitted assume 0.
+#    
+#                If set to 0, performs a regular chi-square test, according
+#                to Torrence and Compo (1998) equation 18.
+#    
+#                If set to 1, performs a time-average test (equation 23). In
+#                this case, dof should be set to the number of local wavelet
+#                spectra that where averaged together. For the global
+#                wavelet spectra it would be dof=N, the number of points in
+#                the time-series.
+#    
+#                If set to 2, performs a scale-average test (equations 25 to
+#                28). In this case dof should be set to a two element vector
+#                [s1, s2], which gives the scale range that were averaged
+#                together. If, for example, the average between scales 2 and
+#                8 was taken, then dof=[2, 8].
+#            alpha (float, optional) :
+#                Lag-1 autocorrelation, used for the significance levels.
+#                Default is 0.0.
+#            significance_level (float, optional) :
+#                Significance level to use. Default is 0.95.
+#            dof (variant, optional) :
+#                Degrees of freedom for significance test to be set
+#                according to the type set in sigma_test.
+#            wavelet (class, optional) :
+#                Mother wavelet class. Default is Morlet().
+#    
+#        RETURNS
+#            signif (array like) :
+#                Significance levels as a function of scale.
+#            fft_theor (array like):
+#                Theoretical red-noise spectrum as a function of period.
+#    
+#        """
+#        try:
+#          n0 = len(signal)
+#        except:
+#          n0 = 1
+#        J = len(scales) - 1
+#        s0 = min(scales)
+#        dj = log2(scales[1] / scales[0])
+#    
+#        if n0 == 1:
+#          variance = signal
+#        else:
+#          variance = signal.std() ** 2
+#    
+#        period = scales * wavelet.flambda()  # Fourier equivalent periods
+#        freq = dt / period                   # Normalized frequency
+#        dofmin = wavelet.dofmin              # Degrees of freedom with no smoothing
+#        Cdelta = wavelet.cdelta              # Reconstruction factor
+#        gamma_fac = wavelet.gamma            # Time-decorrelation factor
+#        dj0 = wavelet.deltaj0                # Scale-decorrelation factor
+#    
+#        # Theoretical discrete Fourier power spectrum of the noise signal following
+#        # Gilman et al. (1963) and Torrence and Compo (1998), equation 16.
+#        pk = lambda k, a, N: (1 - a ** 2) / (1 + a ** 2 - 2 * a *
+#            cos(2 * pi * k / N))
+#        fft_theor = pk(freq, alpha, n0)
+#        fft_theor = variance * fft_theor     # Including time-series variance
+#        signif = fft_theor
+#    
+#        try:
+#            if dof == -1:
+#                dof = dofmin
+#        except:
+#            pass
+#    
+#        if sigma_test == 0:  # No smoothing, dof=dofmin, TC98 sec. 4
+#            dof = dofmin
+#            # As in Torrence and Compo (1998), equation 18
+#            chisquare = chi2.ppf(significance_level, dof) / dof
+#            signif = fft_theor * chisquare
+#        elif sigma_test == 1:  # Time-averaged significance
+#            if len(dof) == 1:
+#                dof = zeros(1, J+1) + dof
+#            sel = find(dof < 1)
+#            dof[sel] = 1
+#            # As in Torrence and Compo (1998), equation 23:
+#            dof = dofmin * (1 + (dof * dt / gamma_fac / scales) ** 2 ) ** 0.5
+#            sel = find(dof < dofmin)
+#            dof[sel] = dofmin  # Minimum dof is dofmin
+#            for n, d in enumerate(dof):
+#                chisquare = chi2.ppf(significance_level, d) / d;
+#                signif[n] = fft_theor[n] * chisquare
+#        elif sigma_test == 2:  # Time-averaged significance
+#            if len(dof) != 2:
+#                raise Exception, ('DOF must be set to [s1, s2], '
+#                                  'the range of scale-averages')
+#            if Cdelta == -1:
+#                raise Exception, ('Cdelta and dj0 not defined for %s with f0=%f' %
+#                                 (wavelet.name, wavelet.f0))
+#    
+#            s1, s2 = dof
+#            sel = find((scales >= s1) & (scales <= s2));
+#            navg = sel.size
+#            if navg == 0:
+#                raise Exception, 'No valid scales between %d and %d.' % (s1, s2)
+#    
+#            # As in Torrence and Compo (1998), equation 25
+#            Savg = 1 / sum(1. / scales[sel])
+#            # Power-of-two mid point:
+#            Smid = exp((log(s1) + log(s2)) / 2.)
+#            # As in Torrence and Compo (1998), equation 28
+#            dof = (dofmin * navg * Savg / Smid) * ((1 + (navg * dj / dj0) ** 2) **
+#                                                  0.5)
+#            # As in Torrence and Compo (1998), equation 27
+#            fft_theor = Savg * sum(fft_theor[sel] / scales[sel])
+#            chisquare = chi2.ppf(significance_level, dof) / dof;
+#            # As in Torrence and Compo (1998), equation 26
+#            signif = (dj * dt / Cdelta / Savg) * fft_theor * chisquare
+#        else:
+#            raise Exception, 'sigma_test must be either 0, 1, or 2.'
+#    
+#        return (signif, fft_theor)
+#
+#    def plotWavelet(self,signal, title, label, units, \
+#                                mother = Morlet(6.), t0=1.0,\
+#                                dt=1.0, dj=0.25, s0=-1, \
+#                                J=-1, alpha=0.0, slevel = 0.95,\
+#                                avg1 =15, avg2=20, nameSave=None):
+#        """
+#        Plot Wavelet Transfor for one signal
+#
+#PARAMETER:
+#    signal : The signal that will be transformed
+#    title : Title of the plot
+#    label : Label 
+#    units : unit of the data
+#    mother : The Mother  Wavelet. Default Morlet mother wavelet with wavenumber=6
+#    t0 : Initial time step
+#    dt : time step
+#    dj : Four sub-octaves per octaves
+#    s0 : Starting scale, here 6 months
+#    J : Seven powers of two with dj sub-octaves
+#    alpha: Lag-1 autocorrelation for white noise
+#    slevel : Significance level
+#    avg1,avg2 :  Range of periods to average
+#    nameSave : Path plus name to save the plot
+#        """
+#
+#        var = signal
+#
+#        
+#        std = var.std()                      # Standard deviation
+#        std2 = std ** 2                      # Variance
+#        var = (var - var.mean()) / std       # Calculating anomaly and normalizing
+#        
+#        N = var.size                         # Number of measurements
+#        time = numpy.arange(0, N) * dt + t0  # Time array in years
+#        
+#        dj = 0.25                            # Four sub-octaves per octaves
+#        s0 = -1 #2 * dt                      # Starting scale, here 6 months
+#        J = -1 # 7 / dj                      # Seven powers of two with dj sub-octaves
+#        alpha = 0.0                          # Lag-1 autocorrelation for white noise
+#      
+#        wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var, dt, dj, s0, J,
+#                                                              mother)
+#        iwave = wavelet.icwt(wave, scales, dt, dj, mother)
+#        power = (abs(wave)) ** 2             # Normalized wavelet power spectrum
+#        fft_power = std2 * abs(fft) ** 2     # FFT power spectrum
+#        period = 1. / freqs
+#        
+#        signif, fft_theor = wavelet.significance(1.0, dt, scales, 0, alpha,
+#                                significance_level=slevel, wavelet=mother)
+#        sig95 = (signif * numpy.ones((N, 1))).transpose()
+#        sig95 = power / sig95                # Where ratio > 1, power is significant
+#        
+#        # Calculates the global wavelet spectrum and determines its significance level.
+#        glbl_power = std2 * power.mean(axis=1)
+#        dof = N - scales                     # Correction for padding at edges
+#        glbl_signif, tmp = wavelet.significance(std2, dt, scales, 1, alpha,
+#                               significance_level=slevel, dof=dof, wavelet=mother)
+#        
+#        # Scale average between avg1 and avg2 periods and significance level
+#        sel = pylab.find((period >= avg1) & (period < avg2))
+#        Cdelta = mother.cdelta
+#        scale_avg = (scales * numpy.ones((N, 1))).transpose()
+#        # As in Torrence and Compo (1998) equation 24
+#        scale_avg = power / scale_avg
+#        scale_avg = std2 * dj * dt / Cdelta * scale_avg[sel, :].sum(axis=0)
+#        scale_avg_signif, tmp = wavelet.significance(std2, dt, scales, 2, alpha,
+#                                    significance_level=slevel, dof=[scales[sel[0]],
+#                                    scales[sel[-1]]], wavelet=mother)
+#        
+#        # The following routines plot the results in four different subplots containing
+#        # the original series anomaly, the wavelet power spectrum, the global wavelet
+#        # and Fourier spectra and finally the range averaged wavelet spectrum. In all
+#        # sub-plots the significance levels are either included as dotted lines or as
+#        # filled contour lines.
+#        pylab.close('all')
+#        fontsize = 'medium'
+#        params = {'text.fontsize': fontsize,
+#                  'xtick.labelsize': fontsize,
+#                  'ytick.labelsize': fontsize,
+#                  'axes.titlesize': fontsize,
+#                  'text.usetex': True
+#                 }
+#        pylab.rcParams.update(params)          # Plot parameters
+#        figprops = dict(figsize=(11, 8), dpi=72)
+#        fig = pylab.figure(**figprops)
+#        
+#        # First sub-plot, the original time series anomaly.
+#        ax = pylab.axes([0.1, 0.75, 0.65, 0.2])
+#        #ax.plot(time, iwave, '-', linewidth=1, color=[0.5, 0.5, 0.5])
+#        ax.plot(time, var, 'k', linewidth=1.5)
+#        ax.set_title('a) %s' % (title, ))
+#        if units != '':
+#          ax.set_ylabel(r'%s [$%s$/$%s$]' % (label, units,units, ))
+#        else:
+#          ax.set_ylabel(r'%s' % (label, ))
+#        
+#        # Second sub-plot, the normalized wavelet power spectrum and significance level
+#        # contour lines and cone of influece hatched area.
+#        bx = pylab.axes([0.1, 0.37, 0.65, 0.28], sharex=ax)
+#        levels = [0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8, 16]
+#        bx.contourf(time, numpy.log2(period), numpy.log2(power), numpy.log2(levels),
+#                    extend='both')
+#        bx.contour(time, numpy.log2(period), sig95, [-99, 1], colors='k',
+#                   linewidths=2.)
+#        bx.fill(numpy.concatenate([time[:1]-dt, time, time[-1:]+dt, time[-1:]+dt,
+#                time[:1]-dt, time[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi,
+#                [1e-9], period[-1:], period[-1:], [1e-9]])), 'k', alpha='0.3',
+#                hatch='x')
+#        bx.set_title('b) %s Wavelet Power Spectrum (%s)' % (label, mother.name))
+#        bx.set_ylabel('Period (Days)')
+#        Yticks = 2 ** numpy.arange(numpy.ceil(numpy.log2(period.min())),
+#                                   numpy.ceil(numpy.log2(period.max())))
+#        bx.set_yticks(numpy.log2(Yticks))
+#        bx.set_yticklabels(Yticks)
+#        bx.invert_yaxis()
+#        
+#        # Third sub-plot, the global wavelet and Fourier power spectra and theoretical
+#        # noise spectra.
+#        cx = pylab.axes([0.77, 0.37, 0.2, 0.28], sharey=bx)
+#        cx.plot(glbl_signif, numpy.log2(period), 'k--')
+#        cx.plot(fft_power, numpy.log2(1./fftfreqs), '-', color=[0.7, 0.7, 0.7],
+#                linewidth=1.)
+#        cx.plot(glbl_power, numpy.log2(period), 'k-', linewidth=1.5)
+#        cx.set_title('c) Global Wavelet Spectrum')
+#        if units != '':
+#          cx.set_xlabel(r'Power [$%s^2$]' % (units, ))
+#        else:
+#          cx.set_xlabel(r'Power')
+#        #cx.set_xlim([0, glbl_power.max() + std2])
+#        cx.set_ylim(numpy.log2([period.min(), period.max()]))
+#        cx.set_yticks(numpy.log2(Yticks))
+#        cx.set_yticklabels(Yticks)
+#        pylab.setp(cx.get_yticklabels(), visible=False)
+#        cx.invert_yaxis()
+#        
+#        # Fourth sub-plot, the scale averaged wavelet spectrum as determined by the
+#        # avg1 and avg2 parameters
+#        dx = pylab.axes([0.1, 0.07, 0.65, 0.2], sharex=ax)
+#        dx.axhline(scale_avg_signif, color='k', linestyle='--', linewidth=1.)
+#        dx.plot(time, scale_avg, 'k-', linewidth=1.5)
+#        dx.set_title('d) $%d$-$%d$ year scale-averaged power' % (avg1, avg2))
+#        dx.set_xlabel('Time (days)')
+#        if units != '':
+#          dx.set_ylabel(r'Average variance [$%s$]' % (units, ))
+#        else:
+#          dx.set_ylabel(r'Average variance')
+#        #
+#        ax.set_xlim([time.min(), time.max()])
+#        #
+#        pylab.draw()
+#        if(nameSave):
+#            pylab.savefig(nameSave)
+#        else:
+#            pylab.show()
+#        
+#
+#
+#
+#
+#

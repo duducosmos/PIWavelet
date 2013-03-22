@@ -1,6 +1,43 @@
 <!doctype html>
 <html>
   <head>
+  <style type="text/css">
+	<!--
+		body {
+			padding:0px;
+			margin:0px;
+		}
+
+		#menu ul {
+			padding:0px;
+			margin:0px;
+			float: left;
+			width: 100%;
+			background-color:#EDEDED;
+			list-style:none;
+			font:150% Tahoma;
+		}
+
+		#menu ul li { display: inline; }
+
+		#menu ul li a {
+			background-color:#EDEDED;
+			color: #333;
+			text-decoration: none;
+			border-bottom:3px solid #EDEDED;
+			padding: 2px 10px;
+			float:left;
+		}
+
+		#menu ul li a:hover {
+			background-color:#D6D6D6;
+			color: #6D6D6D;
+			border-bottom:3px solid #EA0000;
+		}
+		
+	
+	-->
+	</style>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Piwavelet by duducosmos</title>
@@ -17,8 +54,19 @@
   </head>
   <body onload="replaceMath(document.body)">
         
-
+</ul>
+        
     <div class="wrapper">
+    <div id="menu" style="position:fixed;background:white;width:100%;">     
+          <ul>
+          <li><a href="" >Introduction</a>Menu : </li>
+           <li><a href="#introd" >Introduction</a></li>
+           <li><a href="#install" >Install</a></li>
+           <li><a href="#usage" >Usage</a></li>
+           <li><a href="#extFunc" >Extra Functions</a></li>
+           <li><a  href='#bbgraf' >Bibliography</a></li>
+          </ul>
+      </div>
       <header>
 
         <h1 class="header"><img src="images/piwavelet.jpeg" width="20%" height="20%" />PIWavelet</h1>
@@ -29,12 +77,8 @@
           <li class="download"><a class="buttons" href="https://github.com/duducosmos/PIWavelet/tarball/master">Download TAR</a></li>
           <li><a class="buttons github" href="https://github.com/duducosmos/PIWavelet">View On GitHub</a></li>
 
-           <li><a href="#introd" >Introduction</a></li>
-           <li><a href="#install" >Install</a></li>
-           <li><a href="#usage" >Usage</a></li>
-           <li><a href="#extFunc" >Extra Functions</a></li>
-           <li><a  href='#bbgraf' >Bibliography</a></li>
-        </ul>
+        
+
 
         <p class="header">This project is maintained by <a class="header name" href="https://github.com/duducosmos">duducosmos</a></p>
 
@@ -42,10 +86,14 @@
       </header>
 
       <section>
-
       <div>
       <h1 id="introd">PIWavelet<img src="images/piwavelet.gif" width="40%" height="40%" /></h1>
       <p>Python programming Interface for Wavelet  Analysis </p>
+      </div>
+      
+      
+      <div>
+      
       <p>
       DISCLAIMER
       <br>
@@ -461,7 +509,7 @@ and the scale averaged wavelet spectrum as determined by the avg1 and avg2 param
 </code>
 </pre>
 
-<p>The Figure below shows the Resultant graphics.</p>
+<p>The Figure <a href="#fig6" >6</a> shows the Resultant graphics.</p>
 
 <p>
 <ul>
@@ -471,6 +519,7 @@ and the scale averaged wavelet spectrum as determined by the avg1 and avg2 param
 </ul>
 </p>
 
+<img src="images/plotWavelet.png" width="100%" height="100%" alt="" id="fig6" />
 </div>
 
 

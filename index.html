@@ -32,6 +32,7 @@
            <li><a href="#introd" >Introduction</a></li>
            <li><a href="#install" >Install</a></li>
            <li><a href="#usage" >Usage</a></li>
+           <li><a href="#extFunc" >Extra Functions</a></li>
            <li><a  href='#bbgraf' >Bibliography</a></li>
         </ul>
 
@@ -148,6 +149,85 @@ The returned values are:
 </tr>
 </table>
 </p>
+
+<p>
+Plot wavelet coherence of the signals x,y.
+<pre>
+<code>
+>> mycoherence = piwavelet.wcoherence(x,y)
+>> mycoherence.plot(t = time, title='My Title',units='year')
+</code>
+</pre>
+</p>
+<p>
+Parameters :    
+                
+<table>
+<tr>
+<td>Key</td>
+<td>Mean</td>
+</tr>
+<tr>
+<td>title (string)</td>
+<td>Title of the Plot</td>
+</tr>
+<tr>
+<td>t</td>
+<td>array with time</td>
+</tr>
+<tr>
+<td>units: (string) </td>
+<td>Units of the period and time  (e.g. 'days')</td>
+</tr>
+</table>
+</p>
+<p>
+Optional parameters
+<table>
+
+<tr>
+   <td>Key</td>
+   <td>Default</td>
+   <td>Mean</td>
+</tr>
+<tr>
+	<td>gray</td>
+	<td>(boolean) True for gray map</td>
+	<td>False</td>
+</tr>
+<tr>
+	<td>levels</td>
+	<td>List with significance level that will be showed in the plot</td>
+	<td>[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]</td>
+</tr>
+<tr>
+	<td>labels</td>
+	<td>List with the Label of significance level that will be apper into the color bar. If not defined, the levels list is used instead</td>
+	<td>None</td>
+</tr>
+<tr>
+	<td>pArrow (boolean)  </td>
+	<td>True for draw vector of phase angle (it has problem not recomended for large sample of data)</td>
+	<td>False</td>
+</tr>
+<tr>
+	<td>pSigma (boolean)</td>
+	<td>True for draw the significance contour lines</td>
+	<td>True</td>
+</tr>
+<tr>
+	<td>nameSave (string) </td>
+	<td>path plus name to save the figure, if it is define, the plot is saved but not showed</td>
+	<td>None</td>
+</tr>
+<tr>
+	<td>scale </td>
+	<td>(boolean) True  for not log2 scale of the Plot</td>
+	<td>False</td>
+</tr>
+</table>
+
+</p>
 <h3>Example</h3>
 <p> Consider tow stochastic signals, as presented in the following image: </p>
 
@@ -238,6 +318,85 @@ it is necessary to call the  wcross (Wavelet Cross Spectrum) class:
 </tr>
 </table>
 
+<p>
+Plot wavelet coherence of the signals x,y.
+<pre>
+<code>
+>> myXSpec = piwavelet.wcross(x,y)
+>> myXSpec.plot(t = time, title='My Title',units='year')
+</code>
+</pre>
+</p>
+<p>
+Parameters :    
+                
+<table>
+<tr>
+<td>Key</td>
+<td>Mean</td>
+</tr>
+<tr>
+<td>title (string)</td>
+<td>Title of the Plot</td>
+</tr>
+<tr>
+<td>t</td>
+<td>array with time</td>
+</tr>
+<tr>
+<td>units: (string) </td>
+<td>Units of the period and time  (e.g. 'days')</td>
+</tr>
+</table>
+</p>
+<p>
+Optional parameters
+<table>
+
+<tr>
+   <td>Key</td>
+   <td>Default</td>
+   <td>Mean</td>
+</tr>
+<tr>
+	<td>gray</td>
+	<td>(boolean) True for gray map</td>
+	<td>False</td>
+</tr>
+<tr>
+	<td>levels</td>
+	<td>List with significance level that will be showed in the plot</td>
+	<td>[0.125, 0.25, 0.5, 1, 2, 4, 8]</td>
+</tr>
+<tr>
+	<td>labels</td>
+	<td>List with the Label of significance level that will be apper into the color bar. If not defined, the levels list is used instead</td>
+	<td> ['1/8', '1/4', '1/2', '1', '2', '4', '8']</td>
+</tr>
+<tr>
+	<td>pArrow (boolean)  </td>
+	<td>True for draw vector of phase angle (it has problem not recomended for large sample of data)</td>
+	<td>False</td>
+</tr>
+<tr>
+	<td>pSigma (boolean)</td>
+	<td>True for draw the significance contour lines</td>
+	<td>True</td>
+</tr>
+<tr>
+	<td>nameSave (string) </td>
+	<td>path plus name to save the figure, if it is define, the plot is saved but not showed</td>
+	<td>None</td>
+</tr>
+<tr>
+	<td>scale </td>
+	<td>(boolean) True  for not log2 scale of the Plot</td>
+	<td>False</td>
+</tr>
+</table>
+
+</p>
+
 <h4>Example</h4>
 
 <p>Consider the tow stochastic, standardized with zero means, signals:</p>
@@ -262,11 +421,60 @@ it is necessary to call the  wcross (Wavelet Cross Spectrum) class:
 </code>
 </pre>
 
+<p>
+<ul>
+ <li class="download">
+<a  href="pyscripts/example2.py">Download Source code of the example</a>
+</li>
+</ul>
+</p>
 <p>The Figure <a href="#fig5" >5</a> shows the Cross Wavelet Power Spectrum map.</p> 
 
 <img src="images/teste2.png" width="100%" height="100%" alt="" id="fig5" />
 
 </div>
+
+<div>
+<h3 id="extFunc">Extra Functions</h3>
+
+<h4>Continues Wavelet Transform</h4>
+<p>In this package is available some wavelets mother functions (Morlet, Paul, DOG, Mexican hat), 
+Continuous wavelet transform of the signal at specified scales,
+Inverse continuous wavelet transform,
+Significance testing for the onde dimensional wavelet transform,
+the Allen and Smith autoregressive lag-1 autocorrelation alpha, Lag-1 autoregressive theoretical power spectrum</p>
+<p>These functions are originally presented in the <a href="https://github.com/regeirk/kPyWavelet">kPyWavelet</a> package (<a href="https://github.com/regeirk/kPyWavelet">https://github.com/regeirk/kPyWavelet</a>)</p>
+<p>Also it was implemented a plotWavelet function that plot the normalized data, the wavelet transform, the power spectrum of the wavelet
+and the scale averaged wavelet spectrum as determined by the avg1 and avg2 parameters</p>
+
+<p>Below is presented the example to run the wavelet transform (Default Morlet mother wavelet) and the plot of the wavelet.</p>
+
+<pre>
+<code>
+>>> import numpy as np
+>>> import matplotlib.pyplot as plt
+>>> from piwavelet import piwavelet
+>>> y1 = np.random.rand(50) #Generation of the Random Signal
+>>> y1 = (y1-y1.mean())/y1.std() #Normalization of the Signal 1
+>>> wave, scales, freqs, coi, fft, fftfreqs=piwavelet.cwt(y1) # If you want to know the individual properties.'
+>>> piwavelet.plotWavelet(y1,title='test',label='Random Signal',units='days')
+</code>
+</pre>
+
+<p>The Figure <a href="#fig6" >6</a> shows the Resultant graphics.</p>
+
+<p>
+<ul>
+ <li class="download">
+<a  href="pyscripts/example3.py">Download Source code of the example</a>
+</li>
+</ul>
+</p>
+
+<img src="images/plotWavelet.png" width="100%" height="100%" alt="" id="fig6" />
+</div>
+
+
 <div>      
 <h3 id="bbgraf">Bibliography</h3>
 <p>

@@ -622,7 +622,7 @@ def plotWavelet(signal, title, label, units, \
                              dt=1.0, dj=0.25, s0=-1, \
                              J=-1, alpha=0.0, slevel = 0.95,\
                              avg1 =15, avg2=20, nameSave=None):
-     """
+    """
      Plot Wavelet Transfor for one signal
 
 PARAMETER:
@@ -640,137 +640,136 @@ PARAMETER:
  slevel : Significance level
  avg1,avg2 :  Range of periods to average
  nameSave : Path plus name to save the plot
-     """
+    """
+     
+    var = signal
 
-     var = signal
-
      
-     std = var.std()                      # Standard deviation
-     std2 = std ** 2                      # Variance
-     var = (var - var.mean()) / std       # Calculating anomaly and normalizing
+    std = var.std()                      # Standard deviation
+    std2 = std ** 2                      # Variance
+    var = (var - var.mean()) / std       # Calculating anomaly and normalizing
+    
+    N = var.size                         # Number of measurements
+    time = numpy.arange(0, N) * dt + t0  # Time array in years
      
-     N = var.size                         # Number of measurements
-     time = numpy.arange(0, N) * dt + t0  # Time array in years
+    dj = 0.25                            # Four sub-octaves per octaves
+    s0 = -1 #2 * dt                      # Starting scale, here 6 months
+    J = -1 # 7 / dj                      # Seven powers of two with dj sub-octaves
+    alpha = 0.0                          # Lag-1 autocorrelation for white noise
+    wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var, dt, dj, s0, J,
+                                                          mother)
+    iwave = wavelet.icwt(wave, scales, dt, dj, mother)
+    power = (abs(wave)) ** 2             # Normalized wavelet power spectrum
+    fft_power = std2 * abs(fft) ** 2     # FFT power spectrum
+    period = 1. / freqs
+    
+    signif, fft_theor = wavelet.significance(1.0, dt, scales, 0, alpha,
+                            significance_level=slevel, wavelet=mother)
+    sig95 = (signif * numpy.ones((N, 1))).transpose()
+    sig95 = power / sig95                # Where ratio > 1, power is significant
+    
+    # Calculates the global wavelet spectrum and determines its significance level.
+    glbl_power = std2 * power.mean(axis=1)
+    dof = N - scales                     # Correction for padding at edges
+    glbl_signif, tmp = wavelet.significance(std2, dt, scales, 1, alpha,
+                           significance_level=slevel, dof=dof, wavelet=mother)
+    
+    # Scale average between avg1 and avg2 periods and significance level
+    sel = pylab.find((period >= avg1) & (period < avg2))
+    Cdelta = mother.cdelta
+    scale_avg = (scales * numpy.ones((N, 1))).transpose()
+    # As in Torrence and Compo (1998) equation 24
+    scale_avg = power / scale_avg
+    scale_avg = std2 * dj * dt / Cdelta * scale_avg[sel, :].sum(axis=0)
+    scale_avg_signif, tmp = wavelet.significance(std2, dt, scales, 2, alpha,
+                                significance_level=slevel, dof=[scales[sel[0]],
+                                scales[sel[-1]]], wavelet=mother)
+    
+    # The following routines plot the results in four different subplots containing
+    # the original series anomaly, the wavelet power spectrum, the global wavelet
+    # and Fourier spectra and finally the range averaged wavelet spectrum. In all
+    # sub-plots the significance levels are either included as dotted lines or as
+    # filled contour lines.
+    pylab.close('all')
+    fontsize = 'medium'
+    params = {'text.fontsize': fontsize,
+              'xtick.labelsize': fontsize,
+              'ytick.labelsize': fontsize,
+              'axes.titlesize': fontsize,
+              'text.usetex': True
+             }
+    pylab.rcParams.update(params)          # Plot parameters
+    figprops = dict(figsize=(11, 8), dpi=72)
+    fig = pylab.figure(**figprops)
+    
+    # First sub-plot, the original time series anomaly.
+    ax = pylab.axes([0.1, 0.75, 0.65, 0.2])
+    #ax.plot(time, iwave, '-', linewidth=1, color=[0.5, 0.5, 0.5])
+    ax.plot(time, var, 'k', linewidth=1.5)
+    ax.set_title('a) %s' % (title, ))
+    if units != '':
+      ax.set_ylabel(r'%s [$%s$/$%s$]' % (label, units,units, ))
+    else:
+      ax.set_ylabel(r'%s' % (label, ))
+    
+    # Second sub-plot, the normalized wavelet power spectrum and significance level
+    # contour lines and cone of influece hatched area.
+    bx = pylab.axes([0.1, 0.37, 0.65, 0.28], sharex=ax)
+    levels = [0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8, 16]
+    bx.contourf(time, numpy.log2(period), numpy.log2(power), numpy.log2(levels),
+                extend='both')
+    bx.contour(time, numpy.log2(period), sig95, [-99, 1], colors='k',
+               linewidths=2.)
+    bx.fill(numpy.concatenate([time[:1]-dt, time, time[-1:]+dt, time[-1:]+dt,
+            time[:1]-dt, time[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi,
+            [1e-9], period[-1:], period[-1:], [1e-9]])), 'k', alpha='0.3',
+            hatch='x')
+    bx.set_title('b) %s Wavelet Power Spectrum (%s)' % (label, mother.name))
+    bx.set_ylabel('Period (Days)')
+    Yticks = 2 ** numpy.arange(numpy.ceil(numpy.log2(period.min())),
+                               numpy.ceil(numpy.log2(period.max())))
+    bx.set_yticks(numpy.log2(Yticks))
+    bx.set_yticklabels(Yticks)
+    bx.invert_yaxis()
      
-     dj = 0.25                            # Four sub-octaves per octaves
-     s0 = -1 #2 * dt                      # Starting scale, here 6 months
-     J = -1 # 7 / dj                      # Seven powers of two with dj sub-octaves
-     alpha = 0.0                          # Lag-1 autocorrelation for white noise
-   
-     wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var, dt, dj, s0, J,
-                                                           mother)
-     iwave = wavelet.icwt(wave, scales, dt, dj, mother)
-     power = (abs(wave)) ** 2             # Normalized wavelet power spectrum
-     fft_power = std2 * abs(fft) ** 2     # FFT power spectrum
-     period = 1. / freqs
-     
-     signif, fft_theor = wavelet.significance(1.0, dt, scales, 0, alpha,
-                             significance_level=slevel, wavelet=mother)
-     sig95 = (signif * numpy.ones((N, 1))).transpose()
-     sig95 = power / sig95                # Where ratio > 1, power is significant
-     
-     # Calculates the global wavelet spectrum and determines its significance level.
-     glbl_power = std2 * power.mean(axis=1)
-     dof = N - scales                     # Correction for padding at edges
-     glbl_signif, tmp = wavelet.significance(std2, dt, scales, 1, alpha,
-                            significance_level=slevel, dof=dof, wavelet=mother)
-     
-     # Scale average between avg1 and avg2 periods and significance level
-     sel = pylab.find((period >= avg1) & (period < avg2))
-     Cdelta = mother.cdelta
-     scale_avg = (scales * numpy.ones((N, 1))).transpose()
-     # As in Torrence and Compo (1998) equation 24
-     scale_avg = power / scale_avg
-     scale_avg = std2 * dj * dt / Cdelta * scale_avg[sel, :].sum(axis=0)
-     scale_avg_signif, tmp = wavelet.significance(std2, dt, scales, 2, alpha,
-                                 significance_level=slevel, dof=[scales[sel[0]],
-                                 scales[sel[-1]]], wavelet=mother)
-     
-     # The following routines plot the results in four different subplots containing
-     # the original series anomaly, the wavelet power spectrum, the global wavelet
-     # and Fourier spectra and finally the range averaged wavelet spectrum. In all
-     # sub-plots the significance levels are either included as dotted lines or as
-     # filled contour lines.
-     pylab.close('all')
-     fontsize = 'medium'
-     params = {'text.fontsize': fontsize,
-               'xtick.labelsize': fontsize,
-               'ytick.labelsize': fontsize,
-               'axes.titlesize': fontsize,
-               'text.usetex': True
-              }
-     pylab.rcParams.update(params)          # Plot parameters
-     figprops = dict(figsize=(11, 8), dpi=72)
-     fig = pylab.figure(**figprops)
-     
-     # First sub-plot, the original time series anomaly.
-     ax = pylab.axes([0.1, 0.75, 0.65, 0.2])
-     #ax.plot(time, iwave, '-', linewidth=1, color=[0.5, 0.5, 0.5])
-     ax.plot(time, var, 'k', linewidth=1.5)
-     ax.set_title('a) %s' % (title, ))
-     if units != '':
-       ax.set_ylabel(r'%s [$%s$/$%s$]' % (label, units,units, ))
-     else:
-       ax.set_ylabel(r'%s' % (label, ))
-     
-     # Second sub-plot, the normalized wavelet power spectrum and significance level
-     # contour lines and cone of influece hatched area.
-     bx = pylab.axes([0.1, 0.37, 0.65, 0.28], sharex=ax)
-     levels = [0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8, 16]
-     bx.contourf(time, numpy.log2(period), numpy.log2(power), numpy.log2(levels),
-                 extend='both')
-     bx.contour(time, numpy.log2(period), sig95, [-99, 1], colors='k',
-                linewidths=2.)
-     bx.fill(numpy.concatenate([time[:1]-dt, time, time[-1:]+dt, time[-1:]+dt,
-             time[:1]-dt, time[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi,
-             [1e-9], period[-1:], period[-1:], [1e-9]])), 'k', alpha='0.3',
-             hatch='x')
-     bx.set_title('b) %s Wavelet Power Spectrum (%s)' % (label, mother.name))
-     bx.set_ylabel('Period (Days)')
-     Yticks = 2 ** numpy.arange(numpy.ceil(numpy.log2(period.min())),
-                                numpy.ceil(numpy.log2(period.max())))
-     bx.set_yticks(numpy.log2(Yticks))
-     bx.set_yticklabels(Yticks)
-     bx.invert_yaxis()
-     
-     # Third sub-plot, the global wavelet and Fourier power spectra and theoretical
-     # noise spectra.
-     cx = pylab.axes([0.77, 0.37, 0.2, 0.28], sharey=bx)
-     cx.plot(glbl_signif, numpy.log2(period), 'k--')
-     cx.plot(fft_power, numpy.log2(1./fftfreqs), '-', color=[0.7, 0.7, 0.7],
-             linewidth=1.)
-     cx.plot(glbl_power, numpy.log2(period), 'k-', linewidth=1.5)
-     cx.set_title('c) Global Wavelet Spectrum')
-     if units != '':
-       cx.set_xlabel(r'Power [$%s^2$]' % (units, ))
-     else:
-       cx.set_xlabel(r'Power')
-     #cx.set_xlim([0, glbl_power.max() + std2])
-     cx.set_ylim(numpy.log2([period.min(), period.max()]))
-     cx.set_yticks(numpy.log2(Yticks))
-     cx.set_yticklabels(Yticks)
-     pylab.setp(cx.get_yticklabels(), visible=False)
-     cx.invert_yaxis()
-     
-     # Fourth sub-plot, the scale averaged wavelet spectrum as determined by the
-     # avg1 and avg2 parameters
-     dx = pylab.axes([0.1, 0.07, 0.65, 0.2], sharex=ax)
-     dx.axhline(scale_avg_signif, color='k', linestyle='--', linewidth=1.)
-     dx.plot(time, scale_avg, 'k-', linewidth=1.5)
-     dx.set_title('d) $%d$-$%d$ year scale-averaged power' % (avg1, avg2))
-     dx.set_xlabel('Time (days)')
-     if units != '':
-       dx.set_ylabel(r'Average variance [$%s$]' % (units, ))
-     else:
-       dx.set_ylabel(r'Average variance')
-     #
-     ax.set_xlim([time.min(), time.max()])
-     #
-     pylab.draw()
-     if(nameSave):
-         pylab.savefig(nameSave)
-     else:
-         pylab.show()
+    # Third sub-plot, the global wavelet and Fourier power spectra and theoretical
+    # noise spectra.
+    cx = pylab.axes([0.77, 0.37, 0.2, 0.28], sharey=bx)
+    cx.plot(glbl_signif, numpy.log2(period), 'k--')
+    cx.plot(fft_power, numpy.log2(1./fftfreqs), '-', color=[0.7, 0.7, 0.7],
+            linewidth=1.)
+    cx.plot(glbl_power, numpy.log2(period), 'k-', linewidth=1.5)
+    cx.set_title('c) Global Wavelet Spectrum')
+    if units != '':
+      cx.set_xlabel(r'Power [$%s^2$]' % (units, ))
+    else:
+      cx.set_xlabel(r'Power')
+    #cx.set_xlim([0, glbl_power.max() + std2])
+    cx.set_ylim(numpy.log2([period.min(), period.max()]))
+    cx.set_yticks(numpy.log2(Yticks))
+    cx.set_yticklabels(Yticks)
+    pylab.setp(cx.get_yticklabels(), visible=False)
+    cx.invert_yaxis()
+    
+    # Fourth sub-plot, the scale averaged wavelet spectrum as determined by the
+    # avg1 and avg2 parameters
+    dx = pylab.axes([0.1, 0.07, 0.65, 0.2], sharex=ax)
+    dx.axhline(scale_avg_signif, color='k', linestyle='--', linewidth=1.)
+    dx.plot(time, scale_avg, 'k-', linewidth=1.5)
+    dx.set_title('d) $%d$-$%d$ year scale-averaged power' % (avg1, avg2))
+    dx.set_xlabel('Time (days)')
+    if units != '':
+      dx.set_ylabel(r'Average variance [$%s$]' % (units, ))
+    else:
+      dx.set_ylabel(r'Average variance')
+    #
+    ax.set_xlim([time.min(), time.max()])
+    #
+    pylab.draw()
+    if(nameSave):
+        pylab.savefig(nameSave)
+    else:
+        pylab.show()
 
 ############################################################################
 ############################################################################
@@ -824,9 +823,7 @@ RETURN:
         coi = coi[0]
         return Rqs, period,scale,coi,wtcsig 
         
-    def plot(self, t, title, units,  levels=None, labels=None,\
-                    pArrow=None, pSigma=True, gray = None,\
-                    nameSave = None , scale = 'log2' ):
+    def plot(self, t, title, units,   **kwargs ):
         """
         Plots the wavelet coherence
             
@@ -834,21 +831,28 @@ RETURN:
                 title: Title of the Plot
                 units: (string) Units of the period and time  (e.g. 'days')
                 t : array with time
-                gray: Optional - (boolean) True for gray map .
+                OPTIONALS:
+                    gray : (boolean) True for gray map .
+                    levels :
+                    labels :
+                    pArrow :
+                    pSigma :
+                    nameSave :
+                    scale :
         """
+       
+        
         self.__plotWC(self.Rqs, t, self.coi, self.freqs, self.wtcsig, title,\
-                               units, levels, labels,\
-                                pArrow, pSigma, gray,\
-                                nameSave , scale)
+                               units, **kwargs)
+                                
 
         
-    def __plotWC(self,  wc, t, coi, freqs, signif, title, units='days',  levels=None, labels=None,\
-                pArrow=None, pSigma=True, gray = None,   nameSave = None , scale = 'log2'):
+    def __plotWC(self,  wc, t, coi, freqs, signif, title, units='days', **kwargs):
         """Plots the wavelet coherence
         
         PARAMETERS
-            xwt (array like) : 
-                Cross wavelet transform.
+            wc (array like) : 
+                 Coherence Wavelet
             coi (array like) :
                 Cone of influence, which is a vector of N points containing
                 the maximum Fourier period of useful information at that
@@ -870,6 +874,48 @@ RETURN:
         """
         # Sets some parameters and renames some of the input variables.
         from matplotlib import pyplot
+        
+        if 'levels' in kwargs.keys():
+            levels = kwargs['levels']
+        else:
+            levels=None
+            
+        if 'labels' in kwargs.keys():
+            levels = kwargs['labels']
+        else:        
+            labels=None
+            
+        if 'pArrow' in kwargs.keys():
+            levels = kwargs['pArrow']
+        else:
+            pArrow=None
+        
+        if 'pSigma' in kwargs.keys():
+            levels = kwargs['pSigma']
+        else:
+            pSigma=True
+        
+        if 'gray' in kwargs.keys():
+            levels = kwargs['gray']
+        else:
+            gray = None
+            
+        if 'nameSave' in kwargs.keys():
+            levels = kwargs['nameSave']
+        else:
+            nameSave = None
+            
+        if 'scale' in kwargs.keys():
+            scale = kwargs['scale']
+        else:
+            scale = 'log2'
+            
+        
+        if 'zoom' in kwargs.keys():
+            if(len(kwargs['zoom'])<=1 or len(kwargs['zoom']) >2):
+                zoom = None
+            else:
+                zoom = kwargs['zoom']
 
         
         fontsize = 'medium'
@@ -973,25 +1019,48 @@ RETURN:
                 linewidth=1.5, edgecolor='k', headwidth=10, headlength=10,
                 headaxislength=5, minshaft=2, minlength=5)
                 
-        ax.fill(numpy.concatenate([t[:1]-dt, t, t[-1:]+dt, t[-1:]+dt, t[:1]-dt, 
-            t[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi, [1e-9], 
-            period[-1:], period[-1:], [1e-9]])), 'k', alpha='0.3', hatch='x')
-        Yticks = 2 ** numpy.arange(numpy.ceil(numpy.log2(period.min())), 
-            numpy.ceil(numpy.log2(period.max())))
-        ax.set_yticks(numpy.log2(Yticks))
-        ax.set_yticklabels(Yticks)
-        ax.set_xlim([t.min(), t.max()])
-        ax.set_ylim(numpy.log2([period.min(), min([coi.max(), period.max()])]))
-        ax.invert_yaxis()
-        cbar = fig.colorbar(cf, ticks=Levels, extend=extend)
-        cbar.ax.set_yticklabels(labels)
-        
-        pylab.draw()
-        
-        if(nameSave):
-            pylab.savefig(nameSave)
+        if(zoom):
+            newPeriod = period[pylab.find((period>=zoom[0])&(period<=zoom[1]))]
+            ax.fill(numpy.concatenate([t[:1]-dt, t, t[-1:]+dt, t[-1:]+dt, t[:1]-dt, 
+                t[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi, [1e-9], 
+                period[-1:], period[-1:], [1e-9]])), 'k', alpha='0.3', hatch='x')
+            Yticks = 2 ** numpy.arange(numpy.ceil(numpy.log2(period.min())), 
+                numpy.ceil(numpy.log2(period.max())))
+            ax.set_yticks(numpy.log2(Yticks))
+            ax.set_yticklabels(Yticks)
+            ax.set_xlim([t.min(), t.max()])
+            ax.set_ylim(numpy.log2([newPeriod.min(), min([coi.max(), newPeriod.max()])]))
+            ax.invert_yaxis()
+            cbar = fig.colorbar(cf, ticks=Levels, extend=extend)
+            cbar.ax.set_yticklabels(labels)
+            
+            pylab.draw()
+            
+            if(nameSave):
+                pylab.savefig(nameSave)
+            else:
+                pylab.show()
         else:
-            pylab.show()
+                
+            ax.fill(numpy.concatenate([t[:1]-dt, t, t[-1:]+dt, t[-1:]+dt, t[:1]-dt, 
+                t[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi, [1e-9], 
+                period[-1:], period[-1:], [1e-9]])), 'k', alpha='0.3', hatch='x')
+            Yticks = 2 ** numpy.arange(numpy.ceil(numpy.log2(period.min())), 
+                numpy.ceil(numpy.log2(period.max())))
+            ax.set_yticks(numpy.log2(Yticks))
+            ax.set_yticklabels(Yticks)
+            ax.set_xlim([t.min(), t.max()])
+            ax.set_ylim(numpy.log2([period.min(), min([coi.max(), period.max()])]))
+            ax.invert_yaxis()
+            cbar = fig.colorbar(cf, ticks=Levels, extend=extend)
+            cbar.ax.set_yticklabels(labels)
+            
+            pylab.draw()
+            
+            if(nameSave):
+                pylab.savefig(nameSave)
+            else:
+                pylab.show()
         
         
         result.append(ax)
@@ -1046,9 +1115,7 @@ RETURN
         
         return xwt, period,scale,coi,signif 
         
-    def plot(self, t, title, units,  levels=None, labels=None,\
-                    pArrow=None, pSigma=True, gray = None,\
-                    nameSave = None , scale = 'log2' ):
+    def plot(self, t, title, units, **kwargs ):
         """
         Plots the wavelet coherence
             
@@ -1058,11 +1125,9 @@ RETURN
                 t : array with time
                 gray: Optional - (boolean) True for gray map .
         """
-        self.__plotXWC(self.xwt, t, self.coi, self.freqs, self.signif, title, units,
-                                pArrow, pSigma, gray,  nameSave, scale)
+        self.__plotXWC(self.xwt, t, self.coi, self.freqs, self.signif, title, units,**kwargs)
         
-    def __plotXWC(self,  xwt, t, coi, freqs, signif, title, units='days',
-                                pArrow=None, pSigma=True, gray = None,  nameSave = None, scale = 'log2'):
+    def __plotXWC(self,  xwt, t, coi, freqs, signif, title, units='days',**kwargs):
         """Plots the cross-wavelet power spectrun
         
         PARAMETERS
@@ -1089,6 +1154,41 @@ RETURN
         """
         # Sets some parameters and renames some of the input variables.
         from matplotlib import pyplot
+        
+        if 'levels' in kwargs.keys():
+            levels = kwargs['levels']
+        else:
+            levels=None
+            
+        if 'labels' in kwargs.keys():
+            levels = kwargs['labels']
+        else:        
+            labels=None
+            
+        if 'pArrow' in kwargs.keys():
+            levels = kwargs['pArrow']
+        else:
+            pArrow=None
+        
+        if 'pSigma' in kwargs.keys():
+            levels = kwargs['pSigma']
+        else:
+            pSigma=True
+        
+        if 'gray' in kwargs.keys():
+            levels = kwargs['gray']
+        else:
+            gray = None
+            
+        if 'nameSave' in kwargs.keys():
+            levels = kwargs['nameSave']
+        else:
+            nameSave = None
+            
+        if 'scale' in kwargs.keys():
+            scale = kwargs['scale']
+        else:
+            scale = 'log2'
 
         
         fontsize = 'medium'

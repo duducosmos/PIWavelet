@@ -59,7 +59,7 @@
     <div class="wrapper">
     <div id="menu" style="position:fixed;background:white;width:100%;">     
           <ul>
-          <li><a href="" >Introduction</a>Menu : </li>
+          <li><a href="" >Menu :</a> </li>
            <li><a href="#introd" >Introduction</a></li>
            <li><a href="#install" >Install</a></li>
            <li><a href="#usage" >Usage</a></li>

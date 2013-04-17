@@ -54,7 +54,7 @@ import numpy
 
 from numpy import (arange, ceil, concatenate, conjugate, cos, exp, isnan, log,
                    log2, ones, pi, prod, real, sqrt, zeros, polyval, array, fix, dtype, modf, 
-                   around, meshgrid, isreal, round, intersect1d, asarray)
+                   around, meshgrid, isreal, round, intersect1d, asarray, matrix)
 from numpy.fft import fft, ifft, fftfreq
 from numpy.lib.polynomial import polyval
 from numpy import abs as nAbs
@@ -872,7 +872,21 @@ PARAMETER:
         pylab.savefig(nameSave)
     else:
         pylab.show()
-
+def rect(x, normalize=False) :
+    if type(x) in [int, float]:
+        shape = [x, ]
+    elif type(x) in [list, dict]:
+        shape = x
+    elif type(x) in [numpy.ndarray, numpy.ma.core.MaskedArray]:
+        shape = x.shape
+    X = zeros(shape)
+    X[0] = X[-1] = 0.5
+    X[1:-1] = 1
+    
+    if normalize:
+        X /= X.sum()
+    
+    return X
 ############################################################################
 ############################################################################
 ############################################################################
@@ -1490,6 +1504,7 @@ class smooth:
         
         
     def __call__(self):
+
         return self.__smoothwavelet(self.wave,self.dt,self.period,self.dj,self.scale)
 
     def __smoothwavelet(self, wave,dt,period,dj,scale):
@@ -1500,6 +1515,42 @@ class smooth:
         
         swave = octave.call('smoothwavelet', wave,dt,period,dj,scale)
         return swave
+        
+    def __smooth(self, W, dt, dj, scales):
+        """Smoothing function used in coherence analysis."""
+        # The smoothing is performed by using a filter given by the absolute
+        # value of the wavelet function at each scale, normalized to have a 
+        # total weight of unity, according to suggestions by Torrence & 
+        # Webster (1999) and bry Grinsted et al. (2004).
+        
+        m, n = W.shape
+        T = zeros([m, n])
+        T = matrix(T)
+        W = matrix(W)
+        
+        # Filter in time. 
+        npad = int(2 ** ceil(log2(n)))
+        N = npad - n
+        k = 2 * pi * fftfreq(npad-N)
+        k2 = k ** 2
+        snorm = scales / dt
+        
+        for i in range(m):
+            F = exp(-0.5 * (snorm[i] ** 2) * k2)
+            smooth = ifft(F * fft(W[i, :], npad-N))
+            print smooth.shape, T[i, :].shape,F.shape, npad
+            T[i, :] = smooth[0:n]
+        
+        if isreal(W).all():
+            T = T.real
+        
+        # Filter in scale. For the Morlet wavelet it's simply a boxcar with
+        # 0.6 width.
+        wsize = 0.6/ dj * 2
+        win = rect(int(round(wsize)), normalize=True)
+        T = convolve2d(T, win[:, None], 'same')
+        
+        return T
 
 ##*********************************************************************************************************
 ##  Continuous wavelet transform 

@@ -751,7 +751,7 @@ PARAMETER:
     if 'nameSave' in kwargs.keys():
         nameSave = kwargs['nameSave']
     else:
-        nameSave=None
+        nameSave = None
 
     if 'fontsize' in kwargs.keys():
         fontsize = kwargs['fontsize']
@@ -762,6 +762,11 @@ PARAMETER:
         labelsize = kwargs['labelsize']
     else:
         labelsize = 18
+
+    if 'labelpowelog' in kwargs.keys():
+        labelpowelog = kwargs['labelpowelog']
+    else:
+        labelpowelog = False
 
     matplotlib.rcParams['font.size'] = fontsize
     matplotlib.rcParams['axes.labelsize'] = labelsize
@@ -867,6 +872,9 @@ PARAMETER:
         cx.set_xlabel(r'Power [$%s^2$]' % (units, ))
     else:
         cx.set_xlabel(r'Power')
+
+    if(labelpowelog):
+        cx.set_xscale('log')
     #cx.set_xlim([0, glbl_power.max() + std2])
     cx.set_ylim(numpy.log2([period.min(), period.max()]))
     cx.set_yticks(numpy.log2(Yticks))

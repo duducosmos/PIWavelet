@@ -676,6 +676,7 @@ PARAMETER:
  slevel : Significance level
  avg1,avg2 :  Range of periods to average
  nameSave : Path plus name to save the plot
+ labelpowelog: set the x-axis in log scale
     """
 
     listParameters = ['mother', 't0', 'dt', 'dj', 's0', 'J', 'alpha',

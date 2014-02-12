@@ -681,7 +681,7 @@ PARAMETER:
 
     listParameters = ['mother', 't0', 'dt', 'dj', 's0', 'J', 'alpha',
                       'slevel', 'avg1', 'avg2', 'plotAv', 'fontsize',
-                      'labelsize', 'nameSave']
+                      'labelsize', 'labelpowelog','nameSave']
 
 
     testeKeysArgs = [Ki for Ki in kwargs.keys() if Ki not in listParameters]

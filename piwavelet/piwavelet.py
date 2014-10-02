@@ -841,6 +841,16 @@ PARAMETER:
     else:
       ax.set_ylabel(r'%s' % (label, ))
 
+    #Bug... 
+    #BAD SMELL. 
+    #Why is zero the last term of the coi 
+    # when the signal is filtered? 
+    #... Bug.***:***
+    tmpI = numpy.where(coi == 0)
+    if(len(tmpI[0]) != 0):
+        if(tmpI[0] == len(coi) -1):
+            coi[tmpI] = 0.1 * coi[-2]
+
     # Second sub-plot, the normalized wavelet power spectrum and significance level
     # contour lines and cone of influece hatched area.
     bx = pylab.axes([0.1, 0.37, 0.65, 0.28], sharex=ax)
@@ -1040,7 +1050,8 @@ RETURN:
 
         """
 
-        listParameters = ['levels',  'labels',  'pArrow',  'pSigma',  'gray',  'nameSave',  'scale', 'zoom']
+        listParameters = ['levels',  'labels',  'pArrow',  'pSigma',  'gray',  
+                          'nameSave',  'scale', 'zoom', 'labelsize']
 
 
         testeKeysArgs = [Ki for Ki in kwargs.keys() if Ki not in  listParameters]
@@ -1096,15 +1107,22 @@ RETURN:
         else:
             zoom = None
 
+        if('labelsize' in kwargs.keys()):
+            labelsize = kwargs['labelsize']
+            labelsize = int(labelsize)
+
+        else:
+            labelsize = 18
+
 
         fontsize = 'medium'
         params = {'font.family': 'serif',
                           'font.sans-serif': ['Helvetica'],
-                          'font.size': 18,
+                          'font.size': 25,
                           'font.stretch': 'ultra-condensed',
                           'text.fontsize': fontsize,
-                          'xtick.labelsize': fontsize,
-                          'ytick.labelsize': fontsize,
+                          'xtick.labelsize': labelsize,
+                          'ytick.labelsize': labelsize,
                           'axes.titlesize': fontsize,
                           'text.usetex': True,
                           'text.latex.unicode': True,

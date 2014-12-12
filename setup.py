@@ -14,17 +14,17 @@ datafiles = [(datadir, [f for f in glob.glob(os.path.join(datadir, '*'))])]
 
 setup(
     name = "piwavelet",
-    version = "0.0.1",
+    version = "0.1.0",
     author = "Eduardo dos Santos Pereira",
     author_email = "pereira.somoza@gmail.com",
     description = ("Tools For Wavelet Analises in Python"),
     license = "GNU v3",
     keywords = "wavelet signal analises ",
     url = "https://github.com/duducosmos/piwavelet",
-    packages= find_packages(), 
-    package_data={'': ['*.m','*.txt', '*.html', '*.png']}, 
+    packages= find_packages(),
+    package_data={'': ['*.m','*.txt', '*.html', '*.png']},
     data_files= datafiles,
-    install_requires=['oct2py>=0.4.0', 'numpy>=1.6.2', 'scipy>=0.10.1', 'matplotlib>=1.1.1'], 
+    install_requires=['oct2py>=2.0.0', 'numpy>=1.6.2', 'scipy>=0.10.1', 'matplotlib>=1.1.1'],
     long_description=read('README'),
     classifiers=[
         "Development Status :: 3 - Alpha",

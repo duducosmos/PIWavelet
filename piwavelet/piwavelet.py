@@ -841,10 +841,10 @@ PARAMETER:
     else:
       ax.set_ylabel(r'%s' % (label, ))
 
-    #Bug... 
-    #BAD SMELL. 
-    #Why is zero the last term of the coi 
-    # when the signal is filtered? 
+    #Bug...
+    #BAD SMELL.
+    #Why is zero the last term of the coi
+    # when the signal is filtered?
     #... Bug.***:***
     tmpI = numpy.where(coi == 0)
     if(len(tmpI[0]) != 0):
@@ -986,7 +986,7 @@ RETURN:
 
 
         """
-        Rqs, period,scale,coi,wtcsig = octave.call('wtc',signal1, signal2)
+        Rqs, period,scale,coi,wtcsig = octave.wtc(signal1, signal2)
         period =period[0]
         scale = scale[0]
         coi = coi[0]
@@ -1050,7 +1050,7 @@ RETURN:
 
         """
 
-        listParameters = ['levels',  'labels',  'pArrow',  'pSigma',  'gray',  
+        listParameters = ['levels',  'labels',  'pArrow',  'pSigma',  'gray',
                           'nameSave',  'scale', 'zoom', 'labelsize']
 
 

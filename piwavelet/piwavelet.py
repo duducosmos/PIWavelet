@@ -70,6 +70,8 @@ import pylab
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import  colors
+import matplotlib.dates as mdates
+
 
 ############################################################################
 ############################################################################
@@ -677,11 +679,14 @@ PARAMETER:
  avg1,avg2 :  Range of periods to average
  nameSave : Path plus name to save the plot
  labelpowelog: set the x-axis in log scale
+ showFig: Show Figure
     """
 
     listParameters = ['mother', 't0', 'dt', 'dj', 's0', 'J', 'alpha',
                       'slevel', 'avg1', 'avg2', 'plotAv', 'fontsize',
-                      'labelsize', 'labelpowelog','nameSave']
+                      'labelsize', 'labelpowelog','nameSave', 'showFig',
+                      'xtickDate'
+                      ]
 
 
     testeKeysArgs = [Ki for Ki in kwargs.keys() if Ki not in listParameters]
@@ -769,6 +774,19 @@ PARAMETER:
     else:
         labelpowelog = False
 
+    if 'showFig' in kwargs.keys():
+        showFig = kwargs['showFig']
+    else:
+        showFig = True
+    if('xtickDate' in kwargs.keys()):
+        xtickDate = kwargs['xtickDate']
+    else:
+        xtickDate = None
+
+    if(xtickDate is not None):
+        xdate = mdates.date2num(xtickDate)
+
+
     matplotlib.rcParams['font.size'] = fontsize
     matplotlib.rcParams['axes.labelsize'] = labelsize
 
@@ -780,7 +798,11 @@ PARAMETER:
     var = (var - var.mean()) / std       # Calculating anomaly and normalizing
 
     N = var.size                         # Number of measurements
-    time = numpy.arange(0, N) * dt + t0  # Time array in years
+
+    if(xtickDate is not None):
+        time = mdates.date2num(xtickDate)
+    else:
+        time = numpy.arange(0, N) * dt + t0  # Time array in years
 
     dj = 0.25                            # Four sub-octaves per octaves
     s0 = -1 #2 * dt                      # Starting scale, here 6 months
@@ -819,7 +841,7 @@ PARAMETER:
     # and Fourier spectra and finally the range averaged wavelet spectrum. In all
     # sub-plots the significance levels are either included as dotted lines or as
     # filled contour lines.
-    pylab.close('all')
+    #pylab.close('all')
     fontsize = 'medium'
     params = {'text.fontsize': fontsize,
               'xtick.labelsize': fontsize,
@@ -836,6 +858,9 @@ PARAMETER:
     #ax.plot(time, iwave, '-', linewidth=1, color=[0.5, 0.5, 0.5])
     ax.plot(time, var, 'k', linewidth=1.5)
     ax.set_title('a) %s' % (title, ))
+    if(xtickDate is not None):
+        ax.xaxis_date()
+        ax.fmt_xdata = mdates.DateFormatter('%Y-%m-%d')
     if units != '':
         ax.set_ylabel(r'%s [$%s$/$%s$]' % (label, units, units, ))
     else:
@@ -870,6 +895,9 @@ PARAMETER:
     bx.set_yticks(numpy.log2(Yticks))
     bx.set_yticklabels(Yticks)
     bx.invert_yaxis()
+    if(xtickDate is not None):
+        bx.xaxis_date()
+        bx.fmt_xdata = mdates.DateFormatter('%Y-%m-%d')
 
     # Third sub-plot, the global wavelet and Fourier power spectra and theoretical
     # noise spectra.
@@ -916,8 +944,12 @@ PARAMETER:
     pylab.draw()
     if(nameSave):
         pylab.savefig(nameSave)
-    else:
+
+    if(showFig):
         pylab.show()
+
+    return fig
+
 def rect(x, normalize=False) :
     if type(x) in [int, float]:
         shape = [x, ]

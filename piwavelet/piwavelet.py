@@ -680,12 +680,13 @@ PARAMETER:
  nameSave : Path plus name to save the plot
  labelpowelog: set the x-axis in log scale
  showFig: Show Figure
+ axQT: qt ax Figure
     """
 
     listParameters = ['mother', 't0', 'dt', 'dj', 's0', 'J', 'alpha',
                       'slevel', 'avg1', 'avg2', 'plotAv', 'fontsize',
                       'labelsize', 'labelpowelog','nameSave', 'showFig',
-                      'xtickDate'
+                      'xtickDate', 'axQT'
                       ]
 
 
@@ -783,8 +784,10 @@ PARAMETER:
     else:
         xtickDate = None
 
-    if(xtickDate is not None):
-        xdate = mdates.date2num(xtickDate)
+    if('axQT' in kwargs.keys()):
+        axQT = kwargs['axQT']
+    else:
+        axQT = None
 
 
     matplotlib.rcParams['font.size'] = fontsize
@@ -850,8 +853,11 @@ PARAMETER:
               'text.usetex': True
              }
     pylab.rcParams.update(params)          # Plot parameters
+
+
     figprops = dict(figsize=(11, 8), dpi=72)
     fig = pylab.figure(**figprops)
+
 
     # First sub-plot, the original time series anomaly.
     ax = pylab.axes([0.1, 0.75, 0.65, 0.2])
@@ -898,6 +904,9 @@ PARAMETER:
     if(xtickDate is not None):
         bx.xaxis_date()
         bx.fmt_xdata = mdates.DateFormatter('%Y-%m-%d')
+
+    if(axQT is not None):
+        axQT = bx
 
     # Third sub-plot, the global wavelet and Fourier power spectra and theoretical
     # noise spectra.

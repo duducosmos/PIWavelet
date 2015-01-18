@@ -11,7 +11,8 @@ import pylab
 import matplotlib
 import matplotlib.dates as mdates
 
-from piwavelet import Morlet, cwt, significance
+from piwavelet import cwt, significance
+from motherWavelets import Morlet
 
 from numpy import arange, ones, where, log2, concatenate, ceil
 

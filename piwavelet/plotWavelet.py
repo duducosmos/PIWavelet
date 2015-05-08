@@ -10,11 +10,12 @@ __email__ = 'pereira.somoza@gmail.com'
 import pylab
 import matplotlib
 import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
 
 from piwavelet import cwt, significance
 from motherWavelets import Morlet
 
-from numpy import arange, ones, where, log2, concatenate, ceil
+from numpy import arange, ones, where, log2, concatenate, ceil, abs, argsort
 
 
 class PlotWavelet:
@@ -158,6 +159,9 @@ PARAMETER:
         else:
             self.bxQT = None
 
+        self.fft = None
+        self.fftfreqs = None
+
         self._startData()
         self._cwt()
 
@@ -215,6 +219,9 @@ PARAMETER:
                                                       )
         #iwave = icwt(wave, self.scales, self.dt, self.dj, self.mother)
 
+        self.fft = fft
+        self.fftfreqs = fftfreqs
+
         power = (abs(wave)) ** 2             # Normalized wavelet power spectrum
         fft_power = self.std2 * abs(fft) ** 2     # FFT power spectrum
 
@@ -270,6 +277,14 @@ PARAMETER:
         self.scale_avg = scale_avg
         self.glbl_power = glbl_power
 
+    def plotFftSpectrum(self):
+        ps = abs(self.fft) ** 2.0
+        idx = argsort(self.fftfreqs)
+        plt.plot(1.0 / self.fftfreqs[idx], ps[idx])
+        plt.title(self.label)
+        plt.xlabel("Periodo")
+        plt.ylabel("Amplitude")
+
     def plotWavelet(self):
         """
 The following routines plot the results in four different subplots containing
@@ -278,7 +293,7 @@ and Fourier spectra and finally the range averaged wavelet spectrum. In all
 sub-plots the significance levels are either included as dotted lines or as
 filled contour lines.
         """
-        self._setupPlot()
+
         a = 0
         if(self.axQT is not None):
             self._bxPlot()
@@ -290,6 +305,7 @@ filled contour lines.
         if(a > 0):
             return
 
+        self._setupPlot()
         self._axPlot()
         self._bxPlot()
         self._cxPlot()

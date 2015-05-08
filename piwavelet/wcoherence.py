@@ -12,12 +12,13 @@ import os
 from numpy import pi, angle, cos, sin, log2, ceil, arange, concatenate
 
 import pylab
-import matplotlib
+import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 from matplotlib import colors
+import datetime
 
 
-class wcoherence:
+class Wcoherence:
     """
     This class is an Python interface for the Wavelet Coherence matlab
     functions of the package for wavelet,
@@ -166,10 +167,10 @@ RETURN:
         else:
             labels = None
 
-        if 'pArrow' in kwargs.keys():
-            levels = kwargs['pArrow']
-        else:
-            pArrow = None
+        #if 'pArrow' in kwargs.keys():
+            #levels = kwargs['pArrow']
+        #else:
+            #pArrow = None
 
         if 'pSigma' in kwargs.keys():
             levels = kwargs['pSigma']
@@ -228,6 +229,12 @@ RETURN:
         fig = pyplot.figure(**fp)
         fig.subplots_adjust(**ap)
 
+        timeDT = False
+
+        if(type(t[0]) == datetime.datetime):
+            timeDT = True
+            t = mdates.date2num(t)
+
         #N = len(t)
         dt = t[1] - t[0]
         period = 1. / freqs
@@ -243,7 +250,7 @@ RETURN:
 
         result = []
 
-        da = [3, 3]
+        #da = [3, 3]
 
         fig = fig
         result.append(fig)
@@ -297,11 +304,12 @@ RETURN:
             ax.contour(t, log2(period), sig95, [-99, 1], colors='k',
                 linewidths=2.)
 
-        if(pArrow):
-            q = ax.quiver(t[::da[1]], log2(period)[::da[0]], u[::da[0], ::da[1]],
-                v[::da[0], ::da[1]], units='width', angles='uv', pivot='mid',
-                linewidth=1.5, edgecolor='k', headwidth=10, headlength=10,
-                headaxislength=5, minshaft=2, minlength=5)
+        #if(pArrow):
+            #q = ax.quiver(t[::da[1]], log2(period)[::da[0]],
+                 #u[::da[0], ::da[1]],
+                #v[::da[0], ::da[1]], units='width', angles='uv', pivot='mid',
+                #linewidth=1.5, edgecolor='k', headwidth=10, headlength=10,
+                #headaxislength=5, minshaft=2, minlength=5)
 
         if(zoom):
             newPeriod = period[pylab.find((period >= zoom[0]) &
@@ -355,6 +363,9 @@ RETURN:
                 pylab.savefig(nameSave)
             else:
                 pylab.show()
+        if(timeDT):
+            ax.xaxis_date()
+            ax.fmt_xdata = mdates.DateFormatter('%Y-%m-%d')
 
         result.append(ax)
 

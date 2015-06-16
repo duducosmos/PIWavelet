@@ -14,7 +14,7 @@ datafiles = [(datadir, [f for f in glob.glob(os.path.join(datadir, '*'))])]
 
 setup(
     name = "piwavelet",
-    version = "0.1.0",
+    version = "0.2.0",
     author = "Eduardo dos Santos Pereira",
     author_email = "pereira.somoza@gmail.com",
     description = ("Tools For Wavelet Analises in Python"),

@@ -99,8 +99,11 @@ RETURN:
                     scale : (boolean) True  for not log2 scale of the Plot
         """
 
-        self.__plotWC(self.Rqs, t, self.coi, self.freqs, self.wtcsig, title,
-                               units, **kwargs)
+        return self.__plotWC(wc=self.Rqs, t=t, coi=self.coi,
+                             freqs=self.freqs,
+                             signif=self.wtcsig,
+                             title=title,
+                             units=units, **kwargs)
 
     def __plotWC(self, wc, t, coi,
                  freqs, signif, title, units='days', **kwargs):
@@ -163,7 +166,7 @@ RETURN:
             levels = None
 
         if 'labels' in kwargs.keys():
-            levels = kwargs['labels']
+            labels = kwargs['labels']
         else:
             labels = None
 
@@ -173,17 +176,17 @@ RETURN:
             #pArrow = None
 
         if 'pSigma' in kwargs.keys():
-            levels = kwargs['pSigma']
+            pSigma = kwargs['pSigma']
         else:
             pSigma = True
 
         if 'gray' in kwargs.keys():
-            levels = kwargs['gray']
+            gray = kwargs['gray']
         else:
             gray = None
 
         if 'nameSave' in kwargs.keys():
-            levels = kwargs['nameSave']
+            nameSave = kwargs['nameSave']
         else:
             nameSave = None
 
@@ -221,7 +224,11 @@ RETURN:
                           'timezone': 'UTC'
                          }
         pyplot.rcParams.update(params)
-        pyplot.ion()
+
+        if(nameSave is None):
+            pyplot.ion()
+        else:
+            pyplot.ioff()
         fp = dict()
         ap = dict(left=0.15, bottom=0.12, right=0.95, top=0.95,
                      wspace=0.10, hspace=0.10)

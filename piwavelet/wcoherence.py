@@ -13,7 +13,6 @@ from numpy import pi, angle, cos, sin, log2, ceil, arange, concatenate
 
 import pylab
 import matplotlib.dates as mdates
-from matplotlib.dates import MonthLocator, WeekdayLocator, DateFormatter
 import matplotlib.pyplot as plt
 from matplotlib import colors
 import datetime
@@ -284,6 +283,10 @@ RETURN:
         ax.set_title('%s' % title)
         ax.set_xlabel('Time (%s)' % units)
         ax.set_ylabel('Period (%s)' % units)
+        if(timeDT):
+            ax.xaxis_date()
+            ax.fmt_xdata = mdates.DateFormatter('%Y-%m-%d')
+            fig.autofmt_xdate(bottom=0.18)
 
         # Plots the cross wavelet power spectrum and significance level
         # contour lines and cone of influece hatched area.
@@ -385,10 +388,6 @@ RETURN:
         else:
             pylab.show()
 
-        if(timeDT):
-            ax.xaxis_date()
-            ax.fmt_xdata = mdates.DateFormatter('%Y-%m-%d')
-            fig.autofmt_xdate(bottom=0.18)
         result.append(ax)
 
         return result

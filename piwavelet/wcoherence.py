@@ -13,6 +13,7 @@ from numpy import pi, angle, cos, sin, log2, ceil, arange, concatenate
 
 import pylab
 import matplotlib.dates as mdates
+from matplotlib.dates import MonthLocator, WeekdayLocator, DateFormatter
 import matplotlib.pyplot as plt
 from matplotlib import colors
 import datetime
@@ -149,7 +150,7 @@ RETURN:
         """
 
         listParameters = ['levels', 'labels', 'pArrow', 'pSigma', 'gray',
-                          'nameSave', 'scale', 'zoom', 'labelsize']
+                          'nameSave', 'scale', 'zoom', 'labelsize', 'fontsize']
 
         testeKeysArgs = [Ki for Ki in kwargs.keys()
                          if Ki not in  listParameters]
@@ -203,17 +204,27 @@ RETURN:
         else:
             zoom = None
 
+        if 'fontsize' in kwargs.keys():
+            fontsize = kwargs['fontsize']
+        else:
+            fontsize = 18
+
+        if 'figsize' in kwargs.keys():
+            figsize = kwargs['figsize']
+        else:
+            figsize = (10, 10 / 1.61803398875)
+
         if('labelsize' in kwargs.keys()):
             labelsize = kwargs['labelsize']
             labelsize = int(labelsize)
 
         else:
-            labelsize = 18
+            labelsize = 15
 
-        fontsize = 'medium'
         params = {'font.family': 'serif',
                           'font.sans-serif': ['Helvetica'],
-                          'font.size': 25,
+                          'font.size': fontsize,
+                          'figure.figsize': figsize,
                           'font.stretch': 'ultra-condensed',
                           'text.fontsize': fontsize,
                           'xtick.labelsize': labelsize,
@@ -237,6 +248,13 @@ RETURN:
         fig.subplots_adjust(**ap)
 
         timeDT = False
+        try:
+            from pandas.tslib import Timestamp
+            if(type(t[0]) == Timestamp):
+                timeDT = True
+                t = mdates.date2num(t)
+        except:
+            pass
 
         if(type(t[0]) == datetime.datetime):
             timeDT = True
@@ -340,10 +358,6 @@ RETURN:
 
             pylab.draw()
 
-            if(nameSave):
-                pylab.savefig(nameSave)
-            else:
-                pylab.show()
         else:
 
             ax.fill(concatenate([t[:1] - dt, t, t[-1:] + dt, t[-1:] + dt,
@@ -366,14 +380,15 @@ RETURN:
 
             pylab.draw()
 
-            if(nameSave):
-                pylab.savefig(nameSave)
-            else:
-                pylab.show()
+        if(nameSave):
+            pylab.savefig(nameSave, dpi=80)
+        else:
+            pylab.show()
+
         if(timeDT):
             ax.xaxis_date()
             ax.fmt_xdata = mdates.DateFormatter('%Y-%m-%d')
-
+            fig.autofmt_xdate(bottom=0.18)
         result.append(ax)
 
         return result

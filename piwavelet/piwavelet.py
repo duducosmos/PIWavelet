@@ -1549,9 +1549,10 @@ RETURN
         if(pArrow):
             q = ax.quiver(t[::da[1]], numpy.log2(period)[::da[0]], u[::da[0], ::da[1]],
                 v[::da[0], ::da[1]],
-                units='width', angles='uv', pivot='mid',
-                linewidth=1.5, edgecolor='k', headwidth=10, headlength=10,
-                headaxislength=5, minshaft=2, minlength=5)
+                units='width', angles='uv', pivot='mid'
+                #linewidth=1.5, edgecolor='k', headwidth=10, headlength=10,
+                #headaxislength=5, minshaft=2, minlength=5
+                )
 
 
         ax.fill(numpy.concatenate([t[:1]-dt, t, t[-1:]+dt, t[-1:]+dt, t[:1]-dt,

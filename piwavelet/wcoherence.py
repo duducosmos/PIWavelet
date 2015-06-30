@@ -170,10 +170,10 @@ RETURN:
         else:
             labels = None
 
-        #if 'pArrow' in kwargs.keys():
-            #levels = kwargs['pArrow']
-        #else:
-            #pArrow = None
+        if 'pArrow' in kwargs.keys():
+            pArrow = kwargs['pArrow']
+        else:
+            pArrow = None
 
         if 'pSigma' in kwargs.keys():
             pSigma = kwargs['pSigma']
@@ -274,7 +274,7 @@ RETURN:
 
         result = []
 
-        #da = [3, 3]
+        da = [3, 3]
 
         fig = fig
         result.append(fig)
@@ -332,12 +332,13 @@ RETURN:
             ax.contour(t, log2(period), sig95, [-99, 1], colors='k',
                 linewidths=2.)
 
-        #if(pArrow):
-            #q = ax.quiver(t[::da[1]], log2(period)[::da[0]],
-                 #u[::da[0], ::da[1]],
-                #v[::da[0], ::da[1]], units='width', angles='uv', pivot='mid',
+        if(pArrow):
+            ax.quiver(t[::da[1]], log2(period)[::da[0]],
+                 u[::da[0], ::da[1]],
+                v[::da[0], ::da[1]], units='width', angles='uv', pivot='mid'
                 #linewidth=1.5, edgecolor='k', headwidth=10, headlength=10,
-                #headaxislength=5, minshaft=2, minlength=5)
+                #headaxislength=5, minshaft=2, minlength=5
+                )
 
         if(zoom):
             newPeriod = period[pylab.find((period >= zoom[0]) &

@@ -374,7 +374,7 @@ filled contour lines.
                 )
         self.bx.set_title('b) %s Wavelet Power Spectrum (%s)' % (self.label,
                                                             self.mother.name))
-        self.bx.set_ylabel('Period (Days)')
+        self.bx.set_ylabel('Period (%s)' % self.units)
         self.Yticks = 2 ** arange(ceil(log2(self.period.min())),
                                    ceil(log2(self.period.max())))
         self.bx.set_yticks(log2(self.Yticks))
@@ -439,7 +439,7 @@ filled contour lines.
                     )
             self.dx.set_title('d) $%d$-$%d$ year scale-averaged power'
                          % (self.avg1, self.avg2))
-            self.dx.set_xlabel('Time (days)')
+            self.dx.set_xlabel('Time (%s)' % self.units)
             if self.units != '':
                 self.dx.set_ylabel(r'Average variance [$%s$]' % (self.units, ))
             else:

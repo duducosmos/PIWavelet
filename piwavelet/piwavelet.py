@@ -58,7 +58,7 @@ from numpy import (arange, ceil, concatenate, conjugate, cos, exp, isnan, log,
 from numpy.fft import fft, ifft, fftfreq
 from numpy.lib.polynomial import polyval
 from numpy import abs as nAbs
-from numpy import where
+from numpy import argwhere
 from scipy.special import gamma
 from scipy.stats import chi2
 from scipy.special.orthogonal import hermitenorm
@@ -110,7 +110,7 @@ REFERENCES
 
 #from pylab import find
 
-find = lambda x: where(x)
+find = lambda x: argwhere(x)
 
 class Morlet:
     """Implements the Morlet wavelet class.
@@ -487,8 +487,8 @@ def cwt(signal, dt=1., dj=1./12, s0=-1, J=-1, wavelet=Morlet(), result=None):
         )
         return result
     else:
-        return (W[:, :n0], sj, freqs, coi, signal_ft[1:N/2] / N ** 0.5,
-                ftfreqs[1:N/2] / (2. * pi))
+        return (W[:, :n0], sj, freqs, coi, signal_ft[1:N//2] / N ** 0.5,
+                ftfreqs[1:N//2] / (2. * pi))
 
 def icwt(W, sj, dt, dj=0.25, w=Morlet()):
     """Inverse continuous wavelet transform.
@@ -850,8 +850,7 @@ PARAMETER:
     # filled contour lines.
     #pylab.close('all')
     fontsize = 'medium'
-    params = {'text.fontsize': fontsize,
-              'xtick.labelsize': fontsize,
+    params = {'xtick.labelsize': fontsize,
               'ytick.labelsize': fontsize,
               'axes.titlesize': fontsize,
               'text.usetex': True
@@ -1348,7 +1347,7 @@ RETURN
     coi: the cone of influence
     sig95: Significance
         """
-        xwt, period,scale,coi,signif =octave.call('xwt', signal1, signal2, nout=5)
+        xwt, period,scale,coi,signif =octave.xwt(signal1, signal2, nout=5)
         period =period[0]
         scale = scale[0]
         coi = coi[0]
@@ -1461,12 +1460,10 @@ RETURN
                           'font.sans-serif': ['Helvetica'],
                           'font.size': 18,
                           'font.stretch': 'ultra-condensed',
-                          'text.fontsize': fontsize,
                           'xtick.labelsize': fontsize,
                           'ytick.labelsize': fontsize,
                           'axes.titlesize': fontsize,
                           'text.usetex': True,
-                          'text.latex.unicode': True,
                           'timezone': 'UTC'
                          }
         pyplot.rcParams.update(params)

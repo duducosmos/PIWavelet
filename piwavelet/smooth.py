@@ -17,7 +17,7 @@ from numpy import isreal, ndarray, ma, arange
 from numpy.fft import fft, ifft, fftfreq
 from scipy.signal import convolve2d
 
-from piwavelet import cwt, Morlet
+from .piwavelet import cwt, Morlet
 
 
 def rect(x, normalize=False):
@@ -136,5 +136,5 @@ if(__name__ == "__main__"):
     sm = smooth(wave, 1, freqs, 0.25, scales)
     a = sm.smoothwavelet()
     b = sm.smooth()
-    print a[0]
-    print b[0]
+    print(a[0])
+    print(b[0])

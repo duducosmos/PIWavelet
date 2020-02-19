@@ -58,7 +58,7 @@ from numpy import (arange, ceil, concatenate, conjugate, cos, exp, isnan, log,
 from numpy.fft import fft, ifft, fftfreq
 from numpy.lib.polynomial import polyval
 from numpy import abs as nAbs
-from pylab import find
+from numpy import where
 from scipy.special import gamma
 from scipy.stats import chi2
 from scipy.special.orthogonal import hermitenorm
@@ -106,6 +106,11 @@ REFERENCES
     [3] Torrence, Christopher and Compo, Gilbert P. (1998). A Practical
         Guide to Wavelet Analysis
 """
+
+
+#from pylab import find
+
+find = lambda x: where(x)
 
 class Morlet:
     """Implements the Morlet wavelet class.
@@ -519,7 +524,7 @@ def icwt(W, sj, dt, dj=0.25, w=Morlet()):
     elif b == c:
         sj = ones([a, 1]) * sj
     else:
-        raise Warning, 'Input array dimensions do not match.'
+        raise Warning('Input array dimensions do not match.')
 
     # As of Torrence and Compo (1998), eq. (11)
     iW = dj * sqrt(dt) / w.cdelta * w.psi(0) * (real(W) / sj).sum(axis=0)
@@ -629,17 +634,16 @@ def significance(signal, dt, scales, sigma_test=0, alpha=0.,
             signif[n] = fft_theor[n] * chisquare
     elif sigma_test == 2:  # Time-averaged significance
         if len(dof) != 2:
-            raise Exception, ('DOF must be set to [s1, s2], '
-                              'the range of scale-averages')
+            raise Exception('DOF must be set to [s1, s2], the range of scale-averages')
         if Cdelta == -1:
-            raise Exception, ('Cdelta and dj0 not defined for %s with f0=%f' %
+            raise Exception('Cdelta and dj0 not defined for %s with f0=%f' %
                              (wavelet.name, wavelet.f0))
 
         s1, s2 = dof
         sel = find((scales >= s1) & (scales <= s2));
         navg = sel.size
         if navg == 0:
-            raise Exception, 'No valid scales between %d and %d.' % (s1, s2)
+            raise Exception('No valid scales between %d and %d.' % (s1, s2))
 
         # As in Torrence and Compo (1998), equation 25
         Savg = 1 / sum(1. / scales[sel])
@@ -654,7 +658,7 @@ def significance(signal, dt, scales, sigma_test=0, alpha=0.,
         # As in Torrence and Compo (1998), equation 26
         signif = (dj * dt / Cdelta / Savg) * fft_theor * chisquare
     else:
-        raise Exception, 'sigma_test must be either 0, 1, or 2.'
+        raise Exception('sigma_test must be either 0, 1, or 2.')
 
     return (signif, fft_theor)
 
@@ -693,7 +697,7 @@ PARAMETER:
     testeKeysArgs = [Ki for Ki in kwargs.keys() if Ki not in listParameters]
 
     if(len(testeKeysArgs) >= 1):
-        print 'The following keys args are not defined: ', testeKeysArgs
+        print('The following keys args are not defined: ', testeKeysArgs)
         return
 
 
@@ -829,7 +833,7 @@ PARAMETER:
                            significance_level=slevel, dof=dof, wavelet=mother)
 
     # Scale average between avg1 and avg2 periods and significance level
-    sel = pylab.find((period >= avg1) & (period < avg2))
+    sel = find((period >= avg1) & (period < avg2))
     Cdelta = mother.cdelta
     scale_avg = (scales * numpy.ones((N, 1))).transpose()
     # As in Torrence and Compo (1998) equation 24
@@ -1098,7 +1102,7 @@ RETURN:
         testeKeysArgs = [Ki for Ki in kwargs.keys() if Ki not in  listParameters]
 
         if(len(testeKeysArgs) >=1):
-            print 'The following key args are not defined: ',  testeKeysArgs
+            print('The following key args are not defined: ',  testeKeysArgs)
             return
 
         # Sets some parameters and renames some of the input variables.
@@ -1258,7 +1262,7 @@ RETURN:
                 headaxislength=5, minshaft=2, minlength=5)
 
         if(zoom):
-            newPeriod = period[pylab.find((period>=zoom[0])&(period<=zoom[1]))]
+            newPeriod = period[find((period>=zoom[0])&(period<=zoom[1]))]
             ax.fill(numpy.concatenate([t[:1]-dt, t, t[-1:]+dt, t[-1:]+dt, t[:1]-dt,
                 t[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi, [1e-9],
                 period[-1:], period[-1:], [1e-9]])), 'k', alpha=0.3, hatch='x')
@@ -1413,7 +1417,7 @@ RETURN
         testeKeysArgs = [Ki for Ki in kwargs.keys() if Ki not in  listParameters]
 
         if(len(testeKeysArgs) >=1):
-            print 'The following key args are not defined: ',  testeKeysArgs
+            print('The following key args are not defined: ',  testeKeysArgs)
             return
 
         from matplotlib import pyplot
@@ -1634,7 +1638,7 @@ class smooth:
         for i in range(m):
             F = exp(-0.5 * (snorm[i] ** 2) * k2)
             smooth = ifft(F * fft(W[i, :], npad-N))
-            print smooth.shape, T[i, :].shape,F.shape, npad
+            print(smooth.shape, T[i, :].shape,F.shape, npad)
             T[i, :] = smooth[0:n]
 
         if isreal(W).all():

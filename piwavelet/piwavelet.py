@@ -1031,7 +1031,7 @@ RETURN:
 
 
         """
-        Rqs, period,scale,coi,wtcsig = octave.wtc(signal1, signal2)
+        Rqs, period,scale,coi,wtcsig = octave.wtc(signal1, signal2, nout=5)
         period =period[0]
         scale = scale[0]
         coi = coi[0]
@@ -1165,12 +1165,10 @@ RETURN:
                           'font.sans-serif': ['Helvetica'],
                           'font.size': 25,
                           'font.stretch': 'ultra-condensed',
-                          'text.fontsize': fontsize,
                           'xtick.labelsize': labelsize,
                           'ytick.labelsize': labelsize,
                           'axes.titlesize': fontsize,
                           'text.usetex': True,
-                          'text.latex.unicode': True,
                           'timezone': 'UTC'
                          }
         pyplot.rcParams.update(params)
@@ -1299,7 +1297,7 @@ RETURN:
 
             pylab.draw()
 
-            if(nameSave):
+            if nameSave is not None:
                 pylab.savefig(nameSave)
             else:
                 pylab.show()
@@ -1350,7 +1348,7 @@ RETURN
     coi: the cone of influence
     sig95: Significance
         """
-        xwt, period,scale,coi,signif =octave.call('xwt', signal1, signal2)
+        xwt, period,scale,coi,signif =octave.call('xwt', signal1, signal2, nout=5)
         period =period[0]
         scale = scale[0]
         coi = coi[0]

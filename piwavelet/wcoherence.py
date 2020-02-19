@@ -68,7 +68,7 @@ RETURN:
 
 
         """
-        Rqs, period, scale, coi, wtcsig = octave.wtc(signal1, signal2)
+        Rqs, period, scale, coi, wtcsig = octave.wtc(signal1, signal2, nout=5)
         period = period[0]
         scale = scale[0]
         coi = coi[0]
@@ -225,12 +225,10 @@ RETURN:
                           'font.size': fontsize,
                           'figure.figsize': figsize,
                           'font.stretch': 'ultra-condensed',
-                          'text.fontsize': fontsize,
                           'xtick.labelsize': labelsize,
                           'ytick.labelsize': labelsize,
                           'axes.titlesize': fontsize,
                           'text.usetex': True,
-                          'text.latex.unicode': True,
                           'timezone': 'UTC'
                          }
         pyplot.rcParams.update(params)
@@ -384,10 +382,10 @@ RETURN:
 
             pylab.draw()
 
-        if(nameSave):
+        if nameSave is not None:
             pylab.savefig(nameSave, dpi=80)
         else:
-            pylab.show()
+            plt.show()
 
         result.append(ax)
 

@@ -3,8 +3,8 @@ function varargout=wtc(x,y,varargin)
 %
 % USAGE: [Rsq,period,scale,coi,sig95]=wtc(x,y,[,settings])
 %
-% 
-% Settings: Pad: pad the time series with zeros? 
+%
+% Settings: Pad: pad the time series with zeros?
 % .         Dj: Octaves per scale (default: '1/12')
 % .         S0: Minimum scale
 % .         J1: Total number of scales
@@ -12,7 +12,7 @@ function varargout=wtc(x,y,varargin)
 % .         MaxScale: An easier way of specifying J1
 % .         MakeFigure: Make a figure or simply return the output.
 % .         BlackandWhite: Create black and white figures
-% .         AR1: the ar1 coefficients of the series 
+% .         AR1: the ar1 coefficients of the series
 % .              (default='auto' using a naive ar1 estimator. See ar1nv.m)
 % .         MonteCarloCount: Number of surrogate data sets in the significance calculation. (default=300)
 % .         ArrowDensity (default: [30 30])
@@ -26,9 +26,9 @@ function varargout=wtc(x,y,varargin)
 %    t=1:200;
 %    wtc(sin(t),sin(t.*cos(t*.01)),'ms',16)
 %
-% Phase arrows indicate the relative phase relationship between the series 
-% (pointing right: in-phase; left: anti-phase; down: series1 leading 
-% series2 by 90°)
+% Phase arrows indicate the relative phase relationship between the series
+% (pointing right: in-phase; left: anti-phase; down: series1 leading
+% series2 by 90ï¿½)
 %
 % Please acknowledge the use of this software in any publications:
 %   "Crosswavelet and wavelet coherence software were provided by
@@ -149,10 +149,10 @@ if (nargout>0)||(Args.MakeFigure)
 end
 
 if Args.MakeFigure
-    
+
 
     Yticks = 2.^(fix(log2(min(period))):fix(log2(max(period))));
-    
+
     if Args.BlackandWhite
         levels = [0 0.5 0.7 0.8 0.9 1];
         [cout,H]=safecontourf(t,log2(period),Rsq,levels);
@@ -191,11 +191,11 @@ if Args.MakeFigure
         H=imagesc(t,log2(period),Rsq);%#ok
         %[c,H]=safecontourf(t,log2(period),Rsq,[0:.05:1]);
         %set(H,'linestyle','none')
-        
+
         set(gca,'clim',[0 1])
-        
+
         HCB=safecolorbar;%#ok
-        
+
         set(gca,'YLim',log2([min(period),max(period)]), ...
             'YDir','reverse', 'layer','top', ...
             'YTick',log2(Yticks(:)), ...
@@ -250,4 +250,3 @@ if (version('-release')<14)|(vv(1)<7)
 else
     hcb=colorbar('v6',varargin{:});
 end
-

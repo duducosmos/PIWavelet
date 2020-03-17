@@ -1,0 +1,38 @@
+{% set name = "piwavelet" %}
+{% set version = "1.0.0" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+source:
+  url: https://files.pythonhosted.org/packages/69/6e/10e3ef8c39e1b7f34300d3a79d89464eb878cd92ba8aee29109d7ee106ff/piwavelet-1.0.0.tar.gz
+  sha256: 4f0f8f94bb9193cd01c1f475d1b1076bc0ddda70a74fb2d00fc5b9ec1db4238d
+
+build:
+  noarch: python
+  number: 0
+  script: python -m pip install --no-deps --ignore-installed .
+
+requirements:
+  host:
+    - pip
+    - python
+    - setuptools
+  run:
+    - python
+    - numpy
+    - scipy
+    - oct2py
+    - matplotlib
+    - octave_kernel
+    - octave
+test:
+  imports:
+    - piwavelet
+
+about:
+  home: https://pypi.org/project/piwavelet/
+  license: APACHE
+  license_family: APACHE
+  summary: Python Interface for Wavelet Analysis

@@ -1,6 +1,6 @@
 from piwavelet.piwavelet import wcoherence, wcross, plotWavelet
 import numpy as np
-n=50
+n=100
 y1 = np.random.rand(n)
 y2 = np.random.rand(n)
 x = np.arange(0, n, 1)

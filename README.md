@@ -1,20 +1,20 @@
 PIWavelet
 =========
 
-Python Interface for Wavelet  Analysis 
+Python Interface for Wavelet  Analysis
 
 DISCLAIMER
     This module is a Python interface for the matlab package for wavelet,
     cross-wavelet and coherence-wavelet analysis provided by
     Aslak Grinsted, John C. Moore and Svetlana Jevrejeva.
-    
+
     http://noc.ac.uk/using-science/crosswavelet-wavelet-coherence
 
     This software may be used, copied, or redistributed as long as it
     is not sold and this copyright notice is reproduced on each copy
     made. This routine is provided as is without any express or implied
     warranties whatsoever.
-    
+
 TO RUN
     It is necessary to have gnuoctave and oct2py installed in your machine
     Gnu Octave: http://www.gnu.org/software/octave/ (sudo apt-get install octave)
@@ -22,18 +22,27 @@ TO RUN
 
 INSTALL:
     python setup.py install
-    
+
+    or:
+
+    conda install -c jabuticabads piwavelet
+
+    or:
+
+    pip install piwavelet
+
+
 OBSERVATION:
     Octave supports most but not all of the core syntax and commands of MatLab.
     The main noticable differences are nested functions are not allowed, and GUIs (including uigetfile, etc.) are not supported.
-    
-DOC: 
+
+DOC:
     For more information an how to use see: http://duducosmos.github.com/PIWavelet/
 
 AUTHOR
     Eduardo S. Pereira
     email: pereira.somoza@gmail.com
-    
+
 Agradecimentos:
 Gostariamos de agradecer a Fundação de Ampáro a Pesquisa de São Paulo pelo apoi. Processo: 2012/21877-5.
 
@@ -43,7 +52,7 @@ REFERENCES
     [2] Addison, Paul S. The illustrated wavelet transform handbook
     [3] Torrence, Christopher and Compo, Gilbert P. (1998). A Practical
             Guide to Wavelet Analysis
-    [4] Grinsted, A., Moore, J.C., Jevrejeva, S., 2004, 
+    [4] Grinsted, A., Moore, J.C., Jevrejeva, S., 2004,
         Nonlin. Processes Geophys., 11, 561–566, doi:10.5194/npg-11-561-2004
     [5] Jevrejeva, S., Moore, J.C.,  Grinsted, A., 2003,
          J. Geophys. Res., 108(D21), 4677, doi:10.1029/2003JD003417

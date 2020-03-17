@@ -1,0 +1,4 @@
+oct2py>=2.0.0
+numpy>=1.6.2
+scipy>=0.10.1
+matplotlib>=1.1.1

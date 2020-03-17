@@ -1,0 +1,122 @@
+Metadata-Version: 2.1
+Name: oct2py
+Version: 5.0.4
+Summary: Python to GNU Octave bridge --> run m-files from python.
+Home-page: http://github.com/blink1073/oct2py
+Maintainer: Steven Silvester
+Maintainer-email: steven.silvester@ieee.org
+License: MIT
+Download-URL: http://github.com/blink1073/oct2py
+Platform: Any
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Software Development
+Requires: numpy (>= 1.12)
+Requires: scipy (>= 0.17)
+Requires: octave_kernel (>= 0.31.0)
+Description-Content-Type: text/x-rst
+Requires-Dist: octave-kernel (>=0.31.0)
+Requires-Dist: numpy (>=1.12)
+Requires-Dist: scipy (>=0.17)
+Provides-Extra: docs
+Requires-Dist: sphinx ; extra == 'docs'
+Requires-Dist: sphinx-bootstrap-theme ; extra == 'docs'
+Requires-Dist: numpydoc ; extra == 'docs'
+Provides-Extra: test
+Requires-Dist: pytest ; extra == 'test'
+Requires-Dist: pandas ; extra == 'test'
+Requires-Dist: mock ; (python_version == "2.7") and extra == 'test'
+
+Oct2Py: Python to GNU Octave Bridge
+===================================
+
+.. image:: https://badge.fury.io/py/oct2py.png/
+    :target: http://badge.fury.io/py/oct2py
+
+.. image:: https://codecov.io/github/blink1073/oct2py/coverage.svg?branch=master
+  :target: https://codecov.io/github/blink1073/oct2py?branch=master
+
+.. image:: http://pepy.tech/badge/oct2py
+   :target: http://pepy.tech/project/oct2py
+   :alt: PyPi Download stats
+
+Oct2Py allows you to seamlessly call M-files and Octave functions from Python.
+It manages the Octave session for you, sharing data behind the scenes using
+MAT files.  Usage is as simple as:
+
+.. code-block:: python
+
+    >>> oc = oct2py.Oct2Py()
+    >>> x = oc.zeros(3,3)
+    >>> print(x, x.dtype)
+    [[ 0.  0.  0.]
+     [ 0.  0.  0.]
+     [ 0.  0.  0.]] float64
+    ...
+
+If you want to run legacy m-files, do not have MATLAB®, and do not fully
+trust a code translator, this is your library.
+
+
+Features
+--------
+
+- Supports all Octave datatypes and most Python datatypes and Numpy dtypes.
+- Provides OctaveMagic_ for IPython, including inline plotting in notebooks.
+- Supports cell arrays and structs/struct arrays with arbitrary nesting.
+- Supports sparse matrices.
+- Builds methods on the fly linked to Octave commands (e.g. `zeros` above).
+- Thread-safety: each Oct2Py object uses an independent Octave session.
+- Can be used as a context manager.
+- Supports Unicode characters.
+- Supports logging of session commands.
+- Optional timeout command parameter to prevent runaway Octave sessions.
+
+
+.. _OctaveMagic: https://nbviewer.jupyter.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
+
+
+Installation
+------------
+You must have GNU Octave installed and in your ``PATH`` environment variable.
+Alternatively, you can set an ``OCTAVE_EXECUTABLE`` or ``OCTAVE`` environment
+variable that points to ``octave-cli`` executable itself.
+
+You must have the Numpy and Scipy libraries for Python installed.
+See the installation instructions_ for more details.
+
+Once the dependencies have been installed, run:
+
+.. code-block:: bash
+
+    $ pip install oct2py
+
+If using conda, it is available on conda-forge:
+
+.. code-block:: bash
+
+   $ conda install -c conda-forge oct2py
+
+.. _instructions: http://blink1073.github.io/oct2py/source/installation.html
+
+
+Documentation
+-------------
+
+Documentation is available online_.
+
+For version information, see the Revision History_.
+
+.. _online: https://oct2py.readthedocs.io/en/latest/
+
+.. _History: https://github.com/blink1073/oct2py/blob/master/HISTORY.rst
+
+

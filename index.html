@@ -34,8 +34,8 @@
 			color: #6D6D6D;
 			border-bottom:3px solid #EA0000;
 		}
-		
-	
+
+
 	-->
 	</style>
     <meta charset="utf-8">
@@ -50,7 +50,7 @@
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
     <script type="text/javascript" src="http://mathcache.s3.amazonaws.com/replacemath.js"> </script>
-    
+
     <script type="text/javascript">
 
   var _gaq = _gaq || [];
@@ -69,11 +69,11 @@
 
   </head>
   <body onload="replaceMath(document.body)">
-        
+
 </ul>
-        
+
     <div class="wrapper">
-    <div id="menu" style="position:fixed;background:white;width:100%;">     
+    <div id="menu" style="position:fixed;background:white;width:100%;">
           <ul>
           <li><a href="" >Menu :</a> </li>
            <li><a href="#introd" >Introduction</a></li>
@@ -93,7 +93,7 @@
           <li class="download"><a class="buttons" href="https://github.com/duducosmos/PIWavelet/tarball/master">Download TAR</a></li>
           <li><a class="buttons github" href="https://github.com/duducosmos/PIWavelet">View On GitHub</a></li>
 
-        
+
 
 
         <p class="header">This project is maintained by <a class="header name" href="https://github.com/duducosmos">duducosmos</a></p>
@@ -106,10 +106,10 @@
       <h1 id="introd">PIWavelet<img src="images/piwavelet.gif" width="40%" height="40%" /></h1>
       <p>Python programming Interface for Wavelet  Analysis </p>
       </div>
-      
-      
+
+
       <div>
-      
+
       <p>
       DISCLAIMER
       <br>
@@ -139,22 +139,28 @@
     </div>
     <div>
       <h3 id="install">INSTALL:</h3>
-			      
+
 							<pre>
 							<code>
 $ python setup.py install
 							</code>
 							</pre>
 				</div>
+        <p> Alternatively</p>
+        <pre>
+        <code>
+        $ conda install -c jabuticabads piwavelet
+        </code>
+        </pre>
 				<div>
 					<p>
 <h3>OBSERVATION:</h3>
-					
+
 					<br>
 					    Octave supports most but not all of the core syntax and commands of MatLab.
 					    The main noticable differences are nested functions are not allowed, and GUIs (including uigetfile, etc.) are not supported.
-					    
-      
+
+
 </div>
 
 <div>
@@ -178,7 +184,7 @@ Initialization of the piwavelet class
 </p>
 <h3>Wavelet Coherence Analysis:</h3>
 <p>
-Given tow signal, with zero mean, to start the wavelet coherence analysis, 
+Given tow signal, with zero mean, to start the wavelet coherence analysis,
 it is necessary to call the  wcoherence (Wavelet Coherence) class:
 <pre>
 <code>
@@ -189,7 +195,7 @@ it is necessary to call the  wcoherence (Wavelet Coherence) class:
 </p>
 <p>
 The returned values are:
- 
+
 <table>
 <tr>
 	<td>Rsq</td>
@@ -224,8 +230,8 @@ Plot wavelet coherence of the signals x,y.
 </pre>
 </p>
 <p>
-Parameters :    
-                
+Parameters :
+
 <table>
 <tr>
 <td>Key</td>
@@ -304,7 +310,7 @@ $y_{i,std} = (y_{i}-\bar{y})/\sigma$
 </p>
 
 <p>
-where $y_{i}$ is the $i$-th data values, $\bar{y}$ is the mean value and $\sigma$ is the standard deviation of the $y$ series. 
+where $y_{i}$ is the $i$-th data values, $\bar{y}$ is the mean value and $\sigma$ is the standard deviation of the $y$ series.
 </p>
 
 <img src="images/sig1_2_t1.png" width="100%" height="100%" alt="" />
@@ -349,7 +355,7 @@ The method plot generate the coherence map of the signal. The Figure <a href="#f
 <h3>Wavelet Cross Power Spectrum Analysis:</h3>
 
 <p>
-Given tow signal, with zero mean, to start the cross wavelet analysis, 
+Given tow signal, with zero mean, to start the cross wavelet analysis,
 it is necessary to call the  wcross (Wavelet Cross Spectrum) class:
 <pre>
 <code>
@@ -392,8 +398,8 @@ Plot wavelet coherence of the signals x,y.
 </pre>
 </p>
 <p>
-Parameters :    
-                
+Parameters :
+
 <table>
 <tr>
 <td>Key</td>
@@ -492,7 +498,7 @@ Optional parameters
 </li>
 </ul>
 </p>
-<p>The Figure <a href="#fig5" >5</a> shows the Cross Wavelet Power Spectrum map.</p> 
+<p>The Figure <a href="#fig5" >5</a> shows the Cross Wavelet Power Spectrum map.</p>
 
 <img src="images/teste2.png" width="100%" height="100%" alt="" id="fig5" />
 
@@ -502,7 +508,7 @@ Optional parameters
 <h3 id="extFunc">Extra Functions</h3>
 
 <h4>Continues Wavelet Transform</h4>
-<p>In this package is available some wavelets mother functions (Morlet, Paul, DOG, Mexican hat), 
+<p>In this package is available some wavelets mother functions (Morlet, Paul, DOG, Mexican hat),
 Continuous wavelet transform of the signal at specified scales,
 Inverse continuous wavelet transform,
 Significance testing for the onde dimensional wavelet transform,
@@ -539,7 +545,7 @@ and the scale averaged wavelet spectrum as determined by the avg1 and avg2 param
 </div>
 
 
-<div>      
+<div>
 <h3 id="bbgraf">Bibliography</h3>
 <p>
 <br>
@@ -550,7 +556,7 @@ and the scale averaged wavelet spectrum as determined by the avg1 and avg2 param
     [3] Torrence, Christopher and Compo, Gilbert P. (1998). A Practical    <br>
             Guide to Wavelet Analysis
     <br>
-    [4] Grinsted, A., Moore, J.C., Jevrejeva, S., 2004,    <br> 
+    [4] Grinsted, A., Moore, J.C., Jevrejeva, S., 2004,    <br>
         Nonlin. Processes Geophys., 11, 561–566, doi:10.5194/npg-11-561-2004
     <br>
     [5] Jevrejeva, S., Moore, J.C.,  Grinsted, A., 2003,    <br>
@@ -560,8 +566,8 @@ and the scale averaged wavelet spectrum as determined by the avg1 and avg2 param
             J.Clim., 12, 2679–2690
 </p>
 </div>
-            
-            
+
+
 <div>
 <h4>Credits:</h4>
 <p>
@@ -569,6 +575,6 @@ Author : Eduardo S. Pereira. (pereira.somoza@gmail.com)
 </p>
 
 </div>
-		
+
   </body>
 </html>

@@ -14,7 +14,7 @@ datafiles = [(datadir, [f for f in glob.glob(os.path.join(datadir, '*'))])]
 
 setup(
     name = "piwavelet",
-    version = "1.0.0",
+    version = "1.0.1",
     author = "Eduardo dos Santos Pereira",
     author_email = "pereira.somoza@gmail.com",
     description = ("Tools For Wavelet Analises in Python"),
@@ -26,5 +26,5 @@ setup(
     data_files= datafiles,
     install_requires=['oct2py>=2.0.0', 'numpy>=1.6.2', 'scipy>=0.10.1', 'matplotlib>=1.1.1'],
     long_description=read('README.md'),
-    long_description_content_type="text/markdown",    
+    long_description_content_type="text/markdown",
 )

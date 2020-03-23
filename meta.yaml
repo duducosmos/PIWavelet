@@ -1,5 +1,5 @@
-{% set name = "piwavelet" %}
-{% set version = "1.0.0" %}
+{% set name = "piwavelet36" %}
+{% set version = "1.0.2" %}
 
 package:
   name: "{{ name|lower }}"
@@ -25,8 +25,9 @@ requirements:
     - scipy
     - oct2py
     - matplotlib
-    - octave_kernel
     - octave
+    - texlive-core
+    - ghostscript
 test:
   imports:
     - piwavelet

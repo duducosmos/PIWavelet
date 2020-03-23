@@ -202,9 +202,8 @@ PARAMETER:
         params = {'text.fontsize': fontsize,
                   'xtick.labelsize': fontsize,
                   'ytick.labelsize': fontsize,
-                  'axes.titlesize': fontsize,
-                  'text.usetex': True
-                 }
+                  'axes.titlesize': fontsize
+                  }
         pylab.rcParams.update(params)          # Plot parameters
         figprops = dict(figsize=(11, 8), dpi=72)
         self.fig = pylab.figure(**figprops)

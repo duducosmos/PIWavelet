@@ -852,8 +852,7 @@ PARAMETER:
     fontsize = 'medium'
     params = {'xtick.labelsize': fontsize,
               'ytick.labelsize': fontsize,
-              'axes.titlesize': fontsize,
-              'text.usetex': True
+              'axes.titlesize': fontsize
              }
     pylab.rcParams.update(params)          # Plot parameters
 
@@ -1167,7 +1166,6 @@ RETURN:
                           'xtick.labelsize': labelsize,
                           'ytick.labelsize': labelsize,
                           'axes.titlesize': fontsize,
-                          'text.usetex': True,
                           'timezone': 'UTC'
                          }
         pyplot.rcParams.update(params)
@@ -1463,7 +1461,6 @@ RETURN
                           'xtick.labelsize': fontsize,
                           'ytick.labelsize': fontsize,
                           'axes.titlesize': fontsize,
-                          'text.usetex': True,
                           'timezone': 'UTC'
                          }
         pyplot.rcParams.update(params)

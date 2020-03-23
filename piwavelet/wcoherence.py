@@ -228,7 +228,6 @@ RETURN:
                           'xtick.labelsize': labelsize,
                           'ytick.labelsize': labelsize,
                           'axes.titlesize': fontsize,
-                          'text.usetex': True,
                           'timezone': 'UTC'
                          }
         pyplot.rcParams.update(params)

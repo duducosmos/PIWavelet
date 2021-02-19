@@ -1211,6 +1211,7 @@ RETURN:
 
         # Plots the cross wavelet power spectrum and significance level
         # contour lines and cone of influece hatched area.
+        print(levels)
 
         if(levels):
             if(labels):

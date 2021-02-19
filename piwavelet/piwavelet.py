@@ -1112,27 +1112,27 @@ RETURN:
             levels=None
 
         if 'labels' in kwargs.keys():
-            levels = kwargs['labels']
+            labels = kwargs['labels']
         else:
             labels=None
 
         if 'pArrow' in kwargs.keys():
-            levels = kwargs['pArrow']
+            pArrow = kwargs['pArrow']
         else:
             pArrow=None
 
         if 'pSigma' in kwargs.keys():
-            levels = kwargs['pSigma']
+            pSigma = kwargs['pSigma']
         else:
             pSigma=True
 
         if 'gray' in kwargs.keys():
-            levels = kwargs['gray']
+            gray = kwargs['gray']
         else:
             gray = None
 
         if 'nameSave' in kwargs.keys():
-            levels = kwargs['nameSave']
+            nameSave = kwargs['nameSave']
         else:
             nameSave = None
 

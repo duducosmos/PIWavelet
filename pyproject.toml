@@ -46,13 +46,11 @@ classifiers = [
 dependencies = [
   "numpy>=2.0",
   "scipy>=1.13",
+  "matplotlib>=3.9",
 ]
 
 [project.optional-dependencies]
 
-plot = [
-  "matplotlib>=3.9",
-]
 
 dev = [
   "pytest>=8",

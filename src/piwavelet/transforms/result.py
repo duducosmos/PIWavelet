@@ -110,6 +110,7 @@ class XWTResult:
 @dataclass(slots=True)
 class WaveletCoherenceResult:
     coherence: NDArray[np.float64]
+    time: NDArray[np.float64]
     cross_wavelet: NDArray[np.complex128]
     phase: NDArray[np.float64]
     scales: NDArray[np.float64]

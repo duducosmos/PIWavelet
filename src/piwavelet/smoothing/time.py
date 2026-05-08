@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import numpy as np
 
+from piwavelet.wavelets.base import BaseWavelet
+
 from .kernels import gaussian_fft_kernel
 from .utils import (
     angular_frequency_vector,
     ensure_2d_complex,
-    next_power_of_two,
     validate_scales,
 )
 
@@ -15,16 +16,15 @@ def smooth_time(
     wave: np.ndarray,
     scales: np.ndarray,
     dt: float,
-    *,
-    pad_to_power_of_two: bool = True,
+    wavelet: BaseWavelet,
 ) -> np.ndarray:
     """
-    Temporal Gaussian smoothing in Fourier space.
+    Temporal wavelet smoothing in Fourier space.
 
     Parameters
     ----------
     wave : np.ndarray
-        Complex wavelet transform with shape:
+        Wavelet transform with shape:
 
             (n_scales, n_time)
 
@@ -34,60 +34,77 @@ def smooth_time(
     dt : float
         Sampling interval.
 
-    pad_to_power_of_two : bool, default=True
-        Pad time dimension to next power of two.
+    wavelet : BaseWavelet
+        Mother wavelet.
 
     Returns
     -------
     np.ndarray
-        Temporally smoothed wavelet transform.
+        Temporally smoothed transform.
     """
+
     wave = ensure_2d_complex(wave)
 
     n_scales, n_time = wave.shape
 
-    scales = validate_scales(scales, n_scales)
+    scales = validate_scales(
+        scales,
+        n_scales,
+    )
 
     if dt <= 0:
-        raise ValueError("dt must be positive")
-
-    if pad_to_power_of_two:
-        n_fft = next_power_of_two(n_time)
-    else:
-        n_fft = n_time
+        raise ValueError(
+            "dt must be positive"
+        )
 
     omega = angular_frequency_vector(
-        n_fft,
+        n_time,
         dt=dt,
     )
 
-    output = np.empty(
-        (n_scales, n_time),
+    output = np.empty_like(
+        wave,
         dtype=np.complex128,
     )
 
+    # reflection padding to avoid circular leakage
+    pad = n_time // 2
+
     for idx, scale in enumerate(scales):
 
-        scale_norm = scale / dt
+        padded = np.pad(
+            wave[idx],
+            pad_width=pad,
+            mode="reflect",
+        )
+
+        n_padded = len(padded)
+
+        omega_pad = angular_frequency_vector(
+            n_padded,
+            dt=dt,
+        )
+
+        # temporal decorrelation scale
+        decorrelation = (
+            wavelet.time_smoothing_scale(scale)
+        )
 
         kernel = gaussian_fft_kernel(
-            omega,
-            scale_norm,
+            omega_pad,
+            decorrelation,
         )
 
         spectrum = np.fft.fft(
-            wave[idx],
-            n=n_fft,
+            padded
         )
 
         smoothed = np.fft.ifft(
-            kernel * spectrum,
-            n=n_fft,
+            kernel * spectrum
         )
 
-        output[idx] = smoothed[:n_time]
-
-    if np.isrealobj(wave):
-        output = output.real
+        output[idx] = smoothed[
+            pad:pad + n_time
+        ]
 
     return output

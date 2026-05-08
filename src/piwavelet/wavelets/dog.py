@@ -90,3 +90,17 @@ class DOG(BaseWavelet):
         Cone of influence size.
         """
         return 1.0 / np.sqrt(2.0)
+
+    def time_smoothing_scale(
+        self,
+        scale: float,
+    ) -> float:
+        """
+        Temporal decorrelation scale for
+        wavelet coherence smoothing.
+
+        DOG wavelets are real-valued and
+        strongly time-localized.
+        """
+
+        return scale * 0.6

@@ -82,3 +82,17 @@ class Paul(BaseWavelet):
         Cone of influence size.
         """
         return np.sqrt(2.0)
+
+    def time_smoothing_scale(
+        self,
+        scale: float,
+    ) -> float:
+        """
+        Temporal decorrelation scale for
+        wavelet coherence smoothing.
+
+        Paul wavelets are more localized
+        in time than Morlet.
+        """
+
+        return scale * 0.8

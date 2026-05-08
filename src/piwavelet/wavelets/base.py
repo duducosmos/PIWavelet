@@ -6,7 +6,10 @@ import numpy as np
 from numpy.typing import NDArray
 
 
-ArrayLike = NDArray[np.float64] | NDArray[np.complex128]
+ArrayLike = (
+    NDArray[np.float64]
+    | NDArray[np.complex128]
+)
 
 
 class BaseWavelet(ABC):
@@ -22,14 +25,20 @@ class BaseWavelet(ABC):
     deltaj0: float
 
     @abstractmethod
-    def psi(self, t: ArrayLike) -> ArrayLike:
+    def psi(
+        self,
+        t: ArrayLike,
+    ) -> ArrayLike:
         """
         Wavelet in time domain.
         """
         raise NotImplementedError
 
     @abstractmethod
-    def psi_ft(self, w: ArrayLike) -> ArrayLike:
+    def psi_ft(
+        self,
+        w: ArrayLike,
+    ) -> ArrayLike:
         """
         Wavelet in Fourier domain.
         """
@@ -46,6 +55,17 @@ class BaseWavelet(ABC):
     def coi(self) -> float:
         """
         Cone of influence size.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def time_smoothing_scale(
+        self,
+        scale: float,
+    ) -> float:
+        """
+        Temporal smoothing scale used in
+        wavelet coherence.
         """
         raise NotImplementedError
 

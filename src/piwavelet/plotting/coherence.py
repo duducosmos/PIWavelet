@@ -1,36 +1,17 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-
 import numpy as np
 import matplotlib.pyplot as plt
+
+from piwavelet.transforms.result import (
+    WaveletCoherenceResult,
+)
 
 from .styles import WaveletPlotStyle
 from .utils import (
     add_coi_overlay,
     apply_period_axis_format,
 )
-
-
-@dataclass(slots=True)
-class WaveletCoherenceResult:
-    """
-    Result container for wavelet coherence.
-    """
-
-    time: np.ndarray
-
-    coherence: np.ndarray
-
-    periods: np.ndarray
-    frequencies: np.ndarray
-    scales: np.ndarray
-
-    coi: np.ndarray
-
-    significance: np.ndarray
-
-    phase: np.ndarray | None = None
 
 
 def plot_wavelet_coherence(
@@ -55,26 +36,32 @@ def plot_wavelet_coherence(
 
     coherence = result.coherence
 
-    if style.use_log2_power:
-        coherence_plot = coherence
-        levels = style.coherence_levels
-    else:
-        coherence_plot = coherence
-        levels = style.coherence_levels
+    time = result.time
+
+    periods = result.periods
+
+    y = (
+        np.log2(periods)
+        if style.use_log2_power
+        else periods
+    )
 
     cf = ax.contourf(
-        result.time,
-        np.log2(result.periods),
-        coherence_plot,
-        levels=levels,
+        time,
+        y,
+        coherence,
+        levels=style.coherence_levels,
         cmap=style.cmap,
         extend="max",
     )
 
-    if style.show_significance:
+    if (
+        style.show_significance
+        and result.significance is not None
+    ):
         ax.contour(
-            result.time,
-            np.log2(result.periods),
+            time,
+            y,
             result.significance,
             levels=[1.0],
             colors=style.significance_color,
@@ -84,16 +71,19 @@ def plot_wavelet_coherence(
     if style.show_coi:
         add_coi_overlay(
             ax=ax,
-            time=result.time,
+            time=time,
             coi=result.coi,
-            max_period=result.periods.max(),
-            dt=result.time[1] - result.time[0],
+            max_period=periods.max(),
+            dt=1.0,
             alpha=style.coi_alpha,
             hatch=style.coi_hatch,
         )
 
     if show_phase and result.phase is not None:
-        angle = 0.5 * np.pi - result.phase
+
+        phase = result.phase
+
+        angle = 0.5 * np.pi - phase
 
         u = np.cos(angle)
         v = np.sin(angle)
@@ -101,8 +91,8 @@ def plot_wavelet_coherence(
         sy, sx = style.phase_arrow_stride
 
         ax.quiver(
-            result.time[::sx],
-            np.log2(result.periods)[::sy],
+            time[::sx],
+            y[::sy],
             u[::sy, ::sx],
             v[::sy, ::sx],
             units="width",
@@ -117,10 +107,11 @@ def plot_wavelet_coherence(
 
     apply_period_axis_format(
         ax,
-        result.periods,
+        periods,
     )
 
     if style.show_colorbar:
-        fig.colorbar(cf, ax=ax)
+        cbar = fig.colorbar(cf, ax=ax)
+        cbar.set_label("Wavelet Coherence")
 
     return fig

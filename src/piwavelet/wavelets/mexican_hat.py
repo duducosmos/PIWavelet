@@ -16,3 +16,14 @@ class MexicanHat(DOG):
 
     def __init__(self) -> None:
         super().__init__(m=2)
+
+    def time_smoothing_scale(
+        self,
+        scale: float,
+    ) -> float:
+        """
+        Temporal decorrelation scale for
+        wavelet coherence smoothing.
+        """
+
+        return scale * 0.6

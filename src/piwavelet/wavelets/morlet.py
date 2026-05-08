@@ -17,7 +17,11 @@ class Morlet(BaseWavelet):
 
     name = "Morlet"
 
-    def __init__(self, f0: float = 6.0) -> None:
+    def __init__(
+        self,
+        f0: float = 6.0,
+    ) -> None:
+
         self.f0 = float(f0)
 
         self.dofmin = 2
@@ -32,7 +36,11 @@ class Morlet(BaseWavelet):
             self.deltaj0 = -1.0
 
     def psi_ft(self, w):
-        return (np.pi ** -0.25) * np.exp(-0.5 * (w - self.f0) ** 2)
+        return (
+            np.pi ** -0.25
+        ) * np.exp(
+            -0.5 * (w - self.f0) ** 2
+        )
 
     def psi(self, t):
         return (
@@ -43,8 +51,22 @@ class Morlet(BaseWavelet):
 
     def flambda(self) -> float:
         return (4 * np.pi) / (
-            self.f0 + np.sqrt(2 + self.f0**2)
+            self.f0
+            + np.sqrt(2 + self.f0**2)
         )
 
     def coi(self) -> float:
         return 1 / np.sqrt(2)
+
+    def time_smoothing_scale(
+        self,
+        scale: float,
+    ) -> float:
+        """
+        Temporal decorrelation scale for
+        wavelet coherence smoothing.
+
+        Based on Torrence & Webster.
+        """
+
+        return scale

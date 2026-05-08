@@ -3,7 +3,6 @@ from __future__ import annotations
 import numpy as np
 from scipy.signal import convolve2d
 
-from .kernels import boxcar_kernel
 from .torrence_webster import (
     MINIMUM_SCALE_SMOOTH_WIDTH,
     MORLET_SCALE_DECORRELATION,
@@ -16,32 +15,23 @@ def smooth_scale(
     dj: float,
 ) -> np.ndarray:
     """
-    Scale-direction smoothing.
-
-    Parameters
-    ----------
-    wave : np.ndarray
-        Wavelet array with shape:
-
-            (n_scales, n_time)
-
-    dj : float
-        Scale spacing.
-
-    Returns
-    -------
-    np.ndarray
-        Scale-smoothed wavelet transform.
+    Scale-direction Gaussian smoothing.
     """
+
     wave = ensure_2d_complex(wave)
 
     if dj <= 0:
-        raise ValueError("dj must be positive")
+        raise ValueError(
+            "dj must be positive"
+        )
+
+    sigma = (
+        MORLET_SCALE_DECORRELATION
+        / dj
+    )
 
     width = int(
-        round(
-            (MORLET_SCALE_DECORRELATION / dj) * 2.0
-        )
+        np.ceil(6 * sigma)
     )
 
     width = max(
@@ -49,18 +39,22 @@ def smooth_scale(
         MINIMUM_SCALE_SMOOTH_WIDTH,
     )
 
-    kernel = boxcar_kernel(
-        width,
-        normalize=True,
+    if width % 2 == 0:
+        width += 1
+
+    x = np.arange(width) - width // 2
+
+    kernel = np.exp(
+        -0.5 * (x / sigma) ** 2
     )
+
+    kernel /= kernel.sum()
 
     smoothed = convolve2d(
         wave,
         kernel[:, None],
         mode="same",
+        boundary="symm",
     )
-
-    if np.isrealobj(wave):
-        smoothed = smoothed.real
 
     return smoothed

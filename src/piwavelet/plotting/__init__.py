@@ -10,7 +10,6 @@ Plotting functions consume already-computed transform results.
 from .styles import WaveletPlotStyle
 
 from .wavelet import (
-    ContinuousWaveletResult,
     plot_wavelet,
 )
 
@@ -28,7 +27,6 @@ __all__ = [
     # styles
     "WaveletPlotStyle",
     # wavelet
-    "ContinuousWaveletResult",
     "plot_wavelet",
     # coherence
     "WaveletCoherenceResult",

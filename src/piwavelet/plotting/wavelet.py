@@ -11,71 +11,11 @@ from .utils import (
     apply_period_axis_format,
 )
 
-
-@dataclass(slots=True)
-class ContinuousWaveletResult:
-    """
-    Container for classical Torrence & Compo style
-    wavelet plotting diagnostics.
-    """
-
-    # ------------------------------------------------------------------
-    # original domain
-    # ------------------------------------------------------------------
-
-    time: np.ndarray
-
-    signal: np.ndarray
-    normalized_signal: np.ndarray
-
-    # ------------------------------------------------------------------
-    # transform domain
-    # ------------------------------------------------------------------
-
-    coefficients: np.ndarray
-
-    power: np.ndarray
-
-    # ------------------------------------------------------------------
-    # spectral summaries
-    # ------------------------------------------------------------------
-
-    global_power: np.ndarray
-    fft_power: np.ndarray
-
-    # ------------------------------------------------------------------
-    # spectral coordinates
-    # ------------------------------------------------------------------
-
-    periods: np.ndarray
-    frequencies: np.ndarray
-    scales: np.ndarray
-
-    # ------------------------------------------------------------------
-    # diagnostics
-    # ------------------------------------------------------------------
-
-    coi: np.ndarray
-
-    significance: np.ndarray
-    global_significance: np.ndarray
-
-    # ------------------------------------------------------------------
-    # optional scale average
-    # ------------------------------------------------------------------
-
-    scale_average: np.ndarray | None = None
-    scale_average_significance: float | None = None
-
-    # ------------------------------------------------------------------
-    # metadata
-    # ------------------------------------------------------------------
-
-    wavelet_name: str = "Morlet"
+from piwavelet.diagnostics import WaveletDiagnostics
 
 
 def plot_wavelet(
-    result: ContinuousWaveletResult,
+    result: WaveletDiagnostics,
     *,
     title: str,
     signal_label: str,

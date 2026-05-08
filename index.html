@@ -1,580 +1,409 @@
 <!doctype html>
-<html>
-  <head>
-  <style type="text/css">
-	<!--
-		body {
-			padding:0px;
-			margin:0px;
-		}
+<html lang="en">
+<head>
 
-		#menu ul {
-			padding:0px;
-			margin:0px;
-			float: left;
-			width: 100%;
-			background-color:#EDEDED;
-			list-style:none;
-			font:150% Tahoma;
-		}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-		#menu ul li { display: inline; }
+<title>PIWavelet</title>
 
-		#menu ul li a {
-			background-color:#EDEDED;
-			color: #333;
-			text-decoration: none;
-			border-bottom:3px solid #EDEDED;
-			padding: 2px 10px;
-			float:left;
-		}
+<link rel="stylesheet" href="stylesheets/styles.css">
 
-		#menu ul li a:hover {
-			background-color:#D6D6D6;
-			color: #6D6D6D;
-			border-bottom:3px solid #EA0000;
-		}
+<style>
 
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    margin:0;
+    padding:0;
+    line-height:1.6;
+    background:#fafafa;
+    color:#222;
+}
 
-	-->
-	</style>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Piwavelet by duducosmos</title>
+header{
+    background:#111827;
+    color:white;
+    padding:40px;
+    text-align:center;
+}
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="javascripts/scale.fix.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <script type="text/javascript" src="http://mathcache.s3.amazonaws.com/replacemath.js"> </script>
+header img{
+    width:140px;
+}
 
-    <script type="text/javascript">
+nav{
+    background:#1f2937;
+    padding:10px;
+    position:sticky;
+    top:0;
+}
 
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-39569081-1']);
-  _gaq.push(['_setDomainName', 'github.io']);
-  _gaq.push(['_setAllowLinker', true]);
-  _gaq.push(['_trackPageview']);
+nav a{
+    color:white;
+    text-decoration:none;
+    margin-right:20px;
+    font-weight:bold;
+}
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+.wrapper{
+    max-width:1200px;
+    margin:auto;
+    padding:30px;
+}
 
-</script>
+code{
+    background:#f3f4f6;
+    padding:2px 4px;
+    border-radius:4px;
+}
 
-  </head>
-  <body onload="replaceMath(document.body)">
+pre{
+    background:#111827;
+    color:#f9fafb;
+    padding:20px;
+    overflow-x:auto;
+    border-radius:10px;
+}
 
-</ul>
+.section{
+    margin-bottom:60px;
+}
 
-    <div class="wrapper">
-    <div id="menu" style="position:fixed;background:white;width:100%;">
-          <ul>
-          <li><a href="" >Menu :</a> </li>
-           <li><a href="#introd" >Introduction</a></li>
-           <li><a href="#install" >Install</a></li>
-           <li><a href="#usage" >Usage</a></li>
-           <li><a href="#extFunc" >Extra Functions</a></li>
-           <li><a  href='#bbgraf' >Bibliography</a></li>
-          </ul>
-      </div>
-      <header>
+img.example{
+    width:100%;
+    border-radius:12px;
+    box-shadow:0px 4px 12px rgba(0,0,0,0.15);
+}
 
-        <h1 class="header"><img src="images/piwavelet.jpeg" width="20%" height="20%" />PIWavelet</h1>
-        <p class="header">Python Interface for Wavelet  Analysis </p>
+table{
+    border-collapse:collapse;
+    width:100%;
+}
 
-        <ul>
-          <li class="download"><a class="buttons" href="https://github.com/duducosmos/PIWavelet/zipball/master">Download ZIP</a></li>
-          <li class="download"><a class="buttons" href="https://github.com/duducosmos/PIWavelet/tarball/master">Download TAR</a></li>
-          <li><a class="buttons github" href="https://github.com/duducosmos/PIWavelet">View On GitHub</a></li>
+table td, table th{
+    border:1px solid #ddd;
+    padding:10px;
+}
 
+table th{
+    background:#f3f4f6;
+}
 
+.footer{
+    margin-top:80px;
+    padding:30px;
+    background:#111827;
+    color:white;
+}
 
+</style>
 
-        <p class="header">This project is maintained by <a class="header name" href="https://github.com/duducosmos">duducosmos</a></p>
+</head>
 
+<body>
 
-      </header>
+<header>
 
-      <section>
-      <div>
-      <h1 id="introd">PIWavelet<img src="images/piwavelet.gif" width="40%" height="40%" /></h1>
-      <p>Python programming Interface for Wavelet  Analysis </p>
-      </div>
+<img src="images/piwavelet.jpeg">
 
+<h1>PIWavelet</h1>
 
-      <div>
-
-      <p>
-      DISCLAIMER
-      <br>
-    This module is a Python programming interface for the the matlab package for wavelet,
-    cross-wavelet and coherence-wavelet analysis provided by
-    Aslak Grinsted, John C. Moore and Svetlana Jevrejeva.
-    <br>
-    http://noc.ac.uk/using-science/crosswavelet-wavelet-coherence
-    <br>
-
-    This software may be used, copied, or redistributed as long as it
-    is not sold and this copyright notice is reproduced on each copy
-    made. This routine is provided as is without any express or implied
-    warranties whatsoever.
-    </p>
-    <p> Part of the code are originally from the project of <a href="https://github.com/regeirk/kPyWavelet">kPyWavelet</a>
-    </p>
-    </div>
-    <div>
-    <br>
-    TO RUN:
-    <p>
-    It is necessary to have gnuoctave installed in your machine
-    Gnu Octave: http://www.gnu.org/software/octave/ (sudo apt-get install octave)
-
-      </p>
-    </div>
-    <div>
-      <h3 id="install">INSTALL:</h3>
-
-							<pre>
-							<code>
-$ python setup.py install
-							</code>
-							</pre>
-				</div>
-        <p> Alternatively</p>
-        <pre>
-        <code>
-        $ conda install -c jabuticabads piwavelet
-        </code>
-        </pre>
-				<div>
-					<p>
-<h3>OBSERVATION:</h3>
-
-					<br>
-					    Octave supports most but not all of the core syntax and commands of MatLab.
-					    The main noticable differences are nested functions are not allowed, and GUIs (including uigetfile, etc.) are not supported.
-
-
-</div>
-
-<div>
-<h3>AUTHORS</h3>
-<p>Eduardo S. Pereira. Email: pereira.somoza@gmail.com</p>
-<p>Regla D. Somoza. Email: duthit@gmail.com</p>
-</div>
-
-<div>
-
-<h1 id="usage"> Usage</h1>
-<h3>Initialization</h3>
 <p>
-Initialization of the piwavelet class
-<pre>
-<code>
->> import numpy as np
->> from piwavelet import piwavelet
-</code>
-</pre>
-</p>
-<h3>Wavelet Coherence Analysis:</h3>
-<p>
-Given tow signal, with zero mean, to start the wavelet coherence analysis,
-it is necessary to call the  wcoherence (Wavelet Coherence) class:
-<pre>
-<code>
->> mycoherence = piwavelet.wcoherence(x,y)
->> Rsq,period,scale,coi,sig95=mycoherence()
-</code>
-</pre>
-</p>
-<p>
-The returned values are:
-
-<table>
-<tr>
-	<td>Rsq</td>
-	<td>Coherence Wavelet</td>
-</tr>
-<tr>
-	<td>period</td>
-	<td>a vector of "Fourier" periods associated with Wxy</td>
-</tr>
-<tr>
-	<td>scale</td>
-	<td>a vector of wavelet scales associated with Wxy</td>
-</tr>
-<tr>
-	<td>coi</td>
-	<td>the cone of influence</td>
-</tr>
-<tr>
-  <td>sig95</td>
-  <td>Significance</td>
-</tr>
-</table>
+Modern Python library for Continuous Wavelet Transform,
+Cross Wavelet Transform and Wavelet Coherence Analysis.
 </p>
 
 <p>
-Plot wavelet coherence of the signals x,y.
-<pre>
-<code>
->> mycoherence = piwavelet.wcoherence(x,y)
->> mycoherence.plot(t = time, title='My Title',units='year')
-</code>
-</pre>
-</p>
-<p>
-Parameters :
-
-<table>
-<tr>
-<td>Key</td>
-<td>Mean</td>
-</tr>
-<tr>
-<td>title (string)</td>
-<td>Title of the Plot</td>
-</tr>
-<tr>
-<td>t</td>
-<td>array with time</td>
-</tr>
-<tr>
-<td>units: (string) </td>
-<td>Units of the period and time  (e.g. 'days')</td>
-</tr>
-</table>
-</p>
-<p>
-Optional parameters
-<table>
-
-<tr>
-   <td>Key</td>
-   <td>Default</td>
-   <td>Mean</td>
-</tr>
-<tr>
-	<td>gray</td>
-	<td>(boolean) True for gray map</td>
-	<td>False</td>
-</tr>
-<tr>
-	<td>levels</td>
-	<td>List with significance level that will be showed in the plot</td>
-	<td>[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]</td>
-</tr>
-<tr>
-	<td>labels</td>
-	<td>List with the Label of significance level that will be apper into the color bar. If not defined, the levels list is used instead</td>
-	<td>None</td>
-</tr>
-<tr>
-	<td>pArrow (boolean)  </td>
-	<td>True for draw vector of phase angle (it has problem not recomended for large sample of data)</td>
-	<td>False</td>
-</tr>
-<tr>
-	<td>pSigma (boolean)</td>
-	<td>True for draw the significance contour lines</td>
-	<td>True</td>
-</tr>
-<tr>
-	<td>nameSave (string) </td>
-	<td>path plus name to save the figure, if it is define, the plot is saved but not showed</td>
-	<td>None</td>
-</tr>
-<tr>
-	<td>scale </td>
-	<td>(boolean) True  for not log2 scale of the Plot</td>
-	<td>False</td>
-</tr>
-</table>
-
-</p>
-<h3>Example</h3>
-<p> Consider tow stochastic signals, as presented in the following image: </p>
-
-<img src="images/sig1_2.png" width="100%" height="100%" alt="" />
-
-<p>The signal must be standardized with zero means. e.g. :</p>
-
-<p>
-$y_{i,std} = (y_{i}-\bar{y})/\sigma$
+Pure Python implementation inspired by
+Torrence & Compo (1998) and
+Grinsted et al. (2004).
 </p>
 
 <p>
-where $y_{i}$ is the $i$-th data values, $\bar{y}$ is the mean value and $\sigma$ is the standard deviation of the $y$ series.
+<a href="https://github.com/duducosmos/PIWavelet">
+GitHub Repository
+</a>
 </p>
 
-<img src="images/sig1_2_t1.png" width="100%" height="100%" alt="" />
+</header>
 
+<nav>
 
+<a href="#installation">Installation</a>
+<a href="#features">Features</a>
+<a href="#coherence">Wavelet Coherence</a>
+<a href="#cwt">Continuous Wavelet Transform</a>
+<a href="#references">References</a>
 
-<p>
-The code bellow shows the coherence analysis for these signal
-</p>
+</nav>
 
-<pre>
-<code>
->>> import numpy as np
->>> from piwavelet import piwavelet
->>> y1 = np.random.rand(100) #Generation of the Random Signal 1
->>> y2 = np.random.rand(100) #Generation of the Random Signal 2
->>> x = np.arange(0,100,1) # Time step
->>> y1 = (y1-y1.mean())/y1.std() #Normalization of the Signal 1
->>> y2 = (y2-y2.mean())/y2.std() #Normalization of the Signal 2
->>> myCoherence = piwavelet.wcoherence(y1,y2) #Wavelet Coherence Analysis
->>> myCoherence.plot(t = x, title='Test',units='sec') # Plot of the Coherence Map
->>> Rsq,period,scale,coi,sig95=myCoherence() # If you want to know the individual properties.
+<div class="wrapper">
 
-</code>
-</pre>
+<div class="section">
+
+<h2>Overview</h2>
 
 <p>
-The method plot generate the coherence map of the signal. The Figure <a href="#fig2" >2</a> shows the result obtained from myCoherence.plot().
+PIWavelet provides modern wavelet analysis tools for scientific computing,
+signal processing, geophysics, climatology, neuroscience and time-frequency analysis.
 </p>
 
 <p>
+The library includes:
+</p>
+
 <ul>
- <li class="download">
-<a  href="pyscripts/example1.py">Download Source code of the example</a>
-</li>
+
+<li>Continuous Wavelet Transform (CWT)</li>
+
+<li>Cross Wavelet Transform (XWT)</li>
+
+<li>Wavelet Coherence (WTC)</li>
+
+<li>Statistical significance testing</li>
+
+<li>AR(1) red-noise modeling</li>
+
+<li>Torrence-Webster smoothing operators</li>
+
+<li>Cone of Influence (COI)</li>
+
+<li>Phase-angle visualization</li>
+
+<li>Morlet, Paul, DOG and Mexican Hat wavelets</li>
+
+<li>Modern matplotlib visualization utilities</li>
+
 </ul>
-</p>
 
-<img src="images/teste1.png" width="100%" height="100%" alt="" id="fig2" />
+</div>
 
+<div class="section" id="installation">
 
-<h3>Wavelet Cross Power Spectrum Analysis:</h3>
+<h2>Installation</h2>
 
-<p>
-Given tow signal, with zero mean, to start the cross wavelet analysis,
-it is necessary to call the  wcross (Wavelet Cross Spectrum) class:
-<pre>
-<code>
->> myXSpec = piwavelet.wcross(x,y)
->> xwt,period, scale, coi, sig95=myXSpec()
-</code>
-</pre>
-</p>
-
-<table>
-<tr>
-	<td>xwt</td>
-	<td>cross Wavelet</td>
-</tr>
-<tr>
-	<td>period</td>
-	<td>a vector of "Fourier" periods associated with Wxy</td>
-</tr>
-<tr>
-	<td>scale</td>
-	<td>a vector of wavelet scales associated with Wxy</td>
-</tr>
-<tr>
-	<td>coi</td>
-	<td>the cone of influence</td>
-</tr>
-<tr>
-  <td>sig95</td>
-  <td>Significance</td>
-</tr>
-</table>
+<pre><code>
+pip install piwavelet
+</code></pre>
 
 <p>
-Plot wavelet coherence of the signals x,y.
-<pre>
-<code>
->> myXSpec = piwavelet.wcross(x,y)
->> myXSpec.plot(t = time, title='My Title',units='year')
-</code>
-</pre>
+Or install directly from GitHub:
 </p>
-<p>
-Parameters :
 
-<table>
-<tr>
-<td>Key</td>
-<td>Mean</td>
-</tr>
-<tr>
-<td>title (string)</td>
-<td>Title of the Plot</td>
-</tr>
-<tr>
-<td>t</td>
-<td>array with time</td>
-</tr>
-<tr>
-<td>units: (string) </td>
-<td>Units of the period and time  (e.g. 'days')</td>
-</tr>
-</table>
-</p>
-<p>
-Optional parameters
+<pre><code>
+pip install git+https://github.com/duducosmos/PIWavelet.git
+</code></pre>
+
+</div>
+
+<div class="section" id="features">
+
+<h2>Main Features</h2>
+
 <table>
 
 <tr>
-   <td>Key</td>
-   <td>Default</td>
-   <td>Mean</td>
+<th>Feature</th>
+<th>Description</th>
 </tr>
+
 <tr>
-	<td>gray</td>
-	<td>(boolean) True for gray map</td>
-	<td>False</td>
+<td>Continuous Wavelet Transform</td>
+<td>Time-frequency decomposition using scalable mother wavelets.</td>
 </tr>
+
 <tr>
-	<td>levels</td>
-	<td>List with significance level that will be showed in the plot</td>
-	<td>[0.125, 0.25, 0.5, 1, 2, 4, 8]</td>
+<td>Wavelet Coherence</td>
+<td>Localized correlation analysis between two time series.</td>
 </tr>
+
 <tr>
-	<td>labels</td>
-	<td>List with the Label of significance level that will be apper into the color bar. If not defined, the levels list is used instead</td>
-	<td> ['1/8', '1/4', '1/2', '1', '2', '4', '8']</td>
+<td>Cross Wavelet Power</td>
+<td>Joint power spectrum between signals.</td>
 </tr>
+
 <tr>
-	<td>pArrow (boolean)  </td>
-	<td>True for draw vector of phase angle (it has problem not recomended for large sample of data)</td>
-	<td>False</td>
+<td>Statistical Significance</td>
+<td>AR(1)-based significance testing following Torrence & Compo.</td>
 </tr>
+
 <tr>
-	<td>pSigma (boolean)</td>
-	<td>True for draw the significance contour lines</td>
-	<td>True</td>
+<td>Phase Arrows</td>
+<td>Relative phase relationship visualization.</td>
 </tr>
+
 <tr>
-	<td>nameSave (string) </td>
-	<td>path plus name to save the figure, if it is define, the plot is saved but not showed</td>
-	<td>None</td>
+<td>COI Masking</td>
+<td>Cone of influence visualization for edge-effect interpretation.</td>
 </tr>
-<tr>
-	<td>scale </td>
-	<td>(boolean) True  for not log2 scale of the Plot</td>
-	<td>False</td>
-</tr>
+
 </table>
 
-</p>
+</div>
 
-<h4>Example</h4>
+<div class="section" id="coherence">
 
-<p>Consider the tow stochastic, standardized with zero means, signals:</p>
+<h2>Wavelet Coherence Example</h2>
 
-<img src="images/sig1_2_t1b.png" width="100%" height="100%" alt="" />
+<pre><code>
+import numpy as np
 
-<p> The code bellow computing and plot the Cross Wavelet Power Spectrum of these signals:</p>
+from piwavelet.transforms import wavelet_coherence
+from piwavelet.plotting import plot_wavelet_coherence
 
-<pre>
-<code>
->>> import numpy as np
->>> import matplotlib.pyplot as plt
->>> from piwavelet import piwavelet
->>> y1 = np.random.rand(50) #Generation of the Random Signal 1
->>> y2 = np.random.rand(50) #Generation of the Random Signal 2
->>> x = np.arange(0,50,1) # Time step
->>> y1 = (y1-y1.mean())/y1.std() #Normalization of the Signal 1
->>> y2 = (y2-y2.mean())/y2.std() #Normalization of the Signal 2
->>> myXSpec = piwavelet.wcross(y1,y2) #Cross Wavelet Analisys
->>> myXSpec.plot(t = x, title='Test',units='sec') # Plot of the Cross Power Spectrum Map
->>> xwt,period, scale, coi, sig95=myXSpec() # If you want to know the individual properties.'
-</code>
-</pre>
+dt = 0.25
+
+time = np.arange(0, 512) * dt
+
+x = np.sin(2 * np.pi * time / 16)
+
+y = np.zeros_like(time)
+
+mask = (time > 40) & (time < 80)
+
+y[mask] = np.sin(
+    2 * np.pi * (time[mask] - 2) / 16
+)
+
+x += 0.5 * np.random.randn(len(time))
+y += 0.5 * np.random.randn(len(time))
+
+result = wavelet_coherence(
+    x,
+    y,
+    dt=dt,
+)
+
+fig = plot_wavelet_coherence(
+    result,
+    title="Wavelet Coherence",
+    units="days",
+    show_phase=True,
+)
+
+fig.show()
+</code></pre>
 
 <p>
+Example coherence map:
+</p>
+
+<img
+    class="example"
+    src="images/coherence_example.png"
+>
+
+</div>
+
+<div class="section" id="cwt">
+
+<h2>Continuous Wavelet Transform</h2>
+
+<pre><code>
+from piwavelet.transforms import cwt
+
+result = cwt(signal)
+
+power = np.abs(result.coefficients) ** 2
+</code></pre>
+
+<p>
+Supported mother wavelets:
+</p>
+
 <ul>
- <li class="download">
-<a  href="pyscripts/example2.py">Download Source code of the example</a>
-</li>
-</ul>
-</p>
-<p>The Figure <a href="#fig5" >5</a> shows the Cross Wavelet Power Spectrum map.</p>
 
-<img src="images/teste2.png" width="100%" height="100%" alt="" id="fig5" />
+<li>Morlet</li>
+
+<li>Paul</li>
+
+<li>DOG</li>
+
+<li>Mexican Hat</li>
+
+</ul>
 
 </div>
 
-<div>
-<h3 id="extFunc">Extra Functions</h3>
+<div class="section">
 
-<h4>Continues Wavelet Transform</h4>
-<p>In this package is available some wavelets mother functions (Morlet, Paul, DOG, Mexican hat),
-Continuous wavelet transform of the signal at specified scales,
-Inverse continuous wavelet transform,
-Significance testing for the onde dimensional wavelet transform,
-the Allen and Smith autoregressive lag-1 autocorrelation alpha, Lag-1 autoregressive theoretical power spectrum</p>
-<p>These functions are originally presented in the <a href="https://github.com/regeirk/kPyWavelet">kPyWavelet</a> package (<a href="https://github.com/regeirk/kPyWavelet">https://github.com/regeirk/kPyWavelet</a>)</p>
-<p>Also it was implemented a plotWavelet function that plot the normalized data, the wavelet transform, the power spectrum of the wavelet
-and the scale averaged wavelet spectrum as determined by the avg1 and avg2 parameters</p>
-
-<p>Below is presented the example to run the wavelet transform (Default Morlet mother wavelet) and the plot of the wavelet.</p>
-
-<pre>
-<code>
->>> import numpy as np
->>> import matplotlib.pyplot as plt
->>> from piwavelet import piwavelet
->>> y1 = np.random.rand(50) #Generation of the Random Signal
->>> y1 = (y1-y1.mean())/y1.std() #Normalization of the Signal 1
->>> wave, scales, freqs, coi, fft, fftfreqs=piwavelet.cwt(y1) # If you want to know the individual properties.'
->>> piwavelet.plotWavelet(y1,title='test',label='Random Signal',units='days')
-</code>
-</pre>
-
-<p>The Figure <a href="#fig6" >6</a> shows the Resultant graphics.</p>
+<h2>Statistical Significance</h2>
 
 <p>
+PIWavelet implements statistical significance tests based on:
+</p>
+
 <ul>
- <li class="download">
-<a  href="pyscripts/example3.py">Download Source code of the example</a>
-</li>
+
+<li>AR(1) red-noise background spectra</li>
+
+<li>Pointwise significance</li>
+
+<li>Time-averaged significance</li>
+
+<li>Scale-averaged significance</li>
+
 </ul>
-</p>
 
-<img src="images/plotWavelet.png" width="100%" height="100%" alt="" id="fig6" />
-</div>
-
-
-<div>
-<h3 id="bbgraf">Bibliography</h3>
 <p>
-<br>
-    [1] Mallat, Stephane G. (1999). A wavelet tour of signal processing
-    <br>
-    [2] Addison, Paul S. The illustrated wavelet transform handbook
-    <br>
-    [3] Torrence, Christopher and Compo, Gilbert P. (1998). A Practical    <br>
-            Guide to Wavelet Analysis
-    <br>
-    [4] Grinsted, A., Moore, J.C., Jevrejeva, S., 2004,    <br>
-        Nonlin. Processes Geophys., 11, 561–566, doi:10.5194/npg-11-561-2004
-    <br>
-    [5] Jevrejeva, S., Moore, J.C.,  Grinsted, A., 2003,    <br>
-         J. Geophys. Res., 108(D21), 4677, doi:10.1029/2003JD003417
-    <br>
-    [6] Torrence, C., Webster, P. ,1999,    <br>
-            J.Clim., 12, 2679–2690
+Following:
 </p>
-</div>
 
-
-<div>
-<h4>Credits:</h4>
 <p>
-Author : Eduardo S. Pereira. (pereira.somoza@gmail.com)
+Torrence & Compo (1998)
+and
+Grinsted et al. (2004).
 </p>
 
 </div>
 
-  </body>
+<div class="section" id="references">
+
+<h2>References</h2>
+
+<ol>
+
+<li>
+Torrence, C., & Compo, G. P. (1998).
+A Practical Guide to Wavelet Analysis.
+Bulletin of the American Meteorological Society.
+</li>
+
+<li>
+Grinsted, A., Moore, J. C., & Jevrejeva, S. (2004).
+Application of the cross wavelet transform and wavelet coherence.
+Nonlinear Processes in Geophysics.
+</li>
+
+<li>
+Torrence, C., & Webster, P. J. (1999).
+Interdecadal changes in the ENSO-monsoon system.
+Journal of Climate.
+</li>
+
+<li>
+Mallat, S. (1999).
+A Wavelet Tour of Signal Processing.
+</li>
+
+</ol>
+
+</div>
+
+</div>
+
+<div class="footer">
+
+<p>
+PIWavelet — Developed by Eduardo S. Pereira
+</p>
+
+<p>
+GitHub:
+https://github.com/duducosmos/PIWavelet
+</p>
+
+</div>
+
+</body>
 </html>

@@ -59,10 +59,20 @@ def plot_wavelet_coherence(
         style.show_significance
         and result.significance is not None
     ):
+
+        significance = (
+            result.significance[:, np.newaxis]
+        )
+
+        sig95 = (
+            coherence
+            / significance
+        )
+
         ax.contour(
             time,
             y,
-            result.significance,
+            sig95,
             levels=[1.0],
             colors=style.significance_color,
             linewidths=style.significance_linewidth,

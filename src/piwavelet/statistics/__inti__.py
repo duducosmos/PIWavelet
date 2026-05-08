@@ -13,6 +13,10 @@ from .significance import (
     time_averaged_significance,
 )
 from .spectrum import ar1_spectrum
+from .wcsignificance import (
+    wcsignificance,
+    generate_ar1
+)
 
 __all__ = [
     "AR1EstimationError",
@@ -24,4 +28,6 @@ __all__ = [
     "pointwise_significance",
     "scale_averaged_significance",
     "time_averaged_significance",
+    "wcsignificance",
+    "generate_ar1"
 ]

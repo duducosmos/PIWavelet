@@ -1,409 +1,232 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-br">
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PIWavelet - Modern Wavelet Analysis</title>
 
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        :root {
+            --primary: #111827;
+            --secondary: #1f2937;
+            --accent: #3b82f6;
+            --text-dark: #222;
+            --bg-light: #fafafa;
+        }
 
-<title>PIWavelet</title>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            background: var(--bg-light);
+            color: var(--text-dark);
+        }
 
-<link rel="stylesheet" href="stylesheets/styles.css">
+        /* Header & Navigation */
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
 
-<style>
+        header img { width: 120px; border-radius: 8px; margin-bottom: 10px; }
 
-body{
-    font-family: Arial, Helvetica, sans-serif;
-    margin:0;
-    padding:0;
-    line-height:1.6;
-    background:#fafafa;
-    color:#222;
-}
+        nav {
+            background: var(--secondary);
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+        }
 
-header{
-    background:#111827;
-    color:white;
-    padding:40px;
-    text-align:center;
-}
+        nav a {
+            color: #9ca3af;
+            text-decoration: none;
+            padding: 15px 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
 
-header img{
-    width:140px;
-}
+        nav a:hover, nav a.active {
+            color: white;
+            background: rgba(255,255,255,0.1);
+        }
 
-nav{
-    background:#1f2937;
-    padding:10px;
-    position:sticky;
-    top:0;
-}
+        /* Grid & Layout */
+        .wrapper {
+            max-width: 1000px;
+            margin: auto;
+            padding: 40px 20px;
+            min-height: 60vh;
+        }
 
-nav a{
-    color:white;
-    text-decoration:none;
-    margin-right:20px;
-    font-weight:bold;
-}
+        /* Lógica de Telas (Views) */
+        .view { display: none; }
+        .view.active { display: block; animation: fadeIn 0.4s ease; }
 
-.wrapper{
-    max-width:1200px;
-    margin:auto;
-    padding:30px;
-}
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-code{
-    background:#f3f4f6;
-    padding:2px 4px;
-    border-radius:4px;
-}
+        /* Elementos de Conteúdo */
+        pre {
+            background: var(--primary);
+            color: #f9fafb;
+            padding: 20px;
+            overflow-x: auto;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
 
-pre{
-    background:#111827;
-    color:#f9fafb;
-    padding:20px;
-    overflow-x:auto;
-    border-radius:10px;
-}
+        code { background: #eee; padding: 2px 5px; border-radius: 4px; font-family: monospace; }
 
-.section{
-    margin-bottom:60px;
-}
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; }
+        table th, table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        table th { background: #f3f4f6; }
 
-img.example{
-    width:100%;
-    border-radius:12px;
-    box-shadow:0px 4px 12px rgba(0,0,0,0.15);
-}
+        .btn-github {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
 
-table{
-    border-collapse:collapse;
-    width:100%;
-}
+        .footer {
+            padding: 40px;
+            background: var(--primary);
+            color: #9ca3af;
+            text-align: center;
+            font-size: 0.9rem;
+        }
 
-table td, table th{
-    border:1px solid #ddd;
-    padding:10px;
-}
+        img.example { width: 100%; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 
-table th{
-    background:#f3f4f6;
-}
-
-.footer{
-    margin-top:80px;
-    padding:30px;
-    background:#111827;
-    color:white;
-}
-
-</style>
-
+        /* Responsividade */
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.5rem; }
+            nav a { padding: 12px 10px; font-size: 0.8rem; }
+        }
+    </style>
 </head>
 
 <body>
 
 <header>
-
-<img src="images/piwavelet.jpeg">
-
-<h1>PIWavelet</h1>
-
-<p>
-Modern Python library for Continuous Wavelet Transform,
-Cross Wavelet Transform and Wavelet Coherence Analysis.
-</p>
-
-<p>
-Pure Python implementation inspired by
-Torrence & Compo (1998) and
-Grinsted et al. (2004).
-</p>
-
-<p>
-<a href="https://github.com/duducosmos/PIWavelet">
-GitHub Repository
-</a>
-</p>
-
+    <img src="images/piwavelet.jpeg" alt="Logo">
+    <h1>PIWavelet</h1>
+    <p>Modern Python library for Wavelet Analysis</p>
+    <a href="https://github.com/duducosmos/PIWavelet" class="btn-github">GitHub Repository</a>
 </header>
 
-<nav>
-
-<a href="#installation">Installation</a>
-<a href="#features">Features</a>
-<a href="#coherence">Wavelet Coherence</a>
-<a href="#cwt">Continuous Wavelet Transform</a>
-<a href="#references">References</a>
-
+<nav id="main-nav">
+    <a href="#home" class="active">Home</a>
+    <a href="#installation">Installation</a>
+    <a href="#features">Features</a>
+    <a href="#examples">Examples</a>
+    <a href="#references">References</a>
 </nav>
 
 <div class="wrapper">
+    <!-- Tela 1: Home -->
+    <section id="home" class="view active">
+        <h2>Overview</h2>
+        <p>PIWavelet provides modern tools for signal processing, geophysics, and neuroscience using <strong>Continuous Wavelet Transform (CWT)</strong> and <strong>Wavelet Coherence (WTC)</strong>.</p>
+        <ul>
+            <li>Pure Python implementation.</li>
+            <li>Statistical significance testing (AR1).</li>
+            <li>Cone of Influence (COI) masking.</li>
+        </ul>
+    </section>
 
-<div class="section">
+    <!-- Tela 2: Instalação -->
+    <section id="installation" class="view">
+        <h2>Installation</h2>
+        <p>Install via pip:</p>
+        <pre><code>pip install piwavelet</code></pre>
+        <p>Or directly from source:</p>
+        <pre><code>pip install git+https://github.com/duducosmos/PIWavelet.git</code></pre>
+    </section>
 
-<h2>Overview</h2>
+    <!-- Tela 3: Features -->
+    <section id="features" class="view">
+        <h2>Main Features</h2>
+        <table>
+            <thead>
+                <tr><th>Feature</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>CWT</td><td>Time-frequency decomposition.</td></tr>
+                <tr><td>Coherence</td><td>Localized correlation between signals.</td></tr>
+                <tr><td>Phase Arrows</td><td>Phase relationship visualization.</td></tr>
+            </tbody>
+        </table>
+    </section>
 
-<p>
-PIWavelet provides modern wavelet analysis tools for scientific computing,
-signal processing, geophysics, climatology, neuroscience and time-frequency analysis.
-</p>
-
-<p>
-The library includes:
-</p>
-
-<ul>
-
-<li>Continuous Wavelet Transform (CWT)</li>
-
-<li>Cross Wavelet Transform (XWT)</li>
-
-<li>Wavelet Coherence (WTC)</li>
-
-<li>Statistical significance testing</li>
-
-<li>AR(1) red-noise modeling</li>
-
-<li>Torrence-Webster smoothing operators</li>
-
-<li>Cone of Influence (COI)</li>
-
-<li>Phase-angle visualization</li>
-
-<li>Morlet, Paul, DOG and Mexican Hat wavelets</li>
-
-<li>Modern matplotlib visualization utilities</li>
-
-</ul>
-
-</div>
-
-<div class="section" id="installation">
-
-<h2>Installation</h2>
-
-<pre><code>
-pip install piwavelet
-</code></pre>
-
-<p>
-Or install directly from GitHub:
-</p>
-
-<pre><code>
-pip install git+https://github.com/duducosmos/PIWavelet.git
-</code></pre>
-
-</div>
-
-<div class="section" id="features">
-
-<h2>Main Features</h2>
-
-<table>
-
-<tr>
-<th>Feature</th>
-<th>Description</th>
-</tr>
-
-<tr>
-<td>Continuous Wavelet Transform</td>
-<td>Time-frequency decomposition using scalable mother wavelets.</td>
-</tr>
-
-<tr>
-<td>Wavelet Coherence</td>
-<td>Localized correlation analysis between two time series.</td>
-</tr>
-
-<tr>
-<td>Cross Wavelet Power</td>
-<td>Joint power spectrum between signals.</td>
-</tr>
-
-<tr>
-<td>Statistical Significance</td>
-<td>AR(1)-based significance testing following Torrence & Compo.</td>
-</tr>
-
-<tr>
-<td>Phase Arrows</td>
-<td>Relative phase relationship visualization.</td>
-</tr>
-
-<tr>
-<td>COI Masking</td>
-<td>Cone of influence visualization for edge-effect interpretation.</td>
-</tr>
-
-</table>
-
-</div>
-
-<div class="section" id="coherence">
-
-<h2>Wavelet Coherence Example</h2>
-
-<pre><code>
-import numpy as np
-
+    <!-- Tela 4: Exemplos -->
+    <section id="examples" class="view">
+        <h2>Wavelet Coherence Example</h2>
+        <pre><code>import numpy as np
 from piwavelet.transforms import wavelet_coherence
-from piwavelet.plotting import plot_wavelet_coherence
 
-dt = 0.25
+# Create signals and compute coherence
+result = wavelet_coherence(x, y, dt=0.25)</code></pre>
+        <p>Visualization Output:</p>
+        <img src="images/coherence_example.png" class="example" alt="Coherence Example">
+    </section>
 
-time = np.arange(0, 512) * dt
-
-x = np.sin(2 * np.pi * time / 16)
-
-y = np.zeros_like(time)
-
-mask = (time > 40) & (time < 80)
-
-y[mask] = np.sin(
-    2 * np.pi * (time[mask] - 2) / 16
-)
-
-x += 0.5 * np.random.randn(len(time))
-y += 0.5 * np.random.randn(len(time))
-
-result = wavelet_coherence(
-    x,
-    y,
-    dt=dt,
-)
-
-fig = plot_wavelet_coherence(
-    result,
-    title="Wavelet Coherence",
-    units="days",
-    show_phase=True,
-)
-
-fig.show()
-</code></pre>
-
-<p>
-Example coherence map:
-</p>
-
-<img
-    class="example"
-    src="images/coherence_example.png"
->
-
+    <!-- Tela 5: Referências -->
+    <section id="references" class="view">
+        <h2>References</h2>
+        <ol>
+            <li>Torrence & Compo (1998). A Practical Guide to Wavelet Analysis.</li>
+            <li>Grinsted et al. (2004). Application of the cross wavelet transform.</li>
+        </ol>
+    </section>
 </div>
 
-<div class="section" id="cwt">
+<footer class="footer">
+    <p>PIWavelet — Developed by Eduardo S. Pereira</p>
+</footer>
 
-<h2>Continuous Wavelet Transform</h2>
+<script>
+    // Sistema de Roteamento Simples
+    const navLinks = document.querySelectorAll('#main-nav a');
+    const sections = document.querySelectorAll('.view');
 
-<pre><code>
-from piwavelet.transforms import cwt
+    function navigate() {
+        const hash = window.location.hash || '#home';
+        
+        // Atualiza Links da Nav
+        navLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === hash);
+        });
 
-result = cwt(signal)
+        // Atualiza Visibilidade das Seções
+        sections.forEach(section => {
+            section.classList.toggle('active', `#${section.id}` === hash);
+        });
 
-power = np.abs(result.coefficients) ** 2
-</code></pre>
+        // Rola para o topo ao trocar de "tela"
+        window.scrollTo(0, 0);
+    }
 
-<p>
-Supported mother wavelets:
-</p>
-
-<ul>
-
-<li>Morlet</li>
-
-<li>Paul</li>
-
-<li>DOG</li>
-
-<li>Mexican Hat</li>
-
-</ul>
-
-</div>
-
-<div class="section">
-
-<h2>Statistical Significance</h2>
-
-<p>
-PIWavelet implements statistical significance tests based on:
-</p>
-
-<ul>
-
-<li>AR(1) red-noise background spectra</li>
-
-<li>Pointwise significance</li>
-
-<li>Time-averaged significance</li>
-
-<li>Scale-averaged significance</li>
-
-</ul>
-
-<p>
-Following:
-</p>
-
-<p>
-Torrence & Compo (1998)
-and
-Grinsted et al. (2004).
-</p>
-
-</div>
-
-<div class="section" id="references">
-
-<h2>References</h2>
-
-<ol>
-
-<li>
-Torrence, C., & Compo, G. P. (1998).
-A Practical Guide to Wavelet Analysis.
-Bulletin of the American Meteorological Society.
-</li>
-
-<li>
-Grinsted, A., Moore, J. C., & Jevrejeva, S. (2004).
-Application of the cross wavelet transform and wavelet coherence.
-Nonlinear Processes in Geophysics.
-</li>
-
-<li>
-Torrence, C., & Webster, P. J. (1999).
-Interdecadal changes in the ENSO-monsoon system.
-Journal of Climate.
-</li>
-
-<li>
-Mallat, S. (1999).
-A Wavelet Tour of Signal Processing.
-</li>
-
-</ol>
-
-</div>
-
-</div>
-
-<div class="footer">
-
-<p>
-PIWavelet — Developed by Eduardo S. Pereira
-</p>
-
-<p>
-GitHub:
-https://github.com/duducosmos/PIWavelet
-</p>
-
-</div>
+    // Escuta mudanças na URL (âncoras)
+    window.addEventListener('hashchange', navigate);
+    
+    // Carregamento inicial
+    window.addEventListener('load', navigate);
+</script>
 
 </body>
 </html>

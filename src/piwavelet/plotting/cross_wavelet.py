@@ -55,12 +55,60 @@ def plot_cross_wavelet(
 
     power = np.abs(result.cross_wavelet)
 
+    # ------------------------------------------------------------------
+    # numerical stability
+    # ------------------------------------------------------------------
+
+    power = np.maximum(
+        power,
+        np.finfo(np.float64).eps,
+    )
+
+    power_levels = np.asarray(
+        style.power_levels,
+        dtype=np.float64,
+    )
+
+    # remove invalid/non-positive levels
+    power_levels = power_levels[
+        power_levels > 0
+    ]
+
+    if power_levels.size < 2:
+
+        raise ValueError(
+            "style.power_levels must contain "
+            "at least two positive values"
+        )
+
+    # ------------------------------------------------------------------
+    # plotting scale
+    # ------------------------------------------------------------------
+
     if style.use_log2_power:
-        power_plot = np.log2(power)
-        levels = np.log2(style.power_levels)
+
+        power_plot = np.log2(
+            power
+        )
+
+        levels = np.log2(
+            power_levels
+        )
+
     else:
+
         power_plot = power
-        levels = style.power_levels
+
+        levels = power_levels
+
+    # ensure strictly increasing levels
+    levels = np.unique(levels)
+
+    if levels.size < 2:
+
+        raise ValueError(
+            "contour levels are not valid"
+        )
 
     cf = ax.contourf(
         result.time,

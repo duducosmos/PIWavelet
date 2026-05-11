@@ -69,6 +69,12 @@ class CWTResult:
 
     wavelet: BaseWavelet
 
+    power: np.ndarray
+
+    significance: np.ndarray
+    sig95: np.ndarray
+    significant: np.ndarray
+
     # ------------------------------------------------------------------
     # derived helpers
     # ------------------------------------------------------------------

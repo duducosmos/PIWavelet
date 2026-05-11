@@ -26,11 +26,12 @@ def plot_wavelet(
     """
     Plot classical Torrence & Compo wavelet analysis figure.
 
-    Layout:
-        a) normalized signal
-        b) wavelet power spectrum
-        c) global wavelet spectrum
-        d) scale-averaged spectrum (optional)
+    Layout
+    ------
+    a) normalized signal
+    b) wavelet power spectrum
+    c) global wavelet spectrum
+    d) scale-averaged spectrum (optional)
     """
 
     style = style or WaveletPlotStyle()
@@ -63,7 +64,9 @@ def plot_wavelet(
             height_ratios=[1, 2],
         )
 
-    ax_signal = fig.add_subplot(gs[0, 0])
+    ax_signal = fig.add_subplot(
+        gs[0, 0]
+    )
 
     ax_power = fig.add_subplot(
         gs[1, 0],
@@ -89,7 +92,12 @@ def plot_wavelet(
     # ------------------------------------------------------------------
 
     time = result.time
+
     periods = result.periods
+
+    log2_periods = np.log2(
+        periods
+    )
 
     # ------------------------------------------------------------------
     # signal panel
@@ -102,14 +110,21 @@ def plot_wavelet(
         linewidth=style.linewidth,
     )
 
-    ax_signal.set_title(f"a) {title}")
+    ax_signal.set_title(
+        f"a) {title}"
+    )
 
     if units:
+
         ax_signal.set_ylabel(
             f"{signal_label} [{units}]"
         )
+
     else:
-        ax_signal.set_ylabel(signal_label)
+
+        ax_signal.set_ylabel(
+            signal_label
+        )
 
     ax_signal.grid(
         visible=style.show_grid,
@@ -125,23 +140,49 @@ def plot_wavelet(
         np.finfo(np.float64).eps,
     )
 
+    power_levels = np.asarray(
+        style.power_levels,
+        dtype=np.float64,
+    )
+
+    power_levels = power_levels[
+        power_levels > 0
+    ]
+
+    if power_levels.size < 2:
+
+        raise ValueError(
+            "power_levels must contain "
+            "at least two positive values"
+        )
+
     if style.use_log2_power:
 
-        power_plot = np.log2(power)
+        power_plot = np.log2(
+            power
+        )
 
         levels = np.log2(
-            np.asarray(style.power_levels)
+            power_levels
         )
 
     else:
 
         power_plot = power
 
-        levels = np.asarray(style.power_levels)
+        levels = power_levels
+
+    levels = np.unique(levels)
+
+    if levels.size < 2:
+
+        raise ValueError(
+            "contour levels must be unique"
+        )
 
     cf = ax_power.contourf(
         time,
-        np.log2(periods),
+        log2_periods,
         power_plot,
         levels=levels,
         cmap=style.cmap,
@@ -150,14 +191,18 @@ def plot_wavelet(
 
     # ------------------------------------------------------------------
     # significance contour
+    #
+    # Torrence & Compo convention:
+    #
+    # sig95 > 1 => significant
     # ------------------------------------------------------------------
 
     if style.show_significance:
 
         ax_power.contour(
             time,
-            np.log2(periods),
-            result.significance,
+            log2_periods,
+            result.sig95,
             levels=[1.0],
             colors=style.significance_color,
             linewidths=style.significance_linewidth,
@@ -183,12 +228,16 @@ def plot_wavelet(
         f"b) Wavelet Power Spectrum ({result.wavelet_name})"
     )
 
-    ax_power.set_ylabel("Period")
+    ax_power.set_ylabel(
+        "Period"
+    )
 
     apply_period_axis_format(
         ax=ax_power,
         periods=periods,
     )
+
+    ax_power.invert_yaxis()
 
     ax_power.grid(
         visible=style.show_grid,
@@ -210,46 +259,88 @@ def plot_wavelet(
         if style.use_log2_power:
 
             ticks = np.log2(
-                np.asarray(style.power_levels)
+                power_levels
             )
 
-            cbar.set_ticks(ticks)
+            cbar.set_ticks(
+                ticks
+            )
 
             cbar.set_ticklabels(
-                [str(v) for v in style.power_levels]
+                [
+                    str(v)
+                    for v in power_levels
+                ]
+            )
+
+            cbar.set_label(
+                "Power"
             )
 
     # ------------------------------------------------------------------
-    # global spectrum
+    # global wavelet spectrum
+    # ------------------------------------------------------------------
+
+    global_power = np.maximum(
+        result.global_power,
+        np.finfo(np.float64).eps,
+    )
+
+    ax_global.plot(
+        global_power,
+        log2_periods,
+        color=style.spectrum_color,
+        linewidth=style.linewidth,
+        label="Wavelet",
+    )
+
+    # ------------------------------------------------------------------
+    # Fourier spectrum
+    # ------------------------------------------------------------------
+
+    positive = (
+        result.frequencies > 0
+    )
+
+    fft_periods = (
+        1.0
+        / result.frequencies[
+            positive
+        ]
+    )
+
+    fft_power = np.maximum(
+        result.fft_power[
+            positive
+        ],
+        np.finfo(np.float64).eps,
+    )
+
+    fft_power = (
+        fft_power
+        / np.nanmax(fft_power)
+        * np.nanmax(global_power)
+    )
+
+    ax_global.plot(
+        fft_power,
+        np.log2(fft_periods),
+        color=style.fft_color,
+        linewidth=style.linewidth,
+        label="Fourier",
+    )
+
+    # ------------------------------------------------------------------
+    # global significance
     # ------------------------------------------------------------------
 
     ax_global.plot(
         result.global_significance,
-        np.log2(periods),
+        log2_periods,
         linestyle="--",
         color=style.significance_color,
-    )
-
-    # FFT spectrum
-    # plotted in period domain
-
-    positive = result.frequencies > 0
-
-    fft_periods = 1.0 / result.frequencies[positive]
-
-    ax_global.plot(
-        result.fft_power[positive],
-        np.log2(fft_periods),
-        color=style.fft_color,
-    )
-
-    # global wavelet spectrum
-
-    ax_global.plot(
-        result.global_power,
-        np.log2(periods),
-        color=style.spectrum_color,
-        linewidth=style.linewidth,
+        linewidth=style.significance_linewidth,
+        label="95% Significance",
     )
 
     ax_global.set_title(
@@ -257,11 +348,16 @@ def plot_wavelet(
     )
 
     if units:
+
         ax_global.set_xlabel(
             f"Power [{units}²]"
         )
+
     else:
-        ax_global.set_xlabel("Power")
+
+        ax_global.set_xlabel(
+            "Power"
+        )
 
     apply_period_axis_format(
         ax=ax_global,
@@ -279,12 +375,26 @@ def plot_wavelet(
     )
 
     # ------------------------------------------------------------------
+    # legend
+    # ------------------------------------------------------------------
+
+    ax_global.legend(
+        loc="best",
+        fontsize=style.fontsize * 0.85,
+        frameon=False,
+    )
+
+    # ------------------------------------------------------------------
     # scale averaged spectrum
     # ------------------------------------------------------------------
 
     if (
         show_scale_average
         and ax_scale is not None
+        and hasattr(
+            result,
+            "scale_average",
+        )
         and result.scale_average is not None
     ):
 
@@ -295,7 +405,14 @@ def plot_wavelet(
             linewidth=style.linewidth,
         )
 
-        if result.scale_average_significance is not None:
+        if (
+            hasattr(
+                result,
+                "scale_average_significance",
+            )
+            and result.scale_average_significance
+            is not None
+        ):
 
             ax_scale.axhline(
                 result.scale_average_significance,
@@ -307,7 +424,9 @@ def plot_wavelet(
             "d) Scale Averaged Power"
         )
 
-        ax_scale.set_xlabel("Time")
+        ax_scale.set_xlabel(
+            "Time"
+        )
 
         ax_scale.grid(
             visible=style.show_grid,
@@ -316,7 +435,9 @@ def plot_wavelet(
 
     else:
 
-        ax_power.set_xlabel("Time")
+        ax_power.set_xlabel(
+            "Time"
+        )
 
     # ------------------------------------------------------------------
     # cosmetics

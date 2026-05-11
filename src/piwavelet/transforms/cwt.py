@@ -22,6 +22,10 @@ from piwavelet.transforms.result import CWTResult
 from piwavelet.wavelets.base import BaseWavelet
 from piwavelet.wavelets.morlet import Morlet
 
+from piwavelet.statistics.wavelet_significance import (
+    wavelet_significance,
+)
+
 
 def cwt(
     signal: ArrayLike,
@@ -35,33 +39,6 @@ def cwt(
     """
     Continuous Wavelet Transform following
     Torrence & Compo (1998).
-
-    Parameters
-    ----------
-    signal
-        Input time series.
-
-    dt
-        Sampling interval.
-
-    dj
-        Scale resolution.
-
-    s0
-        Smallest wavelet scale.
-
-    J
-        Number of scales minus one.
-
-    wavelet
-        Mother wavelet.
-
-    time
-        Optional time coordinate vector.
-
-    Returns
-    -------
-    CWTResult
     """
 
     signal = validate_signal(signal)
@@ -71,52 +48,79 @@ def cwt(
 
     n0 = signal.size
 
+    # ------------------------------------------------------------------
+    # time vector
+    # ------------------------------------------------------------------
+
     if time is not None:
-        time = np.asarray(time, dtype=np.float64)
+
+        time = np.asarray(
+            time,
+            dtype=np.float64,
+        )
 
         if time.ndim != 1:
-            raise ValueError("time must be one-dimensional")
+            raise ValueError(
+                "time must be one-dimensional"
+            )
 
         if time.size != n0:
             raise ValueError(
-                "time and signal must have the same length"
+                "time and signal must "
+                "have the same length"
             )
 
     # ------------------------------------------------------------------
     # smallest scale
-    # Torrence & Compo (1998)
     # ------------------------------------------------------------------
 
     if s0 is None:
-        s0 = 2.0 * dt / wavelet.flambda()
+
+        s0 = (
+            2.0
+            * dt
+            / wavelet.flambda()
+        )
 
     # ------------------------------------------------------------------
     # number of scales
     # ------------------------------------------------------------------
 
     if J is None:
-        J = int(np.log2(n0 * dt / s0) / dj)
+
+        J = int(
+            np.log2(
+                n0 * dt / s0
+            )
+            / dj
+        )
 
     # ------------------------------------------------------------------
-    # fft padding
+    # FFT padding
     # ------------------------------------------------------------------
 
     nfft = compute_nfft(n0)
 
     # ------------------------------------------------------------------
-    # fft of signal
+    # FFT of signal
     # ------------------------------------------------------------------
 
-    signal_ft = np.fft.fft(signal, nfft)
+    signal_ft = np.fft.fft(
+        signal,
+        nfft,
+    )
 
+    # ------------------------------------------------------------------
     # angular frequencies
+    # ------------------------------------------------------------------
+
     omega = compute_angular_frequencies(
         nfft=nfft,
         dt=dt,
     )
 
     # ------------------------------------------------------------------
-    # scale grid
+    # scales
     # ------------------------------------------------------------------
 
     scales = compute_scales(
@@ -158,6 +162,51 @@ def cwt(
         )
 
     # ------------------------------------------------------------------
+    # truncate padded coefficients
+    # ------------------------------------------------------------------
+
+    coefficients = W[:, :n0]
+
+    # ------------------------------------------------------------------
+    # wavelet power spectrum
+    # ------------------------------------------------------------------
+
+    power = np.abs(
+        coefficients
+    ) ** 2
+
+    # ------------------------------------------------------------------
+    # significance
+    # ------------------------------------------------------------------
+
+    significance_result = wavelet_significance(
+        x=signal,
+        dt=dt,
+        scales=scales,
+        wavelet=wavelet,
+        significance_level=0.95,
+    )
+
+    significance = (
+        significance_result.significance
+    )
+
+    # ------------------------------------------------------------------
+    # normalized significance ratio
+    #
+    # Torrence & Compo convention:
+    #
+    # sig95 > 1 => significant
+    # ------------------------------------------------------------------
+
+    sig95 = (
+        power
+        / significance[:, np.newaxis]
+    )
+
+    significant = sig95 > 1.0
+
+    # ------------------------------------------------------------------
     # cone of influence
     # ------------------------------------------------------------------
 
@@ -168,12 +217,6 @@ def cwt(
     )
 
     # ------------------------------------------------------------------
-    # truncate padded coefficients
-    # ------------------------------------------------------------------
-
-    coefficients = W[:, :n0]
-
-    # ------------------------------------------------------------------
     # result
     # ------------------------------------------------------------------
 
@@ -181,10 +224,14 @@ def cwt(
         signal=signal,
         time=time,
         coefficients=coefficients,
+        power=power,
+        significance=significance,
+        sig95=sig95,
+        significant=significant,
         scales=scales,
         frequencies=frequencies,
         periods=periods,
-        fft=signal_ft,
+        fft=signal_ft[:n0],
         angular_frequencies=omega,
         coi=coi,
         dt=dt,

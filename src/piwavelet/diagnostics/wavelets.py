@@ -5,25 +5,17 @@ from dataclasses import dataclass
 import numpy as np
 from numpy.typing import NDArray
 
-from piwavelet.transforms.cwt import CWTResult
+from piwavelet.transforms.result import CWTResult
 
 
 @dataclass(slots=True)
 class WaveletDiagnostics:
     """
-    Derived diagnostics for classical wavelet analysis plots.
+    Derived diagnostics for classical wavelet analysis.
 
-    This object contains quantities derived from a CWTResult
-    that are commonly used in Torrence & Compo style figures.
-
-    It intentionally separates:
-
-        - raw transform output
-        - derived spectral diagnostics
-        - statistical significance
-
-    so that plotting does not depend directly on the
-    transform implementation.
+    This container stores quantities commonly used in
+    Torrence & Compo style visualizations while keeping
+    plotting decoupled from transform internals.
     """
 
     # ------------------------------------------------------------------
@@ -70,10 +62,13 @@ class WaveletDiagnostics:
 
     # ------------------------------------------------------------------
     # significance
-    # placeholders until proper statistical module exists
     # ------------------------------------------------------------------
 
     significance: NDArray[np.float64]
+
+    sig95: NDArray[np.float64]
+
+    significant: NDArray[np.bool_]
 
     global_significance: NDArray[np.float64]
 
@@ -91,7 +86,7 @@ def compute_wavelet_diagnostics(
     normalized_signal: NDArray[np.float64] | None = None,
 ) -> WaveletDiagnostics:
     """
-    Compute derived diagnostics from a Continuous Wavelet Transform.
+    Compute derived diagnostics from a CWTResult.
 
     Parameters
     ----------
@@ -104,9 +99,9 @@ def compute_wavelet_diagnostics(
         If omitted, uses result.signal.
 
     normalized_signal
-        Normalized signal used for plotting.
+        Signal normalized for visualization.
 
-        If omitted, signal is z-score normalized.
+        If omitted, z-score normalization is applied.
 
     Returns
     -------
@@ -131,7 +126,9 @@ def compute_wavelet_diagnostics(
 
         if std == 0.0:
 
-            normalized_signal = np.zeros_like(signal)
+            normalized_signal = np.zeros_like(
+                signal
+            )
 
         else:
 
@@ -150,12 +147,18 @@ def compute_wavelet_diagnostics(
 
     if result.time is not None:
 
-        time = result.time
+        time = np.asarray(
+            result.time,
+            dtype=np.float64,
+        )
 
     else:
 
         time = (
-            np.arange(result.n_original)
+            np.arange(
+                result.n_original,
+                dtype=np.float64,
+            )
             * result.dt
         )
 
@@ -163,35 +166,54 @@ def compute_wavelet_diagnostics(
     # wavelet power spectrum
     # ------------------------------------------------------------------
 
-    power = np.abs(
-        result.coefficients
-    ) ** 2
+    power = result.power
 
     # ------------------------------------------------------------------
     # global wavelet spectrum
+    #
     # Torrence & Compo:
     #
     # global_ws(scale) = mean_t(power)
     # ------------------------------------------------------------------
 
-    global_power = power.mean(axis=1)
-
-    # ------------------------------------------------------------------
-    # FFT spectrum
-    #
-    # interpolate FFT power onto wavelet frequencies
-    # for comparison in global spectrum panel
-    # ------------------------------------------------------------------
-
-    positive = result.fft_frequencies > 0
-
-    fft_frequencies = (
-        result.fft_frequencies[positive]
+    global_power = power.mean(
+        axis=1
     )
+
+    # ------------------------------------------------------------------
+    # FFT frequencies
+    #
+    # Reconstructed from stored FFT size
+    # to avoid padding inconsistencies.
+    # ------------------------------------------------------------------
+
+    fft_frequencies = np.fft.fftfreq(
+        result.fft.size,
+        d=result.dt,
+    )
+
+    positive = fft_frequencies > 0
+
+    fft_frequencies = fft_frequencies[
+        positive
+    ]
+
+    # ------------------------------------------------------------------
+    # FFT power spectrum
+    #
+    # normalized by original signal length
+    # ------------------------------------------------------------------
 
     fft_power_positive = (
-        np.abs(result.fft[positive]) ** 2
-    )
+        np.abs(
+            result.fft[positive]
+        ) ** 2
+    ) / result.n_original
+
+    # ------------------------------------------------------------------
+    # interpolate FFT spectrum onto
+    # wavelet frequencies
+    # ------------------------------------------------------------------
 
     fft_power = np.interp(
         result.frequencies,
@@ -202,21 +224,26 @@ def compute_wavelet_diagnostics(
     )
 
     # ------------------------------------------------------------------
-    # placeholder significance
-    #
-    # replaced later by:
-    #   statistics.significance.wavelet_significance()
+    # significance
     # ------------------------------------------------------------------
 
-    significance = np.ones_like(
-        power,
-        dtype=np.float64,
-    )
+    significance = result.significance
 
-    global_significance = np.ones_like(
-        result.periods,
-        dtype=np.float64,
-    )
+    sig95 = result.sig95
+
+    significant = result.significant
+
+    # ------------------------------------------------------------------
+    # global significance
+    #
+    # placeholder approximation:
+    # same scale-dependent threshold
+    #
+    # later:
+    # use sigma_test=1
+    # ------------------------------------------------------------------
+
+    global_significance = significance
 
     # ------------------------------------------------------------------
     # diagnostics container
@@ -235,6 +262,10 @@ def compute_wavelet_diagnostics(
         scales=result.scales,
         coi=result.coi,
         significance=significance,
+        sig95=sig95,
+        significant=significant,
         global_significance=global_significance,
-        wavelet_name=type(result.wavelet).__name__,
+        wavelet_name=type(
+            result.wavelet
+        ).__name__,
     )

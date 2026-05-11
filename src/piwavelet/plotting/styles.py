@@ -19,6 +19,10 @@ class WaveletPlotStyle:
 
     figsize: tuple[float, float] = (11.0, 8.0)
 
+    legend_fontsize: float = 10
+
+    fontsize: float = 10
+
     dpi: int = 120
 
     constrained_layout: bool = True
